@@ -127,7 +127,7 @@ function SheetBody({
               href={event.sourceUrl}
               target="_blank"
               rel="noreferrer"
-              className="border border-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em] hover:bg-rule/50"
+              className="press border border-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em]"
             >
               Official page ↗
             </a>
