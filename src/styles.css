@@ -344,3 +344,39 @@
   background-position: 48px 0;
   background-repeat: repeat-x;
 }
+
+/* Live (currently running) events: a muted 45° stripe field drifting left to
+   right, forever. Painted by a pseudo-element behind the label so the event's
+   own translucent background and the hour rules behind it stay readable.
+   Honours reduced-motion by freezing the pattern. */
+@utility live-stripes {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      45deg,
+      color-mix(in oklab, var(--spot) 12%, transparent) 0 6px,
+      transparent 6px 16px
+    );
+    background-size: 22.628px 22.628px; /* 16px * sqrt(2): one seamless period */
+    animation: live-stripes-drift 1.6s linear infinite;
+  }
+}
+
+@keyframes live-stripes-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 22.628px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-stripes::before {
+    animation: none;
+  }
+}

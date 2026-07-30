@@ -4,6 +4,7 @@ import {
   DAY_LENGTH_MIN,
   DAY_START_MIN,
   formatTime,
+  helsinkiMinutes,
   slotIndexFor,
 } from "@/lib/schedule/time";
 import type { Day, EventItem, Venue } from "@/lib/schedule/types";
@@ -124,6 +125,12 @@ export function ScheduleGrid({
                 venueColumn={colIdx}
                 lane={p.lane}
                 lanes={p.lanes}
+                live={
+                  showNow &&
+                  !!now &&
+                  helsinkiMinutes(event.start) <= now.minutes &&
+                  helsinkiMinutes(event.end) > now.minutes
+                }
                 onOpen={onOpen}
               />
             );

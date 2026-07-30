@@ -9,6 +9,8 @@ interface EventBlockProps {
   /** Sub-column lane from assignSubColumns (0 when alone). */
   lane: number;
   lanes: number;
+  /** True while the event is running right now — animates the stripe field. */
+  live: boolean;
   onOpen: (event: EventItem) => void;
 }
 
@@ -23,6 +25,7 @@ export function EventBlock({
   venueColumn,
   lane,
   lanes,
+  live,
   onOpen,
 }: EventBlockProps) {
   const style: CSSProperties = {
@@ -38,9 +41,10 @@ export function EventBlock({
     <button
       type="button"
       data-col={venueColumn + 1}
+      data-live={live ? "" : undefined}
       onClick={() => onOpen(event)}
       style={style}
-      className="relative z-10 block overflow-hidden border border-ink/45 bg-event px-1 pt-px text-left transition-colors duration-100 hover:bg-event-hover active:bg-event-active focus-visible:outline-2 focus-visible:outline-spot"
+      className={`relative z-10 block overflow-hidden border border-ink/45 bg-event px-1 pt-px text-left transition-colors duration-100 hover:bg-event-hover active:bg-event-active focus-visible:outline-2 focus-visible:outline-spot${live ? " live-stripes" : ""}`}
     >
       {/* Absolutely positioned so the label always hugs the start time —
           buttons vertically centre their content in every engine. */}
