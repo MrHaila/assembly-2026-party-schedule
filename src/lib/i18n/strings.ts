@@ -195,11 +195,21 @@ export function dayLabel(day: Day, language: Language): string {
     : `${name} ${ordinal(dayOfMonth)}`;
 }
 
-/** Compact tab label: "THU 30" / "TO 30". */
-export function dayShortLabel(day: Day, language: Language): string {
-  const dayOfMonth = Number(day.date.slice(8, 10));
-  return `${WEEKDAYS_SHORT[language][weekdayIndex(day)]} ${dayOfMonth}`;
+/**
+ * Weekday + date label for a raw ISO timestamp: "SATURDAY 1st" / "LAUANTAI 1.8.".
+ * Used where a bare "12:00–13:00" would be ambiguous (the detail sheet).
+ */
+export function isoDayLabel(iso: string, language: Language): string {
+  const date = iso.slice(0, 10);
+  const index = new Date(`${date}T12:00:00Z`).getUTCDay();
+  const dayOfMonth = Number(date.slice(8, 10));
+  const month = Number(date.slice(5, 7));
+  const name = WEEKDAYS[language][index].toUpperCase();
+  return language === "fi"
+    ? `${name} ${dayOfMonth}.${month}.`
+    : `${name} ${ordinal(dayOfMonth)}`;
 }
+
 
 /**
  * Departure-board countdown: "in 24 min" / "24 min kuluttua",
