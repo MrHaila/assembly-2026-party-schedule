@@ -9,7 +9,7 @@ import type { Day } from "@/lib/schedule/types";
 
 export interface Strings {
   appTagline: string;
-  scheduleDay: string;
+  pastEvent: string;
   allDay: string;
   otherLocations: string;
   now: string;
@@ -38,7 +38,7 @@ export interface Strings {
 
 const FI: Strings = {
   appTagline: "Assembly",
-  scheduleDay: "Ohjelmapäivä",
+  pastEvent: "Mennyt",
   allDay: "Koko päivän",
   otherLocations: "Muut sijainnit",
   now: "Nyt",
@@ -66,7 +66,7 @@ const FI: Strings = {
 
 const EN: Strings = {
   appTagline: "Assembly",
-  scheduleDay: "Schedule day",
+  pastEvent: "Past event",
   allDay: "All day",
   otherLocations: "Other locations",
   now: "Now",
