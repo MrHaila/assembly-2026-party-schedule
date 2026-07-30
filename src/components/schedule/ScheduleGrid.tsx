@@ -98,15 +98,22 @@ export function ScheduleGrid({
           const colEvents = sessions.filter(
             (e) => e.venueId === venue.slug || e.venueIdSecondary === venue.slug,
           );
-          return colEvents.map((event) => (
-            <EventBlock
-              key={`${venue.slug}-${event.id}`}
-              event={event}
-              venueColumn={colIdx}
-              siblings={colEvents}
-              onOpen={onOpen}
-            />
-          ));
+          const placements = new Map(
+            assignSubColumns(colEvents).map((p) => [p.id, p]),
+          );
+          return colEvents.map((event) => {
+            const p = placements.get(event.id)!;
+            return (
+              <EventBlock
+                key={`${venue.slug}-${event.id}`}
+                event={event}
+                venueColumn={colIdx}
+                lane={p.lane}
+                lanes={p.lanes}
+                onOpen={onOpen}
+              />
+            );
+          });
         })}
 
         {/* Moment markers — labelled rules across all columns */}
