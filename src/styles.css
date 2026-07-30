@@ -68,6 +68,8 @@
   --color-event: var(--event);
   --color-event-hover: var(--event-hover);
   --color-event-active: var(--event-active);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
   --font-listings: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow",
     sans-serif;
 }
@@ -89,6 +91,11 @@
   --event: oklch(0.985 0.01 98 / 0.84);
   --event-hover: oklch(1 0.008 98 / 0.92);
   --event-active: oklch(0.855 0.016 98 / 0.96);
+  /* Favourites: a second, warmer accent that never competes with the red
+     spot ink — gold reads as "mine" on newsprint (design-log #17). */
+  --gold: oklch(0.62 0.13 82);
+  --gold-soft: oklch(0.72 0.09 82);
+  --event-favourite: oklch(0.97 0.03 90 / 0.9);
   /* Sticky offset for the location header row: it parks directly under the
      sticky day heading, whose height is fixed on purpose (single line). */
   --day-head-h: 28px;
@@ -202,6 +209,46 @@
   &:active {
     background-color: color-mix(in oklab, var(--rule) 90%, var(--ink) 10%);
   }
+}
+
+/* Press contract for the favourite star: muted by default, gold once set.
+   Lives here so no component can invent its own gold. */
+@utility press-gold {
+  color: color-mix(in oklab, var(--ink-mid) 70%, transparent);
+  transition:
+    color 90ms linear,
+    background-color 90ms linear;
+
+  &:hover {
+    color: var(--gold-soft);
+    background-color: color-mix(in oklab, var(--gold) 16%, transparent);
+  }
+
+  &:active {
+    color: var(--gold);
+    background-color: color-mix(in oklab, var(--gold) 30%, transparent);
+  }
+
+  &[data-favourite] {
+    color: var(--gold);
+
+    &:hover {
+      color: var(--gold-soft);
+      background-color: color-mix(in oklab, var(--gold) 20%, transparent);
+    }
+
+    &:active {
+      color: var(--gold);
+      background-color: color-mix(in oklab, var(--gold) 34%, transparent);
+    }
+  }
+}
+
+/* Favourited grid block: gold outline + a warmer surface. */
+@utility event-favourite {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold) 45%, transparent);
+  background-color: var(--event-favourite);
 }
 
 /* Same contract on a reverse-video (ink) band. */
