@@ -55,6 +55,10 @@ export function ScheduleLog({
     const hourChanged =
       !prev || prev.start.slice(11, 13) !== event.start.slice(11, 13);
     const favourite = isFavourite(event.id);
+    const past =
+      !!now &&
+      (day.date < now.date ||
+        (day.date === now.date && dayMinutes(event.end) <= now.minutes));
     rows.push(
       <li
         key={event.id}
@@ -63,8 +67,9 @@ export function ScheduleLog({
         <button
           type="button"
           onClick={() => onOpen(event)}
-          className={`press flex min-h-[44px] w-full items-baseline gap-2.5 px-1 py-1.5 text-left${favourite ? " border-l-2 border-gold bg-event-favourite pl-1.5" : ""}`}
+          className={`press flex min-h-[44px] w-full items-baseline gap-2.5 px-1 py-1.5 text-left${favourite ? " border-l-2 border-gold bg-event-favourite pl-1.5" : ""}${past ? " opacity-45 saturate-50" : ""}`}
         >
+
           <span className="tnum w-11 shrink-0 text-[13px] font-bold">
             {formatTime(event.start)}
           </span>
