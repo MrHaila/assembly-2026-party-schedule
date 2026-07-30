@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 import { DayHeading } from "@/components/schedule/DayHeading";
 import { DetailSheet } from "@/components/schedule/DetailSheet";
-import { DayTabs } from "@/components/schedule/DayTabs";
+
 import { OtherVenues } from "@/components/schedule/OtherVenues";
 import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
 import { ScheduleLog } from "@/components/schedule/ScheduleLog";
