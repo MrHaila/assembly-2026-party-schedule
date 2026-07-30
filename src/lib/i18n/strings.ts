@@ -14,9 +14,8 @@ export interface Strings {
   otherLocations: string;
   now: string;
   estimated: string;
-  dataAsOf: string;
+  lastUpdated: string;
   events: string;
-  source: string;
   close: string;
   time: string;
   location: string;
@@ -35,9 +34,8 @@ const FI: Strings = {
   otherLocations: "Muut sijainnit",
   now: "Nyt",
   estimated: "arvio",
-  dataAsOf: "Tiedot",
+  lastUpdated: "Päivitetty viimeksi",
   events: "tapahtumaa",
-  source: "Lähde",
   close: "Sulje",
   time: "Aika",
   location: "Paikka",
@@ -56,9 +54,8 @@ const EN: Strings = {
   otherLocations: "Other locations",
   now: "Now",
   estimated: "estimated",
-  dataAsOf: "Data as of",
+  lastUpdated: "Last updated",
   events: "events",
-  source: "Source",
   close: "Close",
   time: "Time",
   location: "Location",
@@ -74,6 +71,61 @@ const DICTIONARIES: Record<Language, Strings> = { fi: FI, en: EN };
 
 export function stringsFor(language: Language): Strings {
   return DICTIONARIES[language];
+}
+
+const RELATIVE_UNITS: Record<
+  Language,
+  {
+    second: [string, string];
+    minute: [string, string];
+    hour: [string, string];
+    day: [string, string];
+    suffix: string;
+    justNow: string;
+  }
+> = {
+  fi: {
+    second: ["sekunti", "sekuntia"],
+    minute: ["minuutti", "minuuttia"],
+    hour: ["tunti", "tuntia"],
+    day: ["päivä", "päivää"],
+    suffix: "sitten",
+    justNow: "juuri nyt",
+  },
+  en: {
+    second: ["second", "seconds"],
+    minute: ["minute", "minutes"],
+    hour: ["hour", "hours"],
+    day: ["day", "days"],
+    suffix: "ago",
+    justNow: "just now",
+  },
+};
+
+function quantity(n: number, [singular, plural]: [string, string]): string {
+  return `${n} ${n === 1 ? singular : plural}`;
+}
+
+/** "last updated 23 seconds ago" / "päivitetty viimeksi 23 sekuntia sitten". */
+export function formatRelativeTime(
+  language: Language,
+  iso: string,
+  now: Date = new Date(),
+): string {
+  const units = RELATIVE_UNITS[language];
+  const seconds = Math.max(
+    0,
+    Math.floor((now.getTime() - new Date(iso).getTime()) / 1_000),
+  );
+  if (seconds < 5) return units.justNow;
+  if (seconds < 60) return `${quantity(seconds, units.second)} ${units.suffix}`;
+  if (seconds < 3_600) {
+    return `${quantity(Math.floor(seconds / 60), units.minute)} ${units.suffix}`;
+  }
+  if (seconds < 86_400) {
+    return `${quantity(Math.floor(seconds / 3_600), units.hour)} ${units.suffix}`;
+  }
+  return `${quantity(Math.floor(seconds / 86_400), units.day)} ${units.suffix}`;
 }
 
 const WEEKDAY_IDS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;

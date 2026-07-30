@@ -7,7 +7,7 @@ import {
   readStoredLanguage,
   storeLanguage,
 } from "@/lib/i18n/language";
-import { dayLabel, dayShortLabel, stringsFor } from "@/lib/i18n/strings";
+import { dayLabel, dayShortLabel, formatRelativeTime, stringsFor } from "@/lib/i18n/strings";
 import type { Day } from "@/lib/schedule/types";
 
 function fakeStorage(initial: Record<string, string> = {}) {
@@ -77,6 +77,28 @@ describe("day labels", () => {
     expect(dayLabel(FRIDAY, "fi")).toBe("PERJANTAI 31.7.");
     expect(dayShortLabel(FRIDAY, "en")).toBe("FRI 31");
     expect(dayShortLabel(FRIDAY, "fi")).toBe("PE 31");
+  });
+});
+
+describe("relative time", () => {
+  it("shows seconds, minutes, hours and days in both languages", () => {
+    const now = new Date("2026-07-30T12:00:00+03:00");
+    expect(formatRelativeTime("en", "2026-07-30T11:59:50+03:00", now)).toBe("10 seconds ago");
+    expect(formatRelativeTime("fi", "2026-07-30T11:59:50+03:00", now)).toBe("10 sekuntia sitten");
+    expect(formatRelativeTime("en", "2026-07-30T11:58:00+03:00", now)).toBe("2 minutes ago");
+    expect(formatRelativeTime("fi", "2026-07-30T11:58:00+03:00", now)).toBe("2 minuuttia sitten");
+    expect(formatRelativeTime("en", "2026-07-30T10:00:00+03:00", now)).toBe("2 hours ago");
+    expect(formatRelativeTime("fi", "2026-07-30T10:00:00+03:00", now)).toBe("2 tuntia sitten");
+    expect(formatRelativeTime("en", "2026-07-28T12:00:00+03:00", now)).toBe("2 days ago");
+    expect(formatRelativeTime("fi", "2026-07-28T12:00:00+03:00", now)).toBe("2 päivää sitten");
+  });
+
+  it("uses singular forms and treats very recent times as just now", () => {
+    const now = new Date("2026-07-30T12:00:00+03:00");
+    expect(formatRelativeTime("en", "2026-07-30T11:59:59+03:00", now)).toBe("just now");
+    expect(formatRelativeTime("fi", "2026-07-30T11:59:59+03:00", now)).toBe("juuri nyt");
+    expect(formatRelativeTime("en", "2026-07-30T11:59:00+03:00", now)).toBe("1 minute ago");
+    expect(formatRelativeTime("fi", "2026-07-30T11:59:00+03:00", now)).toBe("1 minuutti sitten");
   });
 });
 

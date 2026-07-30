@@ -210,3 +210,10 @@ stripe field on a `::before` at `z-index:-1`, drifting left→right on an endles
 1.6s linear loop (one background-size period = 16px × √2, so the loop is
 seamless). It sits above the translucent event background but below the label,
 and freezes under `prefers-reduced-motion`.
+
+### 16. Footer shows relative "last updated" time
+Footer copy changed from "Data as of YYYY-MM-DD HH:mm · Source assembly.org" to
+"Last updated N seconds/minutes/hours/days ago · N events". The value is computed
+client-side and ticks once a second, with a placeholder dash on first render to
+avoid hydration mismatch. Both FI and EN use idiomatic pluralization.
+

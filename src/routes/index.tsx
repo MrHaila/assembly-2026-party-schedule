@@ -12,9 +12,11 @@ import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
 import { ScheduleLog } from "@/components/schedule/ScheduleLog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHelsinkiNow } from "@/hooks/use-helsinki-now";
+import { useNow } from "@/hooks/use-now";
 import { useLanguage } from "@/hooks/use-language";
 import { fetchLiveSchedule, getSnapshotSchedule } from "@/lib/api/assembly-graphql";
-import { formatTime, isoDate } from "@/lib/schedule/time";
+import { formatRelativeTime } from "@/lib/i18n/strings";
+import { isoDate } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
 
 /** Most columns the responsive CSS can ever show (see .schedule-cols). */
@@ -59,10 +61,11 @@ function AssyguidePage() {
     retry: 1,
   });
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const now = useHelsinkiNow();
+  const nowFooter = useNow();
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<EventItem | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -233,9 +236,11 @@ function AssyguidePage() {
       </div>
 
       <footer className="border-t border-rule bg-paper px-3 py-1 text-[10px] uppercase tracking-[0.05em] text-ink-mid">
-        {t.dataAsOf} {isoDate(schedule.fetchedAt)}{" "}
-        {formatTime(schedule.fetchedAt)} · {schedule.events.length} {t.events} ·{" "}
-        {t.source} assembly.org
+        {t.lastUpdated}{" "}
+        {nowFooter
+          ? formatRelativeTime(language, schedule.fetchedAt, nowFooter)
+          : "–"}{" "}
+        · {schedule.events.length} {t.events}
       </footer>
 
       <DetailSheet
