@@ -8,8 +8,12 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "lint": "eslint .",
-    "format": "prettier --write ."
+    "lint": "oxlint",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:smoke": "RUN_API_SMOKE=1 vitest run tests/smoke.api.test.ts",
+    "check": "oxlint && vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
