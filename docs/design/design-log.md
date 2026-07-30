@@ -217,3 +217,19 @@ Footer copy changed from "Data as of YYYY-MM-DD HH:mm · Source assembly.org" to
 client-side and ticks once a second, with a placeholder dash on first render to
 avoid hydration mismatch. Both FI and EN use idiomatic pluralization.
 
+
+## 17 — Data-driven day windows, 05:00 rollover
+
+The grid used to hardcode 10:00–23:00 for every day. Two problems: quiet days
+(Sunday ends early) wasted a third of the page, and anything after midnight was
+clamped into the wrong day.
+
+- `scheduleDate()` / `dayMinutes()` / `toScheduleTime()` in `time.ts` move the
+  day boundary to 05:00 — a Friday-night set at 01:30 stays on Friday, as
+  minute 1530 rather than 90.
+- `computeDayWindow()` derives each day's visible range from its own timed
+  events (ongoing/all-day items excluded), snapped out to whole hours, falling
+  back to 10:00–23:00 for an empty day.
+- The grid row count is now the `--slots` custom property set per day;
+  `.schedule-grid` reads `repeat(var(--slots, 156), var(--slot-h))`.
+- Hour labels come from `formatDayMinutes()`, which wraps 24h+ back to 00–04.
