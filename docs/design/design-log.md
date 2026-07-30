@@ -190,3 +190,6 @@ FI and the stored value is applied in an effect to avoid hydration mismatch.
 Event *titles* are not localized — the API's occurrence title is the specific
 one, while the program title is a generic umbrella; only excerpts have real
 FI/EN variants (`excerptFi` / `excerptEn`).
+
+### 11b. Event blocks get a full border
+Event blocks now use a 1px border on all four sides (`border-ink/45`) instead of only a top rule, so adjacent/side-by-side events in the same location read as distinct cards.

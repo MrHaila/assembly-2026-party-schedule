@@ -40,7 +40,7 @@ export function EventBlock({
       data-col={venueColumn + 1}
       onClick={() => onOpen(event)}
       style={style}
-      className="relative z-10 block overflow-hidden border-t border-ink/60 bg-event px-1 pt-px text-left transition-colors duration-100 hover:bg-event-hover active:bg-event-active focus-visible:outline-2 focus-visible:outline-spot"
+      className="relative z-10 block overflow-hidden border border-ink/45 bg-event px-1 pt-px text-left transition-colors duration-100 hover:bg-event-hover active:bg-event-active focus-visible:outline-2 focus-visible:outline-spot"
     >
       {/* Absolutely positioned so the label always hugs the start time —
           buttons vertically centre their content in every engine. */}
