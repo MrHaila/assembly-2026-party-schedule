@@ -121,7 +121,7 @@ function normalizeEvent(event: RawEvent): EventItem {
     streamUrls: event.streamUrls ?? [],
     programId: event.programId ?? undefined,
     excerpt: stripHtml(translation?.excerpt || program?.excerpt || "") || undefined,
-    sourceUrl: program ? `${SOURCE_BASE}${program.uri}` : undefined,
+    sourceUrl: program ? programUrl(program.uri) : undefined,
     modified: event.modified,
   };
 }
