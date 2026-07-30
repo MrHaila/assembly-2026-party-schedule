@@ -64,7 +64,8 @@ export function ScheduleGrid({
       </div>
 
       <div className="schedule-grid relative border-b border-rule">
-        {/* Sticky time gutter spanning every row */}
+        {/* Sticky time gutter spanning every row. The hour rules paint over
+            it, so the hairline reads all the way to the page edge. */}
         <div
           className="sticky left-0 z-20 border-r border-rule bg-paper"
           style={{ gridColumn: 1, gridRow: "1 / -1" }}
@@ -72,24 +73,25 @@ export function ScheduleGrid({
           {HOURS.map((h) => (
             <span
               key={h}
-              className="tnum absolute right-1 text-[11px] font-semibold leading-none tracking-[0.04em] text-ink-mid"
+              className="tnum absolute right-1 z-30 text-[11px] font-semibold leading-none tracking-[0.04em] text-ink-mid"
               style={{
-                top: `calc(${((h * 60 - DAY_START_MIN) / DAY_LENGTH_MIN) * 100}% - 6px)`,
+                top: `calc(${((h * 60 - DAY_START_MIN) / DAY_LENGTH_MIN) * 100}% + 3px)`,
               }}
             >
-              {h}
+              {String(h).padStart(2, "0")}:00
             </span>
           ))}
         </div>
 
-        {/* Hour rules — heavier rule at the hour, none between (M1) */}
-        {HOURS.slice(1).map((h) => (
+        {/* Hour rules — heavier rule at the hour, none between (M1).
+            They start at column 1 so the hour reads across the gutter too. */}
+        {HOURS.map((h) => (
           <div
             key={h}
             aria-hidden
-            className="pointer-events-none self-start border-t border-rule"
+            className="pointer-events-none relative z-20 self-start border-t border-rule"
             style={{
-              gridColumn: "2 / -1",
+              gridColumn: "1 / -1",
               gridRow: (h * 60 - DAY_START_MIN) / 5 + 1,
             }}
           />
