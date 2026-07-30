@@ -29,9 +29,9 @@ interface LanguageContextValue {
  */
 const CONTEXT_KEY = "__assyguide_language_context__";
 const globalStore = globalThis as typeof globalThis & {
-  [CONTEXT_KEY]?: React.Context<LanguageContextValue | null>;
+  [CONTEXT_KEY]?: Context<LanguageContextValue | null>;
 };
-const LanguageContext: React.Context<LanguageContextValue | null> =
+const LanguageContext: Context<LanguageContextValue | null> =
   globalStore[CONTEXT_KEY] ??
   (globalStore[CONTEXT_KEY] = createContext<LanguageContextValue | null>(null));
 
