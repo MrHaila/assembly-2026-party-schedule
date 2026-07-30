@@ -104,33 +104,84 @@ function AssyguidePage() {
   const gridVenues = schedule.venues.slice(0, MAX_GRID_COLUMNS);
   const otherVenues = schedule.venues.slice(MAX_GRID_COLUMNS);
 
-  // First paint lands on "now", placed ~20% down the viewport so a little
-  // past stays visible above what is coming up.
+  // Initial landing: put the timeline at "now minus one hour". This retries
+  // across a few animation frames so it survives hydration, the live data
+  // swap and layout settling — whichever renders the now-marker last wins.
+  // Outside the event weekend it clamps to the top or bottom of the list.
   const landed = useRef(false);
   useEffect(() => {
     if (landed.current) return;
-    const root = scrollRef.current;
-    if (!root) return;
+    if (!now) return;
 
-    const marker = root.querySelector<HTMLElement>("[data-now-marker]");
-    if (marker) {
-      landed.current = true;
-      root.scrollTop =
-        root.scrollTop + marker.getBoundingClientRect().top -
-        root.getBoundingClientRect().top - root.clientHeight * 0.2;
-      return;
-    }
+    let raf = 0;
+    const deadline = Date.now() + 4000;
 
-    const target = schedule.days.find((d) => d.date === now?.date);
-    if (!target) return;
-    landed.current = true;
-    const el = root.querySelector<HTMLElement>(`[data-day-id="${target.id}"]`);
-    if (el) {
-      root.scrollTop =
-        root.scrollTop + el.getBoundingClientRect().top -
+    const attempt = () => {
+      const root = scrollRef.current;
+      if (!root) {
+        raf = requestAnimationFrame(attempt);
+        return;
+      }
+
+      const offsetOf = (el: HTMLElement) =>
+        root.scrollTop +
+        el.getBoundingClientRect().top -
         root.getBoundingClientRect().top;
-    }
-  }, [schedule.days, now?.date]);
+
+      const marker = root.querySelector<HTMLElement>("[data-now-marker]");
+      if (marker) {
+        // One hour in pixels, derived from the grid's own time scale when we
+        // are in the grid projection; the list has no proportional axis, so
+        // it falls back to a fifth of the viewport.
+        const grid = marker.closest<HTMLElement>(".schedule-grid");
+        let hourPx = root.clientHeight * 0.2;
+        if (grid) {
+          const slots = Number(
+            getComputedStyle(grid).getPropertyValue("--slots"),
+          );
+          if (slots > 0) hourPx = (grid.clientHeight / (slots * 5)) * 60;
+        }
+        landed.current = true;
+        root.scrollTop = Math.max(0, offsetOf(marker) - hourPx);
+        return;
+      }
+
+      // No now-marker: either before or after the weekend, or the day is not
+      // painted yet. Only settle once the days are actually in the DOM.
+      const dayEls = root.querySelectorAll<HTMLElement>("[data-day-id]");
+      if (dayEls.length) {
+        const target = schedule.days.find((d) => d.date === now.date);
+        if (target) {
+          const el = root.querySelector<HTMLElement>(
+            `[data-day-id="${target.id}"]`,
+          );
+          if (el) {
+            landed.current = true;
+            root.scrollTop = Math.max(0, offsetOf(el));
+            return;
+          }
+        }
+        const last = schedule.days.at(-1);
+        if (last && now.date > last.date) {
+          landed.current = true;
+          root.scrollTop = root.scrollHeight;
+          return;
+        }
+        const first = schedule.days[0];
+        if (first && now.date < first.date) {
+          landed.current = true;
+          root.scrollTop = 0;
+          return;
+        }
+      }
+
+      if (Date.now() < deadline) raf = requestAnimationFrame(attempt);
+    };
+
+    raf = requestAnimationFrame(attempt);
+    return () => cancelAnimationFrame(raf);
+  }, [schedule.days, now, isMobile]);
+
 
 
   return (
