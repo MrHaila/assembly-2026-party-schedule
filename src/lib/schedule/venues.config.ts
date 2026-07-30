@@ -1,11 +1,15 @@
 /**
- * Editorial venue configuration — hand-owned, never derived from the API.
+ * Editorial location configuration — hand-owned, never derived from the API.
  *
  * The API ships no usable presentation data: `locations[].priority` is null
- * on all 14 venues, one venue colour is the string "red", three are null.
+ * on all 14 locations, one colour is the string "red", three are null.
  * Rule of thumb (docs/design/data-model.md): trust the API for facts,
- * never for presentation. Order, short names and grid/other tiering are
- * editorial decisions and live here.
+ * never for presentation. Order, short names, priority and grid/other
+ * tiering are editorial decisions and live here.
+ *
+ * `priority` (lower = further left) pins headline locations ahead of the
+ * event-count ranking. Only set it for locations that must never slide
+ * right; leave it undefined for everything ranked purely by activity.
  *
  * `scene-stage` is the demoscene/seminar stage, sponsor-renamed
  * "Genelec Stage" — the slug is the stable key, the name is not.
@@ -16,12 +20,14 @@ export interface VenueConfigEntry {
   slug: string;
   short: string;
   order: number;
+  /** Pinned column position; undefined = ranked by event count. */
+  priority?: number;
   tier: VenueTier;
 }
 
 export const VENUE_CONFIG: readonly VenueConfigEntry[] = [
-  { slug: "main-stage", short: "MAIN", order: 1, tier: "grid" },
-  { slug: "scene-stage", short: "GENELEC", order: 2, tier: "grid" },
+  { slug: "main-stage", short: "MAIN", order: 1, priority: 1, tier: "grid" },
+  { slug: "scene-stage", short: "GENELEC", order: 2, priority: 2, tier: "grid" },
   { slug: "expo-stage", short: "EXPO ST", order: 3, tier: "grid" },
   { slug: "red-bull-gaming-sphere", short: "RED BULL", order: 4, tier: "grid" },
   { slug: "assygames", short: "ASSYGAMES", order: 5, tier: "grid" },
