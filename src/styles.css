@@ -70,6 +70,8 @@
   --color-event-active: var(--event-active);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
+  --color-event-favourite: var(--event-favourite);
+
   --font-listings: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow",
     sans-serif;
 }
@@ -95,7 +97,10 @@
      spot ink — gold reads as "mine" on newsprint (design-log #17). */
   --gold: oklch(0.62 0.13 82);
   --gold-soft: oklch(0.72 0.09 82);
-  --event-favourite: oklch(0.97 0.03 90 / 0.9);
+  /* One faint gold wash shared by every favourited surface: grid block,
+     mobile row, run-on list entry. */
+  --event-favourite: color-mix(in oklab, var(--gold) 14%, var(--paper));
+
   /* Sticky offset for the location header row: it parks directly under the
      sticky day heading, whose height is fixed on purpose (single line). */
   --day-head-h: 28px;
