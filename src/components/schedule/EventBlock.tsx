@@ -9,6 +9,8 @@ interface EventBlockProps {
   /** Sub-column lane from assignSubColumns (0 when alone). */
   lane: number;
   lanes: number;
+  /** True while the event is running right now — animates the stripe field. */
+  live: boolean;
   onOpen: (event: EventItem) => void;
 }
 
