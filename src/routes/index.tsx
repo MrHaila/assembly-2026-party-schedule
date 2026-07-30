@@ -27,9 +27,7 @@ import type { EventItem } from "@/lib/schedule/types";
 const MAX_GRID_COLUMNS = 8;
 
 export const Route = createFileRoute("/")({
-  validateSearch: (search) => ({
-    day: typeof search.day === "string" ? search.day : undefined,
-  }),
+
   head: () => ({
     meta: [
       { title: "Assembly Schedule" },
