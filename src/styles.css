@@ -2,7 +2,19 @@
 @source "../src";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "Departure Mono";
+  src: url("/__l5e/assets-v1/3f42783b-ecd9-47aa-a61b-1993d43f84f3/DepartureMono-Regular.woff2")
+      format("woff2"),
+    url("/__l5e/assets-v1/4a32bd34-3baf-4aca-a62a-e2b1fa2364dc/DepartureMono-Regular.woff")
+      format("woff");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
+
 
 /*
  * Design system definition.
@@ -68,8 +80,12 @@
   --color-event: var(--event);
   --color-event-hover: var(--event-hover);
   --color-event-active: var(--event-active);
-  --font-listings: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow",
-    sans-serif;
+  /* Departure Mono — pixel-grid monospace (design-log #17). */
+  --font-listings: "Departure Mono", ui-monospace, "SFMono-Regular", Menlo,
+    monospace;
+  --font-sans: "Departure Mono", ui-monospace, monospace;
+  --font-mono: "Departure Mono", ui-monospace, monospace;
+
 }
 
 :root {
