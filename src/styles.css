@@ -244,12 +244,15 @@
   }
 }
 
-/* Favourited grid block: gold outline + a warmer surface. */
+/* Favourited block: faint gold wash + one prominent gold edge on the left.
+   Same wash value the list rows use, so the two projections read alike.
+   Also retints the live stripe field from neutral grey to gold. */
 @utility event-favourite {
-  border-color: var(--gold);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold) 45%, transparent);
-  background-color: var(--event-favourite);
+  border-left: 3px solid var(--gold);
+  background-color: color-mix(in oklab, var(--gold) 10%, var(--event));
+  --stripe-color: color-mix(in oklab, var(--gold) 34%, transparent);
 }
+
 
 /* Same contract on a reverse-video (ink) band. */
 @utility press-invert {
