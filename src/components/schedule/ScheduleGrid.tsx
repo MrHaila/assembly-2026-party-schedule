@@ -64,34 +64,44 @@ export function ScheduleGrid({
       </div>
 
       <div className="schedule-grid relative border-b border-rule">
-        {/* Sticky time gutter spanning every row. The hour rules paint over
-            it, so the hairline reads all the way to the page edge. */}
+        {/* Sticky time gutter spanning every row. It draws its own hour
+            ticks, so the hairline still reads across to the page edge even
+            though the rules over the columns sit BEHIND the event blocks. */}
         <div
           className="sticky left-0 z-20 border-r border-rule bg-paper"
           style={{ gridColumn: 1, gridRow: "1 / -1" }}
         >
           {HOURS.map((h) => (
-            <span
-              key={h}
-              className="tnum absolute right-1 z-30 text-[11px] font-semibold leading-none tracking-[0.04em] text-ink-mid"
-              style={{
-                top: `calc(${((h * 60 - DAY_START_MIN) / DAY_LENGTH_MIN) * 100}% + 3px)`,
-              }}
-            >
-              {String(h).padStart(2, "0")}:00
-            </span>
+            <div key={h}>
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 border-t border-rule"
+                style={{
+                  top: `${((h * 60 - DAY_START_MIN) / DAY_LENGTH_MIN) * 100}%`,
+                }}
+              />
+              <span
+                className="tnum absolute right-1 text-[11px] font-semibold leading-none tracking-[0.04em] text-ink-mid"
+                style={{
+                  top: `calc(${((h * 60 - DAY_START_MIN) / DAY_LENGTH_MIN) * 100}% + 3px)`,
+                }}
+              >
+                {String(h).padStart(2, "0")}:00
+              </span>
+            </div>
           ))}
         </div>
 
-        {/* Hour rules — heavier rule at the hour, none between (M1).
-            They start at column 1 so the hour reads across the gutter too. */}
+        {/* Hour rules over the location columns — heavier rule at the hour,
+            none between (M1). z-0 puts them UNDER the event blocks, whose
+            translucent surface mutes the line like frosted glass. */}
         {HOURS.map((h) => (
           <div
             key={h}
             aria-hidden
-            className="pointer-events-none relative z-20 self-start border-t border-rule"
+            className="pointer-events-none z-0 self-start border-t border-rule"
             style={{
-              gridColumn: "1 / -1",
+              gridColumn: "2 / -1",
               gridRow: (h * 60 - DAY_START_MIN) / 5 + 1,
             }}
           />

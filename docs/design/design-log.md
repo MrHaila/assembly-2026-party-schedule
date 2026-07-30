@@ -144,3 +144,10 @@ ship both, and titles are decoded too.
 - Event block labels are absolutely positioned at the block's top edge:
   buttons vertically centre their content in every engine, and neither
   flex nor `align-content` reliably beats that UA behaviour.
+
+## 9 — Hour rules behind the glass
+
+Hour hairlines over the location columns render at `z-0`, under the event
+blocks; the block's translucent surface (`--event`, alpha 0.84) mutes the
+line instead of the line cutting across the block. The sticky time gutter
+draws its own hour ticks so the hairline still reaches the page edge.
