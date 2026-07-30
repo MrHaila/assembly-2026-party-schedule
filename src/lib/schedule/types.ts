@@ -38,8 +38,10 @@ export interface EventItem {
   streamUrls: string[];
   /** WPGraphQL global ID (opaque base64 string — NOT numeric). */
   programId?: string;
-  /** Program excerpt, EN preferred, HTML stripped. */
-  excerpt?: string;
+  /** Finnish program excerpt, HTML stripped. */
+  excerptFi?: string;
+  /** English program excerpt, HTML stripped. Absent for FI-only programs. */
+  excerptEn?: string;
   /** Absolute link back to the official program page. */
   sourceUrl?: string;
   /** Helsinki-local timestamp without offset, as the API ships it. */
