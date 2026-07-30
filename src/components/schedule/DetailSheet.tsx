@@ -64,6 +64,14 @@ function SheetBody({
     ? venueById.get(event.venueIdSecondary)
     : undefined;
 
+  // Relative time is client-only (useNow returns null on the server), so the
+  // countdown / past badge simply appear after hydration.
+  const now = useNow(30_000);
+  const minutesUntilStart = now
+    ? (new Date(event.start).getTime() - now.getTime()) / 60_000
+    : null;
+  const isPast = now ? new Date(event.end).getTime() <= now.getTime() : false;
+
   return (
     <div>
       <div className="flex items-start justify-between gap-3">
@@ -74,7 +82,13 @@ function SheetBody({
               FI
             </span>
           )}
+          {isPast && (
+            <span className="ml-2 border border-ink-mid/60 bg-ink/10 px-1 align-middle text-[10px] font-bold uppercase tracking-[0.06em] text-ink-mid">
+              {t.pastEvent}
+            </span>
+          )}
         </Dialog.Title>
+
         <ActionButton tone="outline" onClick={onClose} label={t.close}>
           <span aria-hidden>✕</span>
         </ActionButton>
