@@ -145,14 +145,13 @@ function AssyguidePage() {
   return (
     <div className="flex h-dvh flex-col">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-ink px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
-            Assyguide
+        <div className="flex min-w-0 items-center gap-2">
+          <AssemblyMark size={24} />
+          <h1 className="truncate text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
+            Assembly Summer '26
           </h1>
-          <p className="mt-0.5 truncate text-[11px] uppercase tracking-[0.06em] text-ink-mid">
-            Assembly {schedule.eventTitle} · {schedule.eventLocation}
-          </p>
         </div>
+
         <div className="flex items-center gap-2">
           <DayTabs
             days={schedule.days}
