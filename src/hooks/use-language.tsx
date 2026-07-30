@@ -21,7 +21,18 @@ interface LanguageContextValue {
   t: Strings;
 }
 
-const LanguageContext = createContext<LanguageContextValue | null>(null);
+/**
+ * Cached on globalThis so hot-module-replacement (or a duplicated module
+ * instance across route-split chunks) can never create two distinct contexts,
+ * which would make consumers throw "must be used inside <LanguageProvider>".
+ */
+const CONTEXT_KEY = "__assyguide_language_context__";
+const globalStore = globalThis as typeof globalThis & {
+  [CONTEXT_KEY]?: React.Context<LanguageContextValue | null>;
+};
+const LanguageContext: React.Context<LanguageContextValue | null> =
+  globalStore[CONTEXT_KEY] ??
+  (globalStore[CONTEXT_KEY] = createContext<LanguageContextValue | null>(null));
 
 /**
  * SSR and the first client paint always render DEFAULT_LANGUAGE (fi), then the
