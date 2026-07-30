@@ -10,12 +10,15 @@ import { DayTabs } from "@/components/schedule/DayTabs";
 import { OtherVenues } from "@/components/schedule/OtherVenues";
 import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
 import { ScheduleLog } from "@/components/schedule/ScheduleLog";
+import { NextUp } from "@/components/schedule/NextUp";
+import { useFavourites } from "@/hooks/use-favourites";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHelsinkiNow } from "@/hooks/use-helsinki-now";
 import { useNow } from "@/hooks/use-now";
 import { useLanguage } from "@/hooks/use-language";
 import { fetchLiveSchedule, getSnapshotSchedule } from "@/lib/api/assembly-graphql";
 import { formatRelativeTime } from "@/lib/i18n/strings";
+import { nextUpFavourites } from "@/lib/schedule/favourites";
 import { scheduleDate, toScheduleTime } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
 
@@ -72,6 +75,15 @@ function AssyguidePage() {
     [wallNow],
   );
   const nowFooter = useNow();
+  const { favourites } = useFavourites();
+  // Departure board: the next favourites still running or yet to start.
+  const nextUp = useMemo(
+    () =>
+      nowFooter
+        ? nextUpFavourites(schedule.events, favourites, nowFooter)
+        : [],
+    [schedule.events, favourites, nowFooter],
+  );
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<EventItem | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -188,6 +200,13 @@ function AssyguidePage() {
           </h1>
         </div>
 
+        <NextUp
+          entries={nextUp}
+          venueById={venueById}
+          variant="header"
+          onOpen={setSelected}
+        />
+
         <div className="flex items-center gap-2">
           <DayTabs
             days={schedule.days}
@@ -197,6 +216,15 @@ function AssyguidePage() {
           <LanguageToggle />
         </div>
       </header>
+
+      {isMobile && (
+        <NextUp
+          entries={nextUp}
+          venueById={venueById}
+          variant="strip"
+          onOpen={setSelected}
+        />
+      )}
 
       <div
         ref={scrollRef}
