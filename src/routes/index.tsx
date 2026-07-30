@@ -88,7 +88,7 @@ function AssyguidePage() {
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<EventItem | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [focusedDay, setFocusedDay] = useState(schedule.days[0].id);
+
 
   const eventsByDay = useMemo(() => {
     const map = new Map<string, EventItem[]>();
