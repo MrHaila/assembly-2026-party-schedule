@@ -233,3 +233,24 @@ clamped into the wrong day.
 - The grid row count is now the `--slots` custom property set per day;
   `.schedule-grid` reads `repeat(var(--slots, 156), var(--slot-h))`.
 - Hour labels come from `formatDayMinutes()`, which wraps 24h+ back to 00–04.
+
+
+## 18 — Favourites and the departure board
+
+A second accent joins the palette: gold (`--gold`) for "mine", kept clearly
+apart from the red spot ink that means "now". Rules:
+
+- One control only — `FavouriteStar` in three fixed sizes (`grid`, `inline`,
+  `action`). No surface may draw its own star or its own gold.
+- Grid blocks reveal a muted star on hover/focus; once starred the star stays
+  visible and the block takes the `event-favourite` outline + warmer surface.
+- Touch has no hover, so the mobile list favourites through the detail sheet's
+  labelled star button, and starred rows carry a gold left rule and a ★ glyph.
+- State lives in `FavouritesProvider` over the pure helpers in
+  `lib/schedule/favourites.ts`; persistence is localStorage under
+  `assyguide.favourites` and never throws in private mode. SSR renders zero
+  favourites and the stored set is applied post-hydration.
+- "Next up" is a departure board, clarity first: event, countdown, location.
+  Desktop gets one dense line in the header (≥lg); mobile gets a persistent
+  strip under the header with a one-line preview of the following favourite.
+  Countdown wording comes from `formatCountdown()` (min / h min / d h).
