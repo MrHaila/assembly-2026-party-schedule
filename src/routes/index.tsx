@@ -86,25 +86,36 @@ function AssyguidePage() {
   const otherVenues = schedule.venues.slice(MAX_GRID_COLUMNS);
 
   // Scroll-spy: the day tab follows the timeline instead of switching it.
+  // A scroll listener (not IntersectionObserver) — IO only fires when a
+  // threshold is crossed, so a smooth scroll could settle after the last
+  // callback and leave the tab one day behind.
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
     const sections = Array.from(
       root.querySelectorAll<HTMLElement>("[data-day-id]"),
     );
-    const observer = new IntersectionObserver(
-      () => {
-        const top = root.getBoundingClientRect().top;
-        const current =
-          sections.find((s) => s.getBoundingClientRect().bottom > top + 8) ??
-          sections.at(-1);
-        if (current?.dataset.dayId) setFocusedDay(current.dataset.dayId);
-      },
-      { root, threshold: [0, 0.01, 1] },
-    );
-    for (const section of sections) observer.observe(section);
-    return () => observer.disconnect();
+    let frame = 0;
+    const sync = () => {
+      frame = 0;
+      const top = root.getBoundingClientRect().top;
+      const current =
+        sections.find((s) => s.getBoundingClientRect().bottom > top + 8) ??
+        sections.at(-1);
+      if (current?.dataset.dayId) setFocusedDay(current.dataset.dayId);
+    };
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(sync);
+    };
+    root.addEventListener("scroll", onScroll, { passive: true });
+    sync();
+    return () => {
+      root.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [schedule.days, isMobile]);
+
 
   const scrollToDay = (dayId: string) => {
     setFocusedDay(dayId);
