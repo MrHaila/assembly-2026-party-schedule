@@ -254,7 +254,7 @@
    Also retints the live stripe field from neutral grey to gold. */
 @utility event-favourite {
   border-left: 3px solid var(--gold);
-  background-color: color-mix(in oklab, var(--gold) 10%, var(--event));
+  background-color: var(--event-favourite);
   --stripe-color: color-mix(in oklab, var(--gold) 34%, transparent);
 }
 
