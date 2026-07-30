@@ -255,6 +255,7 @@ function AssyguidePage() {
             </section>
           );
         })}
+        <SiteFooter />
       </div>
 
       <footer className="border-t border-rule bg-paper text-ink-mid">
@@ -265,7 +266,6 @@ function AssyguidePage() {
             : "–"}{" "}
           · {schedule.events.length} {t.events}
         </div>
-        <SiteFooter />
       </footer>
 
       <DetailSheet
