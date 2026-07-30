@@ -40,7 +40,7 @@ export function EventBlock({
       data-col={venueColumn + 1}
       onClick={() => onOpen(event)}
       style={style}
-      className="z-10 flex flex-col items-stretch justify-start overflow-hidden border-t border-ink/60 bg-event px-1 pt-px text-left transition-colors duration-100 hover:bg-event-hover active:bg-event-active focus-visible:outline-2 focus-visible:outline-spot"
+      className="z-10 block overflow-hidden border-t border-ink/60 bg-event px-1 pt-px text-left align-top transition-colors duration-100 hover:bg-event-hover active:bg-event-active focus-visible:outline-2 focus-visible:outline-spot"
     >
       <span className="tnum block text-[10.5px] font-medium uppercase leading-[1.2] tracking-[0.02em] text-ink-mid">
         {formatTimeRange(event.start, event.end, event.estimated)}
