@@ -4,6 +4,7 @@ import {
   DAY_LENGTH_MIN,
   DAY_START_MIN,
   formatTime,
+  helsinkiMinutes,
   slotIndexFor,
 } from "@/lib/schedule/time";
 import type { Day, EventItem, Venue } from "@/lib/schedule/types";
