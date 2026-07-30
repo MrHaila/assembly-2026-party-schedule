@@ -7,7 +7,7 @@ import {
   readStoredLanguage,
   storeLanguage,
 } from "@/lib/i18n/language";
-import { dayLabel, dayShortLabel, stringsFor } from "@/lib/i18n/strings";
+import { dayLabel, dayShortLabel, formatRelativeTime, stringsFor } from "@/lib/i18n/strings";
 import type { Day } from "@/lib/schedule/types";
 
 function fakeStorage(initial: Record<string, string> = {}) {
