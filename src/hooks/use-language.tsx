@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
   type ReactNode,
+  type Context,
 } from "react";
 import {
   DEFAULT_LANGUAGE,
