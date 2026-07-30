@@ -196,3 +196,10 @@ Event blocks now use a 1px border on all four sides (`border-ink/45`) instead of
 
 ### 13. One segmented toggle
 Day shortcuts and the FI/EN switch both render through `src/components/ui/SegmentedToggle.tsx` (closed API: options, activeId, onSelect, label, semantics). Active segments never react to hover; inactive ones use `.press`.
+
+### 14. Landing scroll anchors on "now"
+On first paint (no `?day=` deep link) the timeline scrolls so the now-bar sits
+~20% down the scroll viewport: a little past for context, most of the screen
+for upcoming events. Both the grid now-bar and the log now-marker carry
+`data-now-marker` so the route needs one selector. Without a now marker
+(outside event dates) it falls back to the today/first-day heading.

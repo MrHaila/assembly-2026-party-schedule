@@ -155,6 +155,7 @@ export function ScheduleGrid({
         {showNow && now && (
           <div
             aria-hidden
+            data-now-marker
             className="relative z-30 self-start"
             style={{
               gridColumn: "1 / -1",
