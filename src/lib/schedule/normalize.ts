@@ -92,8 +92,8 @@ function normalizeEvent(event: RawEvent): EventItem {
 
   return {
     id: event.databaseId,
-    title: event.title,
-    titleEn,
+    title: decodeEntities(event.title),
+    titleEn: titleEn ? decodeEntities(titleEn) : undefined,
     fiOnly: !!program && !translation,
     venueId: locations[0]?.slug ?? "infodesk",
     venueIdSecondary: locations[1]?.slug,
