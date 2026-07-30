@@ -1,4 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import { useLanguage } from "@/hooks/use-language";
+import { pickLocalized } from "@/lib/i18n/language";
 import { formatTimeRange } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
 
@@ -44,6 +46,11 @@ function SheetBody({
   venueById: ReadonlyMap<string, Venue>;
   onClose: () => void;
 }) {
+  const { language, t } = useLanguage();
+  const excerpt = pickLocalized(language, {
+    fi: event.excerptFi,
+    en: event.excerptEn,
+  });
   const venue = venueById.get(event.venueId);
   const secondary = event.venueIdSecondary
     ? venueById.get(event.venueIdSecondary)
@@ -63,49 +70,45 @@ function SheetBody({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t.close}
           className="shrink-0 border border-ink px-2 py-0.5 text-[12px] font-bold uppercase transition-colors duration-100 hover:bg-ink hover:text-paper active:bg-ink-mid active:text-paper"
         >
           ✕
         </button>
       </div>
 
-      {event.titleEn && (
-        <p className="mt-0.5 text-[13px] text-ink-mid">EN: {event.titleEn}</p>
-      )}
-
       <dl className="mt-3 space-y-1 text-[13px]">
         <div className="flex gap-2">
-          <dt className="w-14 shrink-0 font-bold uppercase">Time</dt>
+          <dt className="w-14 shrink-0 font-bold uppercase">{t.time}</dt>
           <dd className="tnum">
             {event.kind === "moment"
-              ? `◆ ${formatTimeRange(event.start, event.end, false).split("–")[0]} sharp`
+              ? `◆ ${formatTimeRange(event.start, event.end, false).split("–")[0]} ${t.sharp}`
               : formatTimeRange(event.start, event.end, event.estimated)}
             {event.estimated && (
               <span className="ml-1 text-ink-mid">
-                (no end time published)
+                {t.noEndTime}
               </span>
             )}
           </dd>
         </div>
         <div className="flex gap-2">
-          <dt className="w-14 shrink-0 font-bold uppercase">Location</dt>
+          <dt className="w-14 shrink-0 font-bold uppercase">{t.location}</dt>
           <dd>
             {venue?.name ?? event.venueId}
             {secondary && <> ⇄ {secondary.name}</>}
           </dd>
         </div>
         <div className="flex gap-2">
-          <dt className="w-14 shrink-0 font-bold uppercase">Type</dt>
+          <dt className="w-14 shrink-0 font-bold uppercase">{t.type}</dt>
           <dd className="uppercase tracking-[0.04em]">
             {event.categories.join(" · ")}
           </dd>
         </div>
       </dl>
 
-      {event.excerpt && (
+      {excerpt && (
         <p className="mt-3 border-t border-rule pt-3 text-[14px] leading-relaxed">
-          {event.excerpt}
+          {excerpt}
         </p>
       )}
 
@@ -119,7 +122,7 @@ function SheetBody({
               rel="noreferrer"
               className="border border-ink bg-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em] text-paper transition-colors duration-100 hover:border-spot hover:bg-spot active:border-ink-mid active:bg-ink-mid"
             >
-              ● Watch · {hostOf(url)}
+              ● {t.watch} · {hostOf(url)}
             </a>
           ))}
           {event.sourceUrl && (
@@ -129,7 +132,7 @@ function SheetBody({
               rel="noreferrer"
               className="press border border-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em]"
             >
-              Official page ↗
+              {t.officialPage} ↗
             </a>
           )}
         </div>
