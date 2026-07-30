@@ -136,18 +136,32 @@ function AssyguidePage() {
     navigate({ to: ".", search: { day: dayId }, replace: true });
   };
 
-  // Deep link (?day=) and first paint both land on the right day, once.
+  // First paint lands on the deep link (?day=), otherwise on "now" placed
+  // ~20% down the viewport so a little past stays visible above upcoming.
   const landed = useRef(false);
   useEffect(() => {
     if (landed.current) return;
+    const root = scrollRef.current;
+    if (!root) return;
+
+    const deepLinked = schedule.days.find((d) => d.id === search.day);
+    if (!deepLinked) {
+      const marker = root.querySelector<HTMLElement>("[data-now-marker]");
+      if (marker) {
+        landed.current = true;
+        root.scrollTop =
+          root.scrollTop + marker.getBoundingClientRect().top -
+          root.getBoundingClientRect().top - root.clientHeight * 0.2;
+        return;
+      }
+    }
+
     const target =
-      schedule.days.find((d) => d.id === search.day) ??
-      schedule.days.find((d) => d.date === now?.date);
+      deepLinked ?? schedule.days.find((d) => d.date === now?.date);
     if (!target) return;
     landed.current = true;
-    const root = scrollRef.current;
-    const el = root?.querySelector<HTMLElement>(`[data-day-id="${target.id}"]`);
-    if (root && el) {
+    const el = root.querySelector<HTMLElement>(`[data-day-id="${target.id}"]`);
+    if (el) {
       root.scrollTop =
         root.scrollTop + el.getBoundingClientRect().top -
         root.getBoundingClientRect().top;
