@@ -185,8 +185,9 @@ describe("rule 10/11 — language fallback and category de-suffixing", () => {
 
 describe("html entities", () => {
   it("decodes numeric and named entities in excerpts", () => {
-    expect(stripHtml("<p>Experience k-Culture in all it&#8217;s aspects!</p>"))
-      .toBe("Experience k-Culture in all \u2019s aspects!".replace(" \u2019s", " it\u2019s"));
+    expect(
+      stripHtml("<p>Experience k-Culture in all it&#8217;s aspects!</p>"),
+    ).toBe("Experience k-Culture in all it\u2019s aspects!");
     expect(stripHtml("A &amp; B &ndash; C &#x27;quoted&#x27;")).toBe(
       "A & B \u2013 C 'quoted'",
     );
