@@ -124,6 +124,12 @@ export function ScheduleGrid({
                 venueColumn={colIdx}
                 lane={p.lane}
                 lanes={p.lanes}
+                live={
+                  showNow &&
+                  !!now &&
+                  helsinkiMinutes(event.start) <= now.minutes &&
+                  helsinkiMinutes(event.end) > now.minutes
+                }
                 onOpen={onOpen}
               />
             );
