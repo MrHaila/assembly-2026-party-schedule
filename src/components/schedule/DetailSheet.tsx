@@ -113,31 +113,26 @@ function SheetBody({
         </p>
       )}
 
-      {(event.streamUrls.length > 0 || event.sourceUrl) && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {event.streamUrls.map((url) => (
-            <a
-              key={url}
-              href={url}
-              target="_blank"
-              rel="noreferrer"
-              className="border border-ink bg-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em] text-paper transition-colors duration-100 hover:border-spot hover:bg-spot active:border-ink-mid active:bg-ink-mid"
-            >
-              ● {t.watch} · {hostOf(url)}
-            </a>
-          ))}
-          {event.sourceUrl && (
-            <a
-              href={event.sourceUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="press border border-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em]"
-            >
-              {t.officialPage} ↗
-            </a>
-          )}
-        </div>
-      )}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {event.streamUrls.map((url) => (
+          <ActionLink key={url} tone="solid" href={url}>
+            ● {t.watch} · {hostOf(url)}
+          </ActionLink>
+        ))}
+        {event.sourceUrl && (
+          <ActionLink tone="outline" href={event.sourceUrl}>
+            {t.officialPage} ↗
+          </ActionLink>
+        )}
+        <span className="ml-auto">
+          <FavouriteStar
+            favourite={isFavourite(event.id)}
+            onToggle={() => toggle(event.id)}
+            size="action"
+          />
+        </span>
+      </div>
+
     </div>
   );
 }

@@ -31,6 +31,8 @@ export interface Strings {
   thenAfter: string;
   noFavourites: string;
   liveNow: string;
+  atLocation: string;
+
 
 }
 
