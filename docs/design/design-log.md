@@ -203,3 +203,10 @@ On first paint (no `?day=` deep link) the timeline scrolls so the now-bar sits
 for upcoming events. Both the grid now-bar and the log now-marker carry
 `data-now-marker` so the route needs one selector. Without a now marker
 (outside event dates) it falls back to the today/first-day heading.
+
+### 15. Live events wear moving stripes
+Grid blocks whose start ≤ now < end get `.live-stripes`: a 45° muted spot-colour
+stripe field on a `::before` at `z-index:-1`, drifting left→right on an endless
+1.6s linear loop (one background-size period = 16px × √2, so the loop is
+seamless). It sits above the translucent event background but below the label,
+and freezes under `prefers-reduced-motion`.
