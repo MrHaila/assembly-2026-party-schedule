@@ -309,3 +309,13 @@ appears once the user scrolls past the last day's schedule. The "last updated"
 stats strip remains sticky so it is always visible at the bottom of the
 viewport.
 
+
+## Entry #23 — Alignment, layering, star, repo link
+
+- Day heading, ALL DAY row and "Other locations" now use `px-3`, matching the
+  page header, "Next up" strip and "About this site" band.
+- Now bar moved to `z-[15]`: above event blocks (`z-10`), behind the sticky
+  location header (`z-30`) and day heading (`z-40`).
+- Favourite background star nudged left (`right-[-6%]`) so more of the
+  silhouette reads inside the block.
+- `GITHUB_REPO_URL` set to the real repository.
