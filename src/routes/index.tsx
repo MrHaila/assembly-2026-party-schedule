@@ -12,9 +12,11 @@ import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
 import { ScheduleLog } from "@/components/schedule/ScheduleLog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHelsinkiNow } from "@/hooks/use-helsinki-now";
+import { useNow } from "@/hooks/use-now";
 import { useLanguage } from "@/hooks/use-language";
 import { fetchLiveSchedule, getSnapshotSchedule } from "@/lib/api/assembly-graphql";
-import { formatTime, isoDate } from "@/lib/schedule/time";
+import { formatRelativeTime } from "@/lib/i18n/strings";
+import { isoDate } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
 
 /** Most columns the responsive CSS can ever show (see .schedule-cols). */
