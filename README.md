@@ -1,30 +1,35 @@
-# Assembly 2026 Party Schedule 
+# Assembly 2026 Party Schedule
 
-Let's make a SPA to display Assembly Summer schedule in a better way. Attached is a rough draft of what would be a reasonable starting point. Treat this doc as a suggestion rather than a hard list of requirements. My intent is to build the project in a test driven way where automation can catch false assumptions quickly and manual smoke testing remains as a last resort. I want the code to be clearly separated in concerns with utilities and data fetching segregated to their own libraries and frontend utilizing components with strongly typed APIs. I want to develop highly optinionated components that can only be used in a very specific way to guard against style drift and inline-styles that could cause visual regressions as the project evolves.
+The official [Assembly] org website is... fine. But I don't love the party schedule pages. It's actually really hard to know what's going on at any given moment and which ones I was planning to attend.
 
-For the visual design, I think we have to build something first and dog-food it before locking into specific design patterns. I want to make sure the project design is documented next to the source code and design changes always get updated in the docs, so style decisions do not get lost or become implicit. The final design is sure to evolve from the first PRD.
+Here's my fix: a 90s TV programming inspired party schedule viewer.
 
-I want to first focus on data fetching and information architecture over styling. Once the presentation is in place and responsivity is sufficiently handled, I want to focus on iterating the finer points of the styling. More complicated features like favouriting should be their own efforts once the whole app is proven to work in a real setting. The minimal thing has to work first before feature creeping it.
+Before:
 
-My personal preference is anally strict TS+Vue+Vite+Vitest+OXC linter+Tailwind but I can be persuaded to other stacks that fit Lovable better.
+![Website screenshot](asm-website.jpeg)
 
-This project was built with [Lovable](https://lovable.dev).
+After:
 
-## Build with Lovable
+![Website screenshot](after.jpeg)
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/c48fa985-3df6-4478-83f7-82bae601060a).
+Party-vibed together with Lovable for the Fix It compo.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+## The Deets
 
-## Development
+Looks like the official Assembly website exposes an undocumented GraphQL API that it uses itself to poll for schedule updates. It had open CORS so this website is a SPA that simply consumes the same data. This means the schedule stays in sync during the event as things change and move around.
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+I chose a design with two modalities: a responsive grid view for desktop and a list view for mobile.
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+The desktop grid adds as many columns as fits your screen and collapses the rest into a condensed list per day. I wanted the whole event to be in one scrollable list to make it easier to understand the party as a stream of parallel happenings at various locations without any clicking in between. Highlights for ongoing events and an indicator for current time helps ground where "now" is.
+
+Mobile view uses a flat single-column list since nothing else fits.
+
+A favouriting feature helps curate the most interesting events and enables a "next up" banner. This is especially useful on mobile for quick lookups.
+
+## Contributions & Feedback
+
+PR's welcome, if unlikely. Feel free to fork/remix for future events.
+
+## License
+
+MIT
