@@ -185,14 +185,15 @@ export function minutesBetween(startIso: string, endIso: string): number {
 }
 
 /**
- * Grid row (0-based) for an ISO time, clamped into the day window.
- * Times outside 10:00–23:00 pin to the first/last slot rather than
- * producing out-of-range grid rows.
+ * Grid row (0-based) for an ISO time inside a day window, clamped so times
+ * outside the window pin to the first/last slot instead of producing
+ * out-of-range grid rows.
  */
-export function slotIndexFor(iso: string): number {
-  const idx = Math.floor((helsinkiMinutes(iso) - DAY_START_MIN) / SLOT_MIN);
-  return Math.min(SLOT_COUNT - 1, Math.max(0, idx));
+export function slotIndexFor(iso: string, win: DayWindow): number {
+  const idx = Math.floor((dayMinutes(iso) - win.startMin) / SLOT_MIN);
+  return Math.min(win.slotCount - 1, Math.max(0, idx));
 }
+
 
 /**
  * Row span for a block. `Math.max(1, …)` is the render-site guard against
