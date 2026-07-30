@@ -70,3 +70,36 @@ view, landscape mobile mini-grid.
 
 **Why.** The minimal thing has to work in a real setting first. Each of
 these is its own effort with its own log entry when it lands.
+
+## #6 — 2026-07-30 — Continuous timeline, "location", count ordering, CSS overflow
+
+**Decision.** Four changes from the first dog-fooding pass:
+
+1. **One continuous timeline.** All four days render in a single scroll
+   container as `<section data-day-id>` blocks with an inline `DayHeading`
+   band. The day tabs are no longer pages — they are scroll shortcuts, and
+   an `IntersectionObserver` moves the highlight to whichever day is in
+   focus. `?day=` still deep-links; it now sets the initial scroll offset.
+2. **All-day is part of the timeline.** The ≥6h ongoing items moved from a
+   floating band above the grid onto the day heading itself
+   (`OngoingBand` deleted, `DayHeading` owns the run-on line).
+3. **"Venue" → "location"** in every user-facing string. Type and prop
+   names still say `venue` — renaming the domain model is a separate,
+   mechanical change and not worth mixing into a UI pass.
+4. **Locations order by event COUNT, descending** (`normalizeVenues`),
+   with the editorial config kept only for short names and a deterministic
+   tie-break. Count, not total duration, so an all-day booth cannot outrank
+   a stage running ten sessions.
+5. **Grid/list split is now responsive, not editorial.** The scroll
+   container is a size container; `.schedule-cols` steps `--cols` 2→8 at
+   `48px + n × 150px`. Columns that do not fit are `display: none` via
+   `[data-col]`, and the same location's run-on paragraph in "Other
+   locations" carries `[data-overflow-col]` and is hidden exactly when its
+   column is visible. Zero JS measurement, no horizontal overflow ever.
+   Ultrawide guard: `max-width: calc(48px + var(--cols) * 280px)`.
+
+**Also fixed.** The now-bar time chip was absolutely positioned against
+the grid (it pinned to the top); its wrapper is now the positioning
+context, so the chip rides the rule. And `stripHtml` now decodes numeric
+entities (`it&#8217;s`) as well as the named ones — WordPress excerpts
+ship both, and titles are decoded too.

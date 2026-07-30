@@ -1,37 +1,57 @@
 import { formatTime } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
 
-interface OtherVenuesProps {
-  /** Other-tier venues, in editorial order. */
+interface OtherLocationsProps {
+  /** Locations that never get a column, busiest first. */
   venues: readonly Venue[];
+  /**
+   * Grid-eligible locations, in column order. Each is rendered here too and
+   * hidden by CSS whenever its column fits — the responsive overflow.
+   */
+  gridVenues: readonly Venue[];
   /** This day's events, all kinds. */
   events: readonly EventItem[];
   onOpen: (event: EventItem) => void;
 }
 
 /**
- * The 8 minor venues as dense run-on paragraphs below the grid — exactly
- * what newspaper TV pages did with minor channels.
+ * Minor locations as dense run-on paragraphs below the grid — exactly what
+ * newspaper TV pages did with minor channels. Grid locations appear here as
+ * well, marked with `data-overflow-col`, so a narrow viewport degrades to
+ * the list form with no JS measurement.
  */
-export function OtherVenues({ venues, events, onOpen }: OtherVenuesProps) {
+export function OtherVenues({
+  venues,
+  gridVenues,
+  events,
+  onOpen,
+}: OtherLocationsProps) {
   const byVenue = new Map<string, EventItem[]>();
   for (const event of events) {
-    if (event.kind === "ongoing") continue; // already in the band above
+    if (event.kind === "ongoing") continue; // already on the day heading
     const list = byVenue.get(event.venueId) ?? [];
     list.push(event);
     byVenue.set(event.venueId, list);
   }
-  const visible = venues.filter((v) => (byVenue.get(v.slug) ?? []).length > 0);
-  if (visible.length === 0) return null;
+
+  const rows = [
+    ...gridVenues.map((venue, i) => ({ venue, overflowCol: i + 1 })),
+    ...venues.map((venue) => ({ venue, overflowCol: undefined })),
+  ].filter(({ venue }) => (byVenue.get(venue.slug) ?? []).length > 0);
+  if (rows.length === 0) return null;
 
   return (
     <section className="border-t-2 border-ink bg-paper px-2 py-2">
-      <h2 className="text-[12px] font-bold uppercase tracking-[0.06em]">
-        Other venues
-      </h2>
+      <h3 className="text-[12px] font-bold uppercase tracking-[0.06em]">
+        Other locations
+      </h3>
       <div className="mt-1 space-y-1">
-        {visible.map((venue) => (
-          <p key={venue.slug} className="text-[12px] leading-relaxed">
+        {rows.map(({ venue, overflowCol }) => (
+          <p
+            key={venue.slug}
+            data-overflow-col={overflowCol}
+            className="text-[12px] leading-relaxed"
+          >
             <span className="font-bold uppercase tracking-[0.04em]">
               {venue.short}
             </span>

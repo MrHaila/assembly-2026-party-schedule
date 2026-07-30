@@ -167,10 +167,102 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Shared column template for the sticky header row and the grid body,
-   so the two grids stay column-aligned. */
-.schedule-cols {
-  grid-template-columns: 48px repeat(var(--venues, 6), minmax(140px, 1fr));
+/* Responsive column count, CSS-only (design-log #6).
+   The scroll container is a size container; each breakpoint is
+   `gutter + n * min-column-width`, so the grid never overflows
+   horizontally. Columns that do not fit are hidden here and their events
+   appear in the "Other locations" list instead — the same markup, two
+   projections, zero JS measurement. */
+.schedule-scroll {
+  container-type: inline-size;
+  container-name: schedule;
+}
+
+.schedule-cols,
+.schedule-grid {
+  --cols: 2;
+  /* Ultrawide guard: columns stop growing at 280px each. */
+  max-width: calc(48px + var(--cols) * 280px);
+  grid-template-columns: 48px repeat(var(--cols), minmax(150px, 1fr));
+}
+
+@container schedule (min-width: 520px) {
+  .schedule-cols,
+  .schedule-grid {
+    --cols: 3;
+  }
+}
+@container schedule (min-width: 680px) {
+  .schedule-cols,
+  .schedule-grid {
+    --cols: 4;
+  }
+}
+@container schedule (min-width: 840px) {
+  .schedule-cols,
+  .schedule-grid {
+    --cols: 5;
+  }
+}
+@container schedule (min-width: 1000px) {
+  .schedule-cols,
+  .schedule-grid {
+    --cols: 6;
+  }
+}
+@container schedule (min-width: 1160px) {
+  .schedule-cols,
+  .schedule-grid {
+    --cols: 7;
+  }
+}
+@container schedule (min-width: 1320px) {
+  .schedule-cols,
+  .schedule-grid {
+    --cols: 8;
+  }
+}
+
+/* Column visibility. `data-col` is the 1-based location column index;
+   `data-overflow-col` marks the matching run-on entry in the other-locations
+   list. Exactly one of the pair is visible at any width. */
+[data-col="3"],
+[data-col="4"],
+[data-col="5"],
+[data-col="6"],
+[data-col="7"],
+[data-col="8"] {
+  display: none;
+}
+
+@container schedule (min-width: 520px) {
+  [data-col="3"] { display: block; }
+  [data-overflow-col="3"] { display: none; }
+}
+@container schedule (min-width: 680px) {
+  [data-col="4"] { display: block; }
+  [data-overflow-col="4"] { display: none; }
+}
+@container schedule (min-width: 840px) {
+  [data-col="5"] { display: block; }
+  [data-overflow-col="5"] { display: none; }
+}
+@container schedule (min-width: 1000px) {
+  [data-col="6"] { display: block; }
+  [data-overflow-col="6"] { display: none; }
+}
+@container schedule (min-width: 1160px) {
+  [data-col="7"] { display: block; }
+  [data-overflow-col="7"] { display: none; }
+}
+@container schedule (min-width: 1320px) {
+  [data-col="8"] { display: block; }
+  [data-overflow-col="8"] { display: none; }
+}
+
+[data-overflow-col="1"],
+[data-overflow-col="2"] {
+  display: none;
 }
 
 /* CSS Grid with 5-minute row units (780-minute day / 5 = 156 rows).
@@ -179,6 +271,5 @@
 .schedule-grid {
   --slot-h: 7.5px;
   display: grid;
-  grid-template-columns: 48px repeat(var(--venues, 6), minmax(140px, 1fr));
   grid-template-rows: repeat(156, var(--slot-h));
 }

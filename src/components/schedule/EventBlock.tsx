@@ -4,7 +4,7 @@ import type { EventItem } from "@/lib/schedule/types";
 
 interface EventBlockProps {
   event: EventItem;
-  /** 0-based index into the grid-tier venue list. */
+  /** 0-based index into the grid-eligible location list. */
   venueColumn: number;
   /** Sub-column lane from assignSubColumns (0 when alone). */
   lane: number;
@@ -15,7 +15,8 @@ interface EventBlockProps {
 /**
  * One proportional block in the grid. Placement is computed here and only
  * here — grid-row span is guarded by spanSlotsFor's Math.max(1, …), so no
- * data bug can ever produce a negative span.
+ * data bug can ever produce a negative span. `data-col` lets CSS drop the
+ * block when its location column does not fit the viewport.
  */
 export function EventBlock({
   event,
@@ -36,6 +37,7 @@ export function EventBlock({
   return (
     <button
       type="button"
+      data-col={venueColumn + 1}
       onClick={() => onOpen(event)}
       style={style}
       className="z-10 overflow-hidden border-t border-ink/60 bg-paper px-1 pt-px text-left hover:bg-marker/70 focus-visible:outline-2 focus-visible:outline-spot"

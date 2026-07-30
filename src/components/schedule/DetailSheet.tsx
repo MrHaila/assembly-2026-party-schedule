@@ -89,7 +89,7 @@ function SheetBody({
           </dd>
         </div>
         <div className="flex gap-2">
-          <dt className="w-14 shrink-0 font-bold uppercase">Venue</dt>
+          <dt className="w-14 shrink-0 font-bold uppercase">Location</dt>
           <dd>
             {venue?.name ?? event.venueId}
             {secondary && <> ⇄ {secondary.name}</>}
