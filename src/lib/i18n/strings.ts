@@ -168,10 +168,6 @@ const WEEKDAYS: Record<Language, readonly string[]> = {
   ],
 };
 
-const WEEKDAYS_SHORT: Record<Language, readonly string[]> = {
-  en: ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"],
-  fi: ["SU", "MA", "TI", "KE", "TO", "PE", "LA"],
-};
 
 function ordinal(n: number): string {
   const rem100 = n % 100;
