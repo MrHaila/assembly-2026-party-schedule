@@ -73,6 +73,12 @@ export function helsinkiNow(now: Date = new Date()): {
   };
 }
 
+/** Current Helsinki wall time as an ISO +03:00-style timestamp. */
+export function nowHelsinkiIso(now: Date = new Date()): string {
+  const p = helsinkiParts(now);
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}+03:00`;
+}
+
 /** ISO +03:00-style Helsinki timestamp, `minutes` later than `iso`. */
 export function addMinutesIso(iso: string, minutes: number): string {
   const date = new Date(new Date(iso).getTime() + minutes * 60_000);

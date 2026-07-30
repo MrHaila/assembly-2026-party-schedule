@@ -10,6 +10,7 @@
  */
 import snapshotJson from "@/data/schedule-summer26.snapshot.json";
 import { normalizeSchedule } from "@/lib/schedule/normalize";
+import { nowHelsinkiIso } from "@/lib/schedule/time";
 import { scheduleResponseSchema, snapshotSchema } from "@/lib/schedule/schema";
 import type { ScheduleData } from "@/lib/schedule/types";
 
@@ -57,5 +58,5 @@ export async function fetchLiveSchedule(
   const json = await res.json();
   if (json.errors) throw new Error("Schedule fetch failed: GraphQL errors");
   const parsed = scheduleResponseSchema.parse(json.data);
-  return normalizeSchedule(parsed, new Date().toISOString());
+  return normalizeSchedule(parsed, nowHelsinkiIso());
 }
