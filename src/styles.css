@@ -401,10 +401,12 @@
 }
 
 /* Live (currently running) events: a muted 45° stripe field drifting left to
-   right, forever. Painted by a pseudo-element behind the label so the event's
-   own translucent background and the hour rules behind it stay readable.
+   right, forever. Neutral grey by default — red read as an error state —
+   and gold on favourites, where --stripe-color is retinted.
    Honours reduced-motion by freezing the pattern. */
 @utility live-stripes {
+  --stripe-color: color-mix(in oklab, var(--ink) 12%, transparent);
+
   &::before {
     content: "";
     position: absolute;
@@ -413,7 +415,7 @@
     pointer-events: none;
     background-image: repeating-linear-gradient(
       45deg,
-      color-mix(in oklab, var(--spot) 12%, transparent) 0 6px,
+      var(--stripe-color) 0 6px,
       transparent 6px 16px
     );
     background-size: 22.628px 22.628px; /* 16px * sqrt(2): one seamless period */
