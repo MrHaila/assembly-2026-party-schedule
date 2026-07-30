@@ -90,7 +90,7 @@ export function ScheduleLog({
 function NowMarker({ minutes, label: nowLabel }: { minutes: number; label: string }) {
   const label = `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}`;
   return (
-    <div id="now-marker" className="flex items-center gap-2 py-1">
+    <div id="now-marker" data-now-marker className="flex items-center gap-2 py-1">
       <span className="h-0.5 flex-1 bg-spot" />
       <span className="tnum text-[11px] font-bold uppercase tracking-[0.06em] text-spot">
         {nowLabel} · {label}
