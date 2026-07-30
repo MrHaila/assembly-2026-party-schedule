@@ -60,6 +60,8 @@ const FI: Strings = {
   thenAfter: "Sitten",
   noFavourites: "Merkitse tapahtumia tähdellä nähdäksesi ne täällä",
   liveNow: "Käynnissä",
+  atLocation: "paikassa",
+
 };
 
 const EN: Strings = {
@@ -86,6 +88,8 @@ const EN: Strings = {
   thenAfter: "Then",
   noFavourites: "Star events to see them here",
   liveNow: "Live now",
+  atLocation: "at",
+
 };
 
 const DICTIONARIES: Record<Language, Strings> = { fi: FI, en: EN };
