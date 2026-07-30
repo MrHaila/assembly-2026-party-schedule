@@ -66,8 +66,7 @@ function AssyguidePage() {
   });
 
   const { t, language } = useLanguage();
-  const search = Route.useSearch();
-  const navigate = Route.useNavigate();
+
   // Schedule time: the day rolls over at 05:00, so 02:00 Saturday is still
   // "Friday, 1560 minutes" for every placement decision below.
   const wallNow = useHelsinkiNow();
