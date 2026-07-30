@@ -314,7 +314,8 @@ viewport.
 
 - Day heading, ALL DAY row and "Other locations" now use `px-3`, matching the
   page header, "Next up" strip and "About this site" band.
-- Now bar moved to `z-[15]`: above event blocks (`z-10`), behind the sticky
+- Now bar sits at `z-[25]`: above event blocks (`z-10`) and the sticky time
+  gutter (`z-20`), behind the sticky
   location header (`z-30`) and day heading (`z-40`).
 - Favourite background star nudged left (`right-[-6%]`) so more of the
   silhouette reads inside the block.
