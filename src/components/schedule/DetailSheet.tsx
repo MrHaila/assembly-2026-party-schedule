@@ -64,7 +64,7 @@ function SheetBody({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="shrink-0 border border-ink px-2 py-0.5 text-[12px] font-bold uppercase hover:bg-ink hover:text-paper"
+          className="shrink-0 border border-ink px-2 py-0.5 text-[12px] font-bold uppercase transition-colors duration-100 hover:bg-ink hover:text-paper active:bg-ink-mid active:text-paper"
         >
           ✕
         </button>
