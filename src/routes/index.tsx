@@ -16,7 +16,7 @@ import { useNow } from "@/hooks/use-now";
 import { useLanguage } from "@/hooks/use-language";
 import { fetchLiveSchedule, getSnapshotSchedule } from "@/lib/api/assembly-graphql";
 import { formatRelativeTime } from "@/lib/i18n/strings";
-import { isoDate } from "@/lib/schedule/time";
+import { scheduleDate, toScheduleTime } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
 
 /** Most columns the responsive CSS can ever show (see .schedule-cols). */
@@ -64,7 +64,13 @@ function AssyguidePage() {
   const { t, language } = useLanguage();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const now = useHelsinkiNow();
+  // Schedule time: the day rolls over at 05:00, so 02:00 Saturday is still
+  // "Friday, 1560 minutes" for every placement decision below.
+  const wallNow = useHelsinkiNow();
+  const now = useMemo(
+    () => (wallNow ? toScheduleTime(wallNow) : null),
+    [wallNow],
+  );
   const nowFooter = useNow();
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<EventItem | null>(null);
@@ -75,7 +81,7 @@ function AssyguidePage() {
     const map = new Map<string, EventItem[]>();
     for (const day of schedule.days) map.set(day.date, []);
     for (const event of schedule.events) {
-      map.get(isoDate(event.start))?.push(event);
+      map.get(scheduleDate(event.start))?.push(event);
     }
     return map;
   }, [schedule.events, schedule.days]);
