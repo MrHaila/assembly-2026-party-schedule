@@ -101,3 +101,14 @@ describe("relative time", () => {
     expect(formatRelativeTime("fi", "2026-07-30T11:59:00+03:00", now)).toBe("1 minuutti sitten");
   });
 });
+
+describe("dictionaries", () => {
+  it("both languages define every key with non-empty copy", () => {
+    const fi = stringsFor("fi");
+    const en = stringsFor("en");
+    expect(Object.keys(fi).sort()).toEqual(Object.keys(en).sort());
+    for (const value of [...Object.values(fi), ...Object.values(en)]) {
+      expect(value.trim().length).toBeGreaterThan(0);
+    }
+  });
+});
