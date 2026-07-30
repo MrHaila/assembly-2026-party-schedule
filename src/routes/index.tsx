@@ -236,9 +236,11 @@ function AssyguidePage() {
       </div>
 
       <footer className="border-t border-rule bg-paper px-3 py-1 text-[10px] uppercase tracking-[0.05em] text-ink-mid">
-        {t.dataAsOf} {isoDate(schedule.fetchedAt)}{" "}
-        {formatTime(schedule.fetchedAt)} · {schedule.events.length} {t.events} ·{" "}
-        {t.source} assembly.org
+        {t.lastUpdated}{" "}
+        {nowFooter
+          ? formatRelativeTime(language, schedule.fetchedAt, nowFooter)
+          : "–"}{" "}
+        · {schedule.events.length} {t.events}
       </footer>
 
       <DetailSheet
