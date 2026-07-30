@@ -101,15 +101,13 @@ function normalizeEvent(event: RawEvent): EventItem {
   const locations = event.locations.nodes;
   const program = event.program ?? undefined;
   const translation = program?.translation ?? undefined;
-  const titleEn =
-    translation?.title && translation.title !== event.title
-      ? translation.title
-      : undefined;
 
+  // The occurrence title is the specific one ("ARTtech Seminars: Pixel Art")
+  // while program.title is the generic umbrella ("ARTtech Seminaarit ja
+  // Workshop"), so the title is NOT localized — only the body copy is.
   return {
     id: event.databaseId,
     title: decodeEntities(event.title),
-    titleEn: titleEn ? decodeEntities(titleEn) : undefined,
     fiOnly: !!program && !translation,
     venueId: locations[0]?.slug ?? "infodesk",
     venueIdSecondary: locations[1]?.slug,
@@ -121,7 +119,8 @@ function normalizeEvent(event: RawEvent): EventItem {
     categories: normalizeCategories(event),
     streamUrls: event.streamUrls ?? [],
     programId: event.programId ?? undefined,
-    excerpt: stripHtml(translation?.excerpt || program?.excerpt || "") || undefined,
+    excerptFi: stripHtml(program?.excerpt || "") || undefined,
+    excerptEn: stripHtml(translation?.excerpt || "") || undefined,
     sourceUrl: program ? programUrl(program.uri) : undefined,
     modified: event.modified,
   };
