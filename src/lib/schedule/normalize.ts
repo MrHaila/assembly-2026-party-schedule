@@ -148,11 +148,11 @@ function normalizeDays(data: RawScheduleData): Day[] {
 }
 
 /**
- * Locations, ordered by how many events they host across the whole weekend.
- * Busiest first — that is what earns the leftmost, always-visible column.
- * Event COUNT, not total duration, so an all-day booth cannot outrank a
- * stage running ten sessions. Editorial config only supplies short names
- * and the deterministic tie-break.
+ * Locations, ordered by editorial priority first, then by how many events
+ * they host across the whole weekend. Priority exists because the headline
+ * stages (Main, Genelec) must never slide right just because a booth logged
+ * more entries. Everything below priority is ranked by event COUNT, not total
+ * duration, so an all-day booth cannot outrank a stage running ten sessions.
  */
 function normalizeVenues(data: RawScheduleData, events: EventItem[]): Venue[] {
   const counts = new Map<string, number>();
@@ -166,11 +166,18 @@ function normalizeVenues(data: RawScheduleData, events: EventItem[]): Venue[] {
       name: loc.name,
       short: config?.short ?? loc.name.toUpperCase().slice(0, 9),
       order: config?.order ?? 100,
+      priority: config?.priority,
       tier: config?.tier ?? "other",
       eventCount: counts.get(loc.slug) ?? 0,
     };
   });
-  venues.sort((a, b) => b.eventCount - a.eventCount || a.order - b.order);
+  venues.sort(
+    (a, b) =>
+      (a.priority ?? Number.MAX_SAFE_INTEGER) -
+        (b.priority ?? Number.MAX_SAFE_INTEGER) ||
+      b.eventCount - a.eventCount ||
+      a.order - b.order,
+  );
   venues.forEach((v, i) => {
     v.order = i + 1;
   });
