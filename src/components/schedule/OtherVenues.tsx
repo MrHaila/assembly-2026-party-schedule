@@ -62,7 +62,7 @@ export function OtherVenues({
                 <button
                   type="button"
                   onClick={() => onOpen(event)}
-                  className="underline decoration-transparent underline-offset-2 hover:decoration-ink"
+                  className="press px-0.5 underline decoration-transparent underline-offset-2 hover:decoration-ink"
                 >
                   <span className="tnum font-semibold">
                     {formatTime(event.start)}
