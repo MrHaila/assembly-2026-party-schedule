@@ -4,7 +4,9 @@ import { useLanguage } from "@/hooks/use-language";
 import { pickLocalized } from "@/lib/i18n/language";
 import { formatTimeRange } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
+import { ActionButton, ActionLink } from "@/components/ui/ActionButton";
 import { FavouriteStar } from "./FavouriteStar";
+
 
 interface DetailSheetProps {
   event: EventItem | null;
@@ -70,21 +72,10 @@ function SheetBody({
             </span>
           )}
         </Dialog.Title>
-        <div className="flex shrink-0 items-center gap-2">
-        <FavouriteStar
-          favourite={isFavourite(event.id)}
-          onToggle={() => toggle(event.id)}
-          size="action"
-        />
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t.close}
-          className="shrink-0 border border-ink px-2 py-0.5 text-[12px] font-bold uppercase transition-colors duration-100 hover:bg-ink hover:text-paper active:bg-ink-mid active:text-paper"
-        >
-          ✕
-        </button>
-        </div>
+        <ActionButton tone="outline" onClick={onClose} label={t.close}>
+          <span aria-hidden>✕</span>
+        </ActionButton>
+
       </div>
 
       <dl className="mt-3 space-y-1 text-[13px]">
@@ -122,31 +113,26 @@ function SheetBody({
         </p>
       )}
 
-      {(event.streamUrls.length > 0 || event.sourceUrl) && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {event.streamUrls.map((url) => (
-            <a
-              key={url}
-              href={url}
-              target="_blank"
-              rel="noreferrer"
-              className="border border-ink bg-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em] text-paper transition-colors duration-100 hover:border-spot hover:bg-spot active:border-ink-mid active:bg-ink-mid"
-            >
-              ● {t.watch} · {hostOf(url)}
-            </a>
-          ))}
-          {event.sourceUrl && (
-            <a
-              href={event.sourceUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="press border border-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em]"
-            >
-              {t.officialPage} ↗
-            </a>
-          )}
-        </div>
-      )}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {event.streamUrls.map((url) => (
+          <ActionLink key={url} tone="solid" href={url}>
+            ● {t.watch} · {hostOf(url)}
+          </ActionLink>
+        ))}
+        {event.sourceUrl && (
+          <ActionLink tone="outline" href={event.sourceUrl}>
+            {t.officialPage} ↗
+          </ActionLink>
+        )}
+        <span className="ml-auto">
+          <FavouriteStar
+            favourite={isFavourite(event.id)}
+            onToggle={() => toggle(event.id)}
+            size="action"
+          />
+        </span>
+      </div>
+
     </div>
   );
 }
