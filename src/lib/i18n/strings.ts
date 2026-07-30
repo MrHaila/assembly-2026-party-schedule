@@ -14,9 +14,8 @@ export interface Strings {
   otherLocations: string;
   now: string;
   estimated: string;
-  dataAsOf: string;
+  lastUpdated: string;
   events: string;
-  source: string;
   close: string;
   time: string;
   location: string;
