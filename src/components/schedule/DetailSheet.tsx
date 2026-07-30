@@ -82,6 +82,9 @@ function SheetBody({
         <div className="flex gap-2">
           <dt className="w-14 shrink-0 font-bold uppercase">{t.time}</dt>
           <dd className="tnum">
+            <span className="font-semibold uppercase tracking-[0.04em]">
+              {isoDayLabel(event.start, language)}
+            </span>{" "}
             {event.kind === "moment"
               ? `◆ ${formatTimeRange(event.start, event.end, false).split("–")[0]} ${t.sharp}`
               : formatTimeRange(event.start, event.end, event.estimated)}
@@ -90,8 +93,14 @@ function SheetBody({
                 {t.noEndTime}
               </span>
             )}
+            {minutesUntilStart !== null && minutesUntilStart > 0 && (
+              <span className="ml-1 text-ink-mid">
+                ({formatCountdown(language, minutesUntilStart)})
+              </span>
+            )}
           </dd>
         </div>
+
         <div className="flex gap-2">
           <dt className="w-14 shrink-0 font-bold uppercase">{t.location}</dt>
           <dd>
