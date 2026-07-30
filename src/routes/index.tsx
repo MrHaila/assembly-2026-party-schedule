@@ -61,10 +61,11 @@ function AssyguidePage() {
     retry: 1,
   });
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const now = useHelsinkiNow();
+  const nowFooter = useNow();
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<EventItem | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
