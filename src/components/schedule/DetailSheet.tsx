@@ -64,7 +64,7 @@ function SheetBody({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="shrink-0 border border-ink px-2 py-0.5 text-[12px] font-bold uppercase hover:bg-ink hover:text-paper"
+          className="shrink-0 border border-ink px-2 py-0.5 text-[12px] font-bold uppercase transition-colors duration-100 hover:bg-ink hover:text-paper active:bg-ink-mid active:text-paper"
         >
           ✕
         </button>
@@ -117,7 +117,7 @@ function SheetBody({
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="border border-ink bg-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em] text-paper hover:bg-spot hover:border-spot"
+              className="border border-ink bg-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em] text-paper transition-colors duration-100 hover:border-spot hover:bg-spot active:border-ink-mid active:bg-ink-mid"
             >
               ● Watch · {hostOf(url)}
             </a>
@@ -127,7 +127,7 @@ function SheetBody({
               href={event.sourceUrl}
               target="_blank"
               rel="noreferrer"
-              className="border border-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em] hover:bg-rule/50"
+              className="press border border-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em]"
             >
               Official page ↗
             </a>

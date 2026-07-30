@@ -65,6 +65,9 @@
   --color-rule: var(--rule);
   --color-spot: var(--spot);
   --color-marker: var(--marker);
+  --color-event: var(--event);
+  --color-event-hover: var(--event-hover);
+  --color-event-active: var(--event-active);
   --font-listings: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow",
     sans-serif;
 }
@@ -79,6 +82,16 @@
   --rule: oklch(0.814 0.019 98);
   --spot: oklch(0.548 0.236 27.5);
   --marker: oklch(0.905 0.192 100);
+  /* Event surfaces: lighter than the page so blocks read as tiles, and
+     translucent so the hour rules stay faintly visible through them
+     (design-log #7). Hover brighter, active darker — always both. */
+  --event: oklch(0.985 0.01 98 / 0.62);
+  --event-hover: oklch(1 0.008 98 / 0.85);
+  --event-active: oklch(0.855 0.016 98 / 0.95);
+  /* Sticky offset for the location header row: it parks directly under the
+     sticky day heading, whose height is fixed on purpose (single line). */
+  --day-head-h: 28px;
+
   --background: var(--paper);
   --foreground: var(--ink);
   --card: var(--paper);
@@ -158,7 +171,51 @@
     color: var(--color-foreground);
     font-family: var(--font-listings);
   }
+
+  /* Every affordance says so: pointer cursor on anything clickable
+     (design-log #7). Disabled controls keep the default arrow. */
+  button,
+  summary,
+  [role="button"],
+  [role="tab"],
+  a[href] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: default;
+  }
 }
+
+/* Text-level press feedback for run-on list links and tabs: hover brighter
+   than default, active darker. Applied by the .press utility so no component
+   can invent its own interaction colours. */
+@utility press {
+  transition: background-color 90ms linear;
+
+  &:hover {
+    background-color: color-mix(in oklab, var(--marker) 45%, transparent);
+  }
+
+  &:active {
+    background-color: color-mix(in oklab, var(--rule) 90%, var(--ink) 10%);
+  }
+}
+
+/* Same contract on a reverse-video (ink) band. */
+@utility press-invert {
+  transition: background-color 90ms linear;
+
+  &:hover {
+    background-color: color-mix(in oklab, var(--paper) 26%, transparent);
+  }
+
+  &:active {
+    background-color: color-mix(in oklab, var(--paper) 8%, transparent);
+  }
+}
+
 
 /* ASSYGUIDE schedule primitives (docs/design/design-log.md #1, #3).
    Density comes from hairline rules and tight leading — never cards,

@@ -54,7 +54,7 @@ export function ScheduleLog({
         <button
           type="button"
           onClick={() => onOpen(event)}
-          className="flex min-h-[44px] w-full items-baseline gap-2.5 py-1.5 text-left"
+          className="press flex min-h-[44px] w-full items-baseline gap-2.5 px-1 py-1.5 text-left"
         >
           <span className="tnum w-11 shrink-0 text-[13px] font-bold">
             {formatTime(event.start)}

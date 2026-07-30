@@ -52,8 +52,10 @@ export interface Venue {
   name: string;
   /** Hand-authored short column header, e.g. "GENELEC". */
   short: string;
-  /** Hand-authored column order (API `priority` is null on all venues). */
+  /** Resolved column order after ranking (1-based). */
   order: number;
+  /** Editorial pin: lower sorts first, undefined = ranked by event count. */
+  priority?: number;
   tier: VenueTier;
   /** Events whose primary venue this is. */
   eventCount: number;
@@ -64,8 +66,10 @@ export interface Day {
   id: string;
   /** YYYY-MM-DD (Helsinki). */
   date: string;
-  /** Display label: "THU 30". */
+  /** Sticky heading label: "THURSDAY 30th". */
   label: string;
+  /** Compact tab label: "THU 30". */
+  shortLabel: string;
 }
 
 export interface ScheduleData {

@@ -10,6 +10,7 @@ import type { RawEvent, RawScheduleData } from "./schema";
 import type { Day, EventItem, EventKind, ScheduleData, Venue } from "./types";
 import { VENUE_CONFIG, venueConfigFor } from "./venues.config";
 import { addMinutesIso, isoDate, minutesBetween } from "./time";
+import { programUrl } from "./event.config";
 
 /** Durations at or above this never enter the grid — they are the ongoing band. */
 export const ONGOING_THRESHOLD_MIN = 6 * 60;
@@ -18,7 +19,22 @@ export const DEFAULT_DURATION_MIN = 60;
 /** Synthetic category for programless events so filters can never hide them. */
 export const GENERAL_CATEGORY = "general";
 
-const SOURCE_BASE = "https://assembly.org";
+const WEEKDAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const;
+
+/** 1 → "1st", 2 → "2nd", 11 → "11th". */
+function ordinal(n: number): string {
+  const rem100 = n % 100;
+  if (rem100 >= 11 && rem100 <= 13) return `${n}th`;
+  return `${n}${["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
+}
 
 const WEEKDAY_IDS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
@@ -106,7 +122,7 @@ function normalizeEvent(event: RawEvent): EventItem {
     streamUrls: event.streamUrls ?? [],
     programId: event.programId ?? undefined,
     excerpt: stripHtml(translation?.excerpt || program?.excerpt || "") || undefined,
-    sourceUrl: program ? `${SOURCE_BASE}${program.uri}` : undefined,
+    sourceUrl: program ? programUrl(program.uri) : undefined,
     modified: event.modified,
   };
 }
@@ -120,10 +136,12 @@ function normalizeDays(data: RawScheduleData): Day[] {
     const date = cursor.toISOString().slice(0, 10);
     if (date > end) break;
     const weekday = WEEKDAY_IDS[cursor.getUTCDay()];
+    const dayOfMonth = Number(date.slice(8, 10));
     days.push({
       id: weekday,
       date,
-      label: `${weekday.toUpperCase()} ${Number(date.slice(8, 10))}`,
+      label: `${WEEKDAY_NAMES[cursor.getUTCDay()].toUpperCase()} ${ordinal(dayOfMonth)}`,
+      shortLabel: `${weekday.toUpperCase()} ${dayOfMonth}`,
     });
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
@@ -131,11 +149,11 @@ function normalizeDays(data: RawScheduleData): Day[] {
 }
 
 /**
- * Locations, ordered by how many events they host across the whole weekend.
- * Busiest first — that is what earns the leftmost, always-visible column.
- * Event COUNT, not total duration, so an all-day booth cannot outrank a
- * stage running ten sessions. Editorial config only supplies short names
- * and the deterministic tie-break.
+ * Locations, ordered by editorial priority first, then by how many events
+ * they host across the whole weekend. Priority exists because the headline
+ * stages (Main, Genelec) must never slide right just because a booth logged
+ * more entries. Everything below priority is ranked by event COUNT, not total
+ * duration, so an all-day booth cannot outrank a stage running ten sessions.
  */
 function normalizeVenues(data: RawScheduleData, events: EventItem[]): Venue[] {
   const counts = new Map<string, number>();
@@ -149,11 +167,18 @@ function normalizeVenues(data: RawScheduleData, events: EventItem[]): Venue[] {
       name: loc.name,
       short: config?.short ?? loc.name.toUpperCase().slice(0, 9),
       order: config?.order ?? 100,
+      priority: config?.priority,
       tier: config?.tier ?? "other",
       eventCount: counts.get(loc.slug) ?? 0,
     };
   });
-  venues.sort((a, b) => b.eventCount - a.eventCount || a.order - b.order);
+  venues.sort(
+    (a, b) =>
+      (a.priority ?? Number.MAX_SAFE_INTEGER) -
+        (b.priority ?? Number.MAX_SAFE_INTEGER) ||
+      b.eventCount - a.eventCount ||
+      a.order - b.order,
+  );
   venues.forEach((v, i) => {
     v.order = i + 1;
   });
