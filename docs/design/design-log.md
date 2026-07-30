@@ -132,3 +132,15 @@ ship both, and titles are decoded too.
    `program.uri` is edition-relative, so `event.config.ts` supplies
    `EVENT_EDITION` (same slug as the GraphQL endpoint) and builds
    `https://assembly.org/events/summer26/program/…`. Covered by a test.
+
+## 8 — Day band split, edge-to-edge hour rules, absolute block labels
+
+- The day heading is two bands: a sticky one-line day name (`--day-head-h`,
+  the anchor for the location header row) and a non-sticky all-day run-on
+  below it that wraps freely instead of hiding rows in a side scroller.
+- Hour hairlines span `grid-column: 1 / -1`, so the rule crosses the time
+  gutter to the page edge. Hour labels are `HH:MM` and sit just below their
+  own rule, so the first hour is never clipped.
+- Event block labels are absolutely positioned at the block's top edge:
+  buttons vertically centre their content in every engine, and neither
+  flex nor `align-content` reliably beats that UA behaviour.
