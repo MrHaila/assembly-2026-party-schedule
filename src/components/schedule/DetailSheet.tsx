@@ -1,11 +1,14 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useFavourites } from "@/hooks/use-favourites";
 import { useLanguage } from "@/hooks/use-language";
+import { useNow } from "@/hooks/use-now";
 import { pickLocalized } from "@/lib/i18n/language";
+import { formatCountdown, isoDayLabel } from "@/lib/i18n/strings";
 import { formatTimeRange } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
 import { ActionButton, ActionLink } from "@/components/ui/ActionButton";
 import { FavouriteStar } from "./FavouriteStar";
+
 
 
 interface DetailSheetProps {
