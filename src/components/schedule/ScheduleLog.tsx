@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   DAY_END_MIN,
   DAY_START_MIN,
@@ -17,7 +17,7 @@ interface ScheduleLogProps {
 }
 
 /**
- * The mobile projection: same data as the grid, time-ordered, venue as bold
+ * The mobile projection: same data as the grid, time-ordered, location as bold
  * prefix, hour separators. Print made this same choice for narrow columns.
  */
 export function ScheduleLog({
@@ -27,21 +27,12 @@ export function ScheduleLog({
   now,
   onOpen,
 }: ScheduleLogProps) {
-  const ongoing = events.filter((e) => e.kind === "ongoing");
   const entries = events.filter((e) => e.kind !== "ongoing");
   const showNow =
     !!now &&
     now.date === day.date &&
     now.minutes >= DAY_START_MIN &&
     now.minutes <= DAY_END_MIN;
-
-  useEffect(() => {
-    if (showNow) {
-      document
-        .getElementById("now-marker")
-        ?.scrollIntoView({ block: "center" });
-    }
-  }, [showNow, day.id]);
 
   const rows: ReactNode[] = [];
   let nowInserted = false;
@@ -87,26 +78,7 @@ export function ScheduleLog({
   }
 
   return (
-    <ul className="px-3 pb-16">
-      {ongoing.length > 0 && (
-        <li className="border-b border-ink py-1.5 text-[12px] leading-relaxed">
-          <span className="font-bold uppercase tracking-[0.06em]">
-            All day ▸{" "}
-          </span>
-          {ongoing.map((event, i) => (
-            <span key={event.id}>
-              {i > 0 && " · "}
-              <button
-                type="button"
-                onClick={() => onOpen(event)}
-                className="font-medium underline decoration-rule underline-offset-2"
-              >
-                {event.title}
-              </button>
-            </span>
-          ))}
-        </li>
-      )}
+    <ul className="px-3 pb-6">
       {rows}
     </ul>
   );
