@@ -2,7 +2,19 @@
 @source "../src";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "Departure Mono";
+  src: url("/__l5e/assets-v1/3f42783b-ecd9-47aa-a61b-1993d43f84f3/DepartureMono-Regular.woff2")
+      format("woff2"),
+    url("/__l5e/assets-v1/4a32bd34-3baf-4aca-a62a-e2b1fa2364dc/DepartureMono-Regular.woff")
+      format("woff");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
+
 
 /*
  * Design system definition.
