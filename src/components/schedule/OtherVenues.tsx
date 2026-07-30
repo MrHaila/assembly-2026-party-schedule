@@ -29,6 +29,7 @@ export function OtherVenues({
   onOpen,
 }: OtherLocationsProps) {
   const { t } = useLanguage();
+  const { isFavourite } = useFavourites();
   const byVenue = new Map<string, EventItem[]>();
   for (const event of events) {
     if (event.kind === "ongoing") continue; // already on the day heading
