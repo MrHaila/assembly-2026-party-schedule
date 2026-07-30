@@ -301,3 +301,11 @@ Three refinements from the latest dog-fooding comments:
   the time and the gold wash, updated to the same 20% token as the rest of
   the list projection.
 
+## 22 — "About this site" belongs to the timeline, not the sticky footer
+
+The attribution band is now the last element inside the scrollable timeline
+container instead of being part of the persistent bottom footer. It only
+appears once the user scrolls past the last day's schedule. The "last updated"
+stats strip remains sticky so it is always visible at the bottom of the
+viewport.
+
