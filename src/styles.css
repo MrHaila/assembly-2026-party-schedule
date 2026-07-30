@@ -68,8 +68,12 @@
   --color-event: var(--event);
   --color-event-hover: var(--event-hover);
   --color-event-active: var(--event-active);
-  --font-listings: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow",
-    sans-serif;
+  /* Departure Mono — pixel-grid monospace (design-log #17). */
+  --font-listings: "Departure Mono", ui-monospace, "SFMono-Regular", Menlo,
+    monospace;
+  --font-sans: "Departure Mono", ui-monospace, monospace;
+  --font-mono: "Departure Mono", ui-monospace, monospace;
+
 }
 
 :root {
