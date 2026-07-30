@@ -117,7 +117,7 @@ function SheetBody({
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="border border-ink bg-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em] text-paper hover:bg-spot hover:border-spot"
+              className="border border-ink bg-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.05em] text-paper transition-colors duration-100 hover:border-spot hover:bg-spot active:border-ink-mid active:bg-ink-mid"
             >
               ● Watch · {hostOf(url)}
             </a>
