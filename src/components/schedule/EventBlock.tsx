@@ -1,5 +1,10 @@
 import type { CSSProperties } from "react";
-import { formatTimeRange, slotIndexFor, spanSlotsFor } from "@/lib/schedule/time";
+import {
+  formatTimeRange,
+  slotIndexFor,
+  spanSlotsFor,
+  type DayWindow,
+} from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
 
 interface EventBlockProps {
@@ -9,6 +14,8 @@ interface EventBlockProps {
   /** Sub-column lane from assignSubColumns (0 when alone). */
   lane: number;
   lanes: number;
+  /** The day's visible time window — drives row placement. */
+  window: DayWindow;
   /** True while the event is running right now — animates the stripe field. */
   live: boolean;
   onOpen: (event: EventItem) => void;
@@ -25,18 +32,20 @@ export function EventBlock({
   venueColumn,
   lane,
   lanes,
+  window: win,
   live,
   onOpen,
 }: EventBlockProps) {
   const style: CSSProperties = {
     // +2: CSS grid is 1-based, and column 1 is the time gutter.
     gridColumn: venueColumn + 2,
-    gridRow: `${slotIndexFor(event.start) + 1} / span ${spanSlotsFor(event.start, event.end)}`,
+    gridRow: `${slotIndexFor(event.start, win) + 1} / span ${spanSlotsFor(event.start, event.end)}`,
     ...(lanes > 1 && {
       width: `${100 / lanes}%`,
       marginInlineStart: `${(lane * 100) / lanes}%`,
     }),
   };
+
   return (
     <button
       type="button"
