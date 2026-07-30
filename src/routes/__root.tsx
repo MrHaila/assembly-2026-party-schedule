@@ -98,14 +98,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
-        rel: "preload",
-        as: "font",
-        type: "font/woff2",
-        crossOrigin: "anonymous",
-        href: "/__l5e/assets-v1/3f42783b-ecd9-47aa-a61b-1993d43f84f3/DepartureMono-Regular.woff2",
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap",
       },
-
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
