@@ -107,79 +107,24 @@ function AssyguidePage() {
   const gridVenues = schedule.venues.slice(0, MAX_GRID_COLUMNS);
   const otherVenues = schedule.venues.slice(MAX_GRID_COLUMNS);
 
-  // Scroll-spy: the day tab follows the timeline instead of switching it.
-  // A scroll listener (not IntersectionObserver) — IO only fires when a
-  // threshold is crossed, so a smooth scroll could settle after the last
-  // callback and leave the tab one day behind.
-  useEffect(() => {
-    const root = scrollRef.current;
-    if (!root) return;
-    const sections = Array.from(
-      root.querySelectorAll<HTMLElement>("[data-day-id]"),
-    );
-    let frame = 0;
-    const sync = () => {
-      frame = 0;
-      const top = root.getBoundingClientRect().top;
-      const current =
-        sections.find((s) => s.getBoundingClientRect().bottom > top + 8) ??
-        sections.at(-1);
-      if (current?.dataset.dayId) setFocusedDay(current.dataset.dayId);
-    };
-    const onScroll = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(sync);
-    };
-    root.addEventListener("scroll", onScroll, { passive: true });
-    sync();
-    return () => {
-      root.removeEventListener("scroll", onScroll);
-      if (frame) cancelAnimationFrame(frame);
-    };
-  }, [schedule.days, isMobile]);
-
-
-  const scrollToDay = (dayId: string) => {
-    setFocusedDay(dayId);
-    const root = scrollRef.current;
-    const target = root?.querySelector<HTMLElement>(
-      `[data-day-id="${dayId}"]`,
-    );
-    // Scroll BEFORE the router state change: navigate() re-renders the tree,
-    // which used to interrupt (and silently drop) the smooth scroll, so the
-    // first click only moved the tab and a second click was needed.
-    if (root && target) {
-      root.scrollTo({
-        top: root.scrollTop + target.getBoundingClientRect().top -
-          root.getBoundingClientRect().top,
-        behavior: "smooth",
-      });
-    }
-    navigate({ to: ".", search: { day: dayId }, replace: true });
-  };
-
-  // First paint lands on the deep link (?day=), otherwise on "now" placed
-  // ~20% down the viewport so a little past stays visible above upcoming.
+  // First paint lands on "now", placed ~20% down the viewport so a little
+  // past stays visible above what is coming up.
   const landed = useRef(false);
   useEffect(() => {
     if (landed.current) return;
     const root = scrollRef.current;
     if (!root) return;
 
-    const deepLinked = schedule.days.find((d) => d.id === search.day);
-    if (!deepLinked) {
-      const marker = root.querySelector<HTMLElement>("[data-now-marker]");
-      if (marker) {
-        landed.current = true;
-        root.scrollTop =
-          root.scrollTop + marker.getBoundingClientRect().top -
-          root.getBoundingClientRect().top - root.clientHeight * 0.2;
-        return;
-      }
+    const marker = root.querySelector<HTMLElement>("[data-now-marker]");
+    if (marker) {
+      landed.current = true;
+      root.scrollTop =
+        root.scrollTop + marker.getBoundingClientRect().top -
+        root.getBoundingClientRect().top - root.clientHeight * 0.2;
+      return;
     }
 
-    const target =
-      deepLinked ?? schedule.days.find((d) => d.date === now?.date);
+    const target = schedule.days.find((d) => d.date === now?.date);
     if (!target) return;
     landed.current = true;
     const el = root.querySelector<HTMLElement>(`[data-day-id="${target.id}"]`);
@@ -187,9 +132,9 @@ function AssyguidePage() {
       root.scrollTop =
         root.scrollTop + el.getBoundingClientRect().top -
         root.getBoundingClientRect().top;
-      setFocusedDay(target.id);
     }
-  }, [schedule.days, search.day, now?.date]);
+  }, [schedule.days, now?.date]);
+
 
   return (
     <div className="flex h-dvh flex-col">
