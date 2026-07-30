@@ -217,3 +217,9 @@ Footer copy changed from "Data as of YYYY-MM-DD HH:mm · Source assembly.org" to
 client-side and ticks once a second, with a placeholder dash on first render to
 avoid hydration mismatch. Both FI and EN use idiomatic pluralization.
 
+
+## 17. Departure Mono
+
+Typeface switched to Departure Mono (departuremono.com), self-hosted via CDN asset
+pointers in `src/assets/`. `--font-listings`, `--font-sans` and `--font-mono` all
+resolve to it, so the whole app renders in one pixel-grid monospace face.
