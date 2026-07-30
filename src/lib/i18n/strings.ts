@@ -25,6 +25,13 @@ export interface Strings {
   watch: string;
   officialPage: string;
   language: string;
+  addFavourite: string;
+  removeFavourite: string;
+  nextUp: string;
+  thenAfter: string;
+  noFavourites: string;
+  liveNow: string;
+
 }
 
 const FI: Strings = {
