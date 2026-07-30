@@ -4,7 +4,9 @@ import { useLanguage } from "@/hooks/use-language";
 import { pickLocalized } from "@/lib/i18n/language";
 import { formatTimeRange } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
+import { ActionButton, ActionLink } from "@/components/ui/ActionButton";
 import { FavouriteStar } from "./FavouriteStar";
+
 
 interface DetailSheetProps {
   event: EventItem | null;
