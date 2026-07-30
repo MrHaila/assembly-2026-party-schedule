@@ -255,7 +255,11 @@
 @utility event-favourite {
   border-left: 3px solid var(--gold);
   background-color: var(--event-favourite);
-  --stripe-color: color-mix(in oklab, var(--gold) 34%, transparent);
+
+  /* Doubled specificity so this wins over live-stripes' own default. */
+  &:is(.event-favourite) {
+    --stripe-color: color-mix(in oklab, var(--gold) 34%, transparent);
+  }
 }
 
 
