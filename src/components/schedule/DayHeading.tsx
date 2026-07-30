@@ -9,26 +9,24 @@ interface DayHeadingProps {
 }
 
 /**
- * Sticky inline day separator inside the continuous timeline. The all-day
- * run-on line lives on the same band, so "what runs all day" is part of the
- * timeline rather than a floating strip above it.
+ * Inline day separator inside the continuous timeline.
  *
- * The band is deliberately ONE line of fixed height (--day-head-h): the
- * location header row parks directly beneath it, and a variable-height
- * heading would desync that offset. Overlong all-day runs scroll sideways
- * inside the band instead of wrapping.
+ * Two bands, on purpose:
+ *  - the day name is its own STICKY row of fixed height (--day-head-h), so
+ *    the location header row can park at exactly that offset;
+ *  - the all-day run-on sits directly below it, not sticky, so it may wrap
+ *    to as many lines as it needs instead of hiding rows in a side scroller.
  */
 export function DayHeading({ day, ongoing, onOpen }: DayHeadingProps) {
   return (
-    <div
-      className="sticky top-0 z-40 flex h-[var(--day-head-h)] items-center gap-x-2 overflow-x-auto overflow-y-hidden whitespace-nowrap border-y-2 border-ink bg-ink px-2 text-paper"
-      style={{ scrollbarWidth: "none" }}
-    >
-      <h2 className="shrink-0 text-[13px] font-bold uppercase tracking-[0.1em]">
-        {day.label}
-      </h2>
+    <>
+      <div className="sticky top-0 z-40 flex h-[var(--day-head-h)] items-center border-y-2 border-ink bg-ink px-2 text-paper">
+        <h2 className="text-[13px] font-bold uppercase tracking-[0.1em]">
+          {day.label}
+        </h2>
+      </div>
       {ongoing.length > 0 && (
-        <p className="text-[12px] leading-none">
+        <p className="border-b-2 border-ink bg-ink px-2 pb-1 text-[12px] leading-[1.5] text-paper">
           <span className="font-bold uppercase tracking-[0.06em]">
             All day ▸{" "}
           </span>
@@ -49,6 +47,6 @@ export function DayHeading({ day, ongoing, onOpen }: DayHeadingProps) {
           ))}
         </p>
       )}
-    </div>
+    </>
   );
 }

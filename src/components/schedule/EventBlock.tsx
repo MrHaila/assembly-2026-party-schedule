@@ -40,15 +40,19 @@ export function EventBlock({
       data-col={venueColumn + 1}
       onClick={() => onOpen(event)}
       style={style}
-      className="z-10 flex flex-col items-stretch justify-start overflow-hidden border-t border-ink/60 bg-event px-1 pt-px text-left transition-colors duration-100 hover:bg-event-hover active:bg-event-active focus-visible:outline-2 focus-visible:outline-spot"
+      className="relative z-10 block overflow-hidden border-t border-ink/60 bg-event px-1 pt-px text-left transition-colors duration-100 hover:bg-event-hover active:bg-event-active focus-visible:outline-2 focus-visible:outline-spot"
     >
-      <span className="tnum block text-[10.5px] font-medium uppercase leading-[1.2] tracking-[0.02em] text-ink-mid">
-        {formatTimeRange(event.start, event.end, event.estimated)}
-        {event.streamUrls.length > 0 ? " ●" : ""}
-        {event.venueIdSecondary ? " ⇄" : ""}
-      </span>
-      <span className="block text-[13px] font-semibold leading-[1.25] text-ink">
-        {event.title}
+      {/* Absolutely positioned so the label always hugs the start time —
+          buttons vertically centre their content in every engine. */}
+      <span className="absolute inset-x-1 top-px block">
+        <span className="tnum block text-[10.5px] font-medium uppercase leading-[1.2] tracking-[0.02em] text-ink-mid">
+          {formatTimeRange(event.start, event.end, event.estimated)}
+          {event.streamUrls.length > 0 ? " ●" : ""}
+          {event.venueIdSecondary ? " ⇄" : ""}
+        </span>
+        <span className="block text-[13px] font-semibold leading-[1.25] text-ink">
+          {event.title}
+        </span>
       </span>
     </button>
   );
