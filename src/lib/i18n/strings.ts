@@ -25,6 +25,13 @@ export interface Strings {
   watch: string;
   officialPage: string;
   language: string;
+  addFavourite: string;
+  removeFavourite: string;
+  nextUp: string;
+  thenAfter: string;
+  noFavourites: string;
+  liveNow: string;
+
 }
 
 const FI: Strings = {
@@ -45,6 +52,12 @@ const FI: Strings = {
   watch: "Katso",
   officialPage: "Virallinen sivu",
   language: "Kieli",
+  addFavourite: "Lisää suosikkeihin",
+  removeFavourite: "Poista suosikeista",
+  nextUp: "Seuraavaksi",
+  thenAfter: "Sitten",
+  noFavourites: "Merkitse tapahtumia tähdellä nähdäksesi ne täällä",
+  liveNow: "Käynnissä",
 };
 
 const EN: Strings = {
@@ -65,6 +78,12 @@ const EN: Strings = {
   watch: "Watch",
   officialPage: "Official page",
   language: "Language",
+  addFavourite: "Add to favourites",
+  removeFavourite: "Remove from favourites",
+  nextUp: "Next up",
+  thenAfter: "Then",
+  noFavourites: "Star events to see them here",
+  liveNow: "Live now",
 };
 
 const DICTIONARIES: Record<Language, Strings> = { fi: FI, en: EN };
@@ -174,4 +193,28 @@ export function dayLabel(day: Day, language: Language): string {
 export function dayShortLabel(day: Day, language: Language): string {
   const dayOfMonth = Number(day.date.slice(8, 10));
   return `${WEEKDAYS_SHORT[language][weekdayIndex(day)]} ${dayOfMonth}`;
+}
+
+/**
+ * Departure-board countdown: "in 24 min" / "24 min kuluttua",
+ * "in 1h 23min", "in 2d 3h". Minutes below one read as "<1 min".
+ */
+export function formatCountdown(language: Language, minutes: number): string {
+  const m = Math.max(0, Math.round(minutes));
+  let body: string;
+  if (m < 1) {
+    body = "<1 min";
+  } else if (m < 60) {
+    body = `${m} min`;
+  } else if (m < 1440) {
+    const h = Math.floor(m / 60);
+    const rest = m % 60;
+    body = rest === 0 ? `${h} h` : `${h} h ${rest} min`;
+  } else {
+    const d = Math.floor(m / 1440);
+    const h = Math.floor((m % 1440) / 60);
+    const dayUnit = language === "fi" ? "pv" : "d";
+    body = h === 0 ? `${d} ${dayUnit}` : `${d} ${dayUnit} ${h} h`;
+  }
+  return language === "fi" ? `${body} kuluttua` : `in ${body}`;
 }

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useFavourites } from "@/hooks/use-favourites";
 import { assignSubColumns } from "@/lib/schedule/normalize";
 import {
   computeDayWindow,
@@ -35,6 +36,7 @@ export function ScheduleGrid({
   now,
   onOpen,
 }: ScheduleGridProps) {
+  const { isFavourite, toggle } = useFavourites();
   const gridSlugs = new Set(venues.map((v) => v.slug));
   const moments = events.filter(
     (e) => e.kind === "moment" && gridSlugs.has(e.venueId),
@@ -131,6 +133,8 @@ export function ScheduleGrid({
                 lane={p.lane}
                 lanes={p.lanes}
                 window={win}
+                favourite={isFavourite(event.id)}
+                onToggleFavourite={(e) => toggle(e.id)}
                 live={
                   showNow &&
                   !!now &&

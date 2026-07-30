@@ -6,6 +6,7 @@ import {
   type DayWindow,
 } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
+import { FavouriteStar } from "./FavouriteStar";
 
 interface EventBlockProps {
   event: EventItem;
@@ -18,6 +19,9 @@ interface EventBlockProps {
   window: DayWindow;
   /** True while the event is running right now — animates the stripe field. */
   live: boolean;
+  /** Starred by the visitor — gold outline, star always visible. */
+  favourite: boolean;
+  onToggleFavourite: (event: EventItem) => void;
   onOpen: (event: EventItem) => void;
 }
 
@@ -26,6 +30,9 @@ interface EventBlockProps {
  * here — grid-row span is guarded by spanSlotsFor's Math.max(1, …), so no
  * data bug can ever produce a negative span. `data-col` lets CSS drop the
  * block when its location column does not fit the viewport.
+ *
+ * The wrapper is a plain element, not a button: the favourite star is itself
+ * a button and buttons cannot nest.
  */
 export function EventBlock({
   event,
@@ -34,6 +41,8 @@ export function EventBlock({
   lanes,
   window: win,
   live,
+  favourite,
+  onToggleFavourite,
   onOpen,
 }: EventBlockProps) {
   const style: CSSProperties = {
@@ -47,26 +56,43 @@ export function EventBlock({
   };
 
   return (
-    <button
-      type="button"
+    <div
       data-col={venueColumn + 1}
       data-live={live ? "" : undefined}
-      onClick={() => onOpen(event)}
       style={style}
-      className={`relative z-10 block overflow-hidden border border-ink/45 bg-event px-1 pt-px text-left transition-colors duration-100 hover:bg-event-hover active:bg-event-active focus-visible:outline-2 focus-visible:outline-spot${live ? " live-stripes" : ""}`}
+      className={`group relative z-10 overflow-hidden border border-ink/45 bg-event transition-colors duration-100 hover:bg-event-hover active:bg-event-active${live ? " live-stripes" : ""}${favourite ? " event-favourite" : ""}`}
     >
-      {/* Absolutely positioned so the label always hugs the start time —
-          buttons vertically centre their content in every engine. */}
-      <span className="absolute inset-x-1 top-px block">
-        <span className="tnum block text-[10.5px] font-medium uppercase leading-[1.2] tracking-[0.02em] text-ink-mid">
-          {formatTimeRange(event.start, event.end, event.estimated)}
-          {event.streamUrls.length > 0 ? " ●" : ""}
-          {event.venueIdSecondary ? " ⇄" : ""}
+      <button
+        type="button"
+        onClick={() => onOpen(event)}
+        className="block h-full w-full px-1 pt-px text-left focus-visible:outline-2 focus-visible:outline-spot"
+      >
+        {/* Absolutely positioned so the label always hugs the start time —
+            buttons vertically centre their content in every engine. */}
+        <span className="absolute inset-x-1 top-px block">
+          <span className="tnum block text-[10.5px] font-medium uppercase leading-[1.2] tracking-[0.02em] text-ink-mid">
+            {formatTimeRange(event.start, event.end, event.estimated)}
+            {event.streamUrls.length > 0 ? " ●" : ""}
+            {event.venueIdSecondary ? " ⇄" : ""}
+          </span>
+          <span className="block pr-4 text-[13px] font-semibold leading-[1.25] text-ink">
+            {event.title}
+          </span>
         </span>
-        <span className="block text-[13px] font-semibold leading-[1.25] text-ink">
-          {event.title}
+      </button>
+
+      {/* Muted until hover/focus, permanent once starred. */}
+      <span
+        className={`pointer-events-none absolute right-0 top-0 opacity-0 transition-opacity duration-100 group-hover:opacity-100 group-focus-within:opacity-100${favourite ? " !opacity-100" : ""}`}
+      >
+        <span className="pointer-events-auto block">
+          <FavouriteStar
+            favourite={favourite}
+            onToggle={() => onToggleFavourite(event)}
+            size="grid"
+          />
         </span>
       </span>
-    </button>
+    </div>
   );
 }
