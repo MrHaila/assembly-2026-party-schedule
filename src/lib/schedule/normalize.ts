@@ -135,10 +135,12 @@ function normalizeDays(data: RawScheduleData): Day[] {
     const date = cursor.toISOString().slice(0, 10);
     if (date > end) break;
     const weekday = WEEKDAY_IDS[cursor.getUTCDay()];
+    const dayOfMonth = Number(date.slice(8, 10));
     days.push({
       id: weekday,
       date,
-      label: `${weekday.toUpperCase()} ${Number(date.slice(8, 10))}`,
+      label: `${WEEKDAY_NAMES[cursor.getUTCDay()].toUpperCase()} ${ordinal(dayOfMonth)}`,
+      shortLabel: `${weekday.toUpperCase()} ${dayOfMonth}`,
     });
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
