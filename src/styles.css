@@ -323,13 +323,15 @@
   display: none;
 }
 
-/* CSS Grid with 5-minute row units (780-minute day / 5 = 156 rows).
-   Blocks place by grid-row span — no absolute positioning, no collision
-   math. A future zoom control is just changing --slot-h. */
+/* CSS Grid with 5-minute row units. The row count is data-driven: each day
+   sets --slots from its own earliest-start → latest-end window (05:00
+   rollover), so nights extend the day instead of being clipped.
+   A future zoom control is just changing --slot-h. */
 .schedule-grid {
   --slot-h: 7.5px;
   display: grid;
-  grid-template-rows: repeat(156, var(--slot-h));
+  grid-template-rows: repeat(var(--slots, 156), var(--slot-h));
+
   /* Vertical column borders, matching the sticky header's border-r cells.
      The rule is a faint background line behind the translucent event
      blocks so it reads through the glass instead of sitting on top. */
