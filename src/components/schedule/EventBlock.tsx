@@ -19,6 +19,9 @@ interface EventBlockProps {
   window: DayWindow;
   /** True while the event is running right now — animates the stripe field. */
   live: boolean;
+  /** Already finished — muted so upcoming events read first. */
+  past: boolean;
+
   /** Starred by the visitor — gold outline, star always visible. */
   favourite: boolean;
   onToggleFavourite: (event: EventItem) => void;
