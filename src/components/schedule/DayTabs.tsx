@@ -28,7 +28,7 @@ export function DayTabs({ days, activeId, onSelect }: DayTabsProps) {
             onClick={() => onSelect(day.id)}
             className={`px-2.5 py-1 text-[12px] font-semibold uppercase tracking-[0.06em] transition-colors duration-100 ${
               active
-                ? "press-invert bg-ink text-paper"
+                ? "bg-ink text-paper"
                 : "press bg-paper text-ink"
             }`}
           >

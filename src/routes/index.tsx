@@ -106,11 +106,13 @@ function AssyguidePage() {
 
   const scrollToDay = (dayId: string) => {
     setFocusedDay(dayId);
-    navigate({ to: ".", search: { day: dayId }, replace: true });
     const root = scrollRef.current;
     const target = root?.querySelector<HTMLElement>(
       `[data-day-id="${dayId}"]`,
     );
+    // Scroll BEFORE the router state change: navigate() re-renders the tree,
+    // which used to interrupt (and silently drop) the smooth scroll, so the
+    // first click only moved the tab and a second click was needed.
     if (root && target) {
       root.scrollTo({
         top: root.scrollTop + target.getBoundingClientRect().top -
@@ -118,6 +120,7 @@ function AssyguidePage() {
         behavior: "smooth",
       });
     }
+    navigate({ to: ".", search: { day: dayId }, replace: true });
   };
 
   // Deep link (?day=) and first paint both land on the right day, once.
