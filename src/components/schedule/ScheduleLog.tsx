@@ -1,4 +1,5 @@
 import { useMemo, type ReactNode } from "react";
+import { useFavourites } from "@/hooks/use-favourites";
 import { useLanguage } from "@/hooks/use-language";
 import {
   computeDayWindow,
@@ -30,6 +31,7 @@ export function ScheduleLog({
   onOpen,
 }: ScheduleLogProps) {
   const { t } = useLanguage();
+  const { isFavourite } = useFavourites();
   const entries = events.filter((e) => e.kind !== "ongoing");
   const win = useMemo(() => computeDayWindow(events), [events]);
   const showNow =
@@ -52,6 +54,7 @@ export function ScheduleLog({
     const prev = entries[i - 1];
     const hourChanged =
       !prev || prev.start.slice(11, 13) !== event.start.slice(11, 13);
+    const favourite = isFavourite(event.id);
     rows.push(
       <li
         key={event.id}
@@ -60,7 +63,7 @@ export function ScheduleLog({
         <button
           type="button"
           onClick={() => onOpen(event)}
-          className="press flex min-h-[44px] w-full items-baseline gap-2.5 px-1 py-1.5 text-left"
+          className={`press flex min-h-[44px] w-full items-baseline gap-2.5 px-1 py-1.5 text-left${favourite ? " border-l-2 border-gold bg-gold/10 pl-1.5" : ""}`}
         >
           <span className="tnum w-11 shrink-0 text-[13px] font-bold">
             {formatTime(event.start)}
@@ -72,6 +75,7 @@ export function ScheduleLog({
               {event.streamUrls.length > 0 ? " ●" : ""}
             </span>
             <span className="block text-[15px] font-semibold leading-[1.3]">
+              {favourite && <span className="mr-1 text-gold">★</span>}
               {event.kind === "moment" ? `◆ ${event.title}` : event.title}
             </span>
           </span>
