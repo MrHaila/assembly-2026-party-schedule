@@ -272,3 +272,13 @@ Refinements after dog-fooding #18:
   error. Favourited live events retint the field to gold via `--stripe-color`.
 - Vertical column hairlines are drawn once per column start instead of on both
   edges; doubled 1px lines read heavier than the horizontal hour rules.
+
+## 20 — About-site footer band
+
+A muted, secondary footer band at the very bottom of the page carries the
+attribution and open-source notice. It sits below the existing "last updated"
+stats row, uses the same paper/rule palette, and is intentionally small so it
+never competes with the schedule. The GitHub repo link is a single placeholder
+constant in `src/lib/site.config.ts` so it can be replaced once the project is
+published.
+
