@@ -73,6 +73,61 @@ export function stringsFor(language: Language): Strings {
   return DICTIONARIES[language];
 }
 
+const RELATIVE_UNITS: Record<
+  Language,
+  {
+    second: [string, string];
+    minute: [string, string];
+    hour: [string, string];
+    day: [string, string];
+    suffix: string;
+    justNow: string;
+  }
+> = {
+  fi: {
+    second: ["sekunti", "sekuntia"],
+    minute: ["minuutti", "minuuttia"],
+    hour: ["tunti", "tuntia"],
+    day: ["päivä", "päivää"],
+    suffix: "sitten",
+    justNow: "juuri nyt",
+  },
+  en: {
+    second: ["second", "seconds"],
+    minute: ["minute", "minutes"],
+    hour: ["hour", "hours"],
+    day: ["day", "days"],
+    suffix: "ago",
+    justNow: "just now",
+  },
+};
+
+function quantity(n: number, [singular, plural]: [string, string]): string {
+  return `${n} ${n === 1 ? singular : plural}`;
+}
+
+/** "last updated 23 seconds ago" / "päivitetty viimeksi 23 sekuntia sitten". */
+export function formatRelativeTime(
+  language: Language,
+  iso: string,
+  now: Date = new Date(),
+): string {
+  const units = RELATIVE_UNITS[language];
+  const seconds = Math.max(
+    0,
+    Math.floor((now.getTime() - new Date(iso).getTime()) / 1_000),
+  );
+  if (seconds < 5) return units.justNow;
+  if (seconds < 60) return `${quantity(seconds, units.second)} ${units.suffix}`;
+  if (seconds < 3_600) {
+    return `${quantity(Math.floor(seconds / 60), units.minute)} ${units.suffix}`;
+  }
+  if (seconds < 86_400) {
+    return `${quantity(Math.floor(seconds / 3_600), units.hour)} ${units.suffix}`;
+  }
+  return `${quantity(Math.floor(seconds / 86_400), units.day)} ${units.suffix}`;
+}
+
 const WEEKDAY_IDS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
 const WEEKDAYS: Record<Language, readonly string[]> = {
