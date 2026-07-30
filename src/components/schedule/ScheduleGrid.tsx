@@ -130,7 +130,7 @@ export function ScheduleGrid({
               gridRow: slotIndexFor(moment.start) + 1,
             }}
           >
-            <span className="relative -top-[7px] ml-12 inline-block border border-ink/50 bg-paper px-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] hover:bg-marker/70">
+            <span className="press relative -top-[7px] ml-12 inline-block border border-ink/50 bg-paper px-1.5 text-[11px] font-semibold uppercase tracking-[0.04em]">
               ◆ <span className="tnum">{formatTime(moment.start)}</span>{" "}
               {moment.title}
             </span>
