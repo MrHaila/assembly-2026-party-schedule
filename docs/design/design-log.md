@@ -168,3 +168,25 @@ trace an event up to its location header.
 calc((100% - 48px) / var(--cols))` and `background-position: 48px 0`, so
 it stays in sync with the responsive column count and the time gutter width.
 No extra DOM elements or JS measurement required.
+
+## 11 — FI/EN language switch (FI default)
+
+**Decision.** A two-state FI/EN switch sits in the header, right of the day
+tabs. FI is the default for first-time visitors; the choice persists in
+`localStorage` under `assyguide.language`. The detail sheet no longer shows a
+separate "EN: …" title line.
+
+**Why.** The event is Finnish and most on-site visitors read Finnish, but the
+site copy was English-only. With a real switch, the EN title line in the modal
+became redundant duplication of the same information.
+
+**Technical note.** `src/lib/i18n/language.ts` holds the pure persistence and
+`pickLocalized` fallback logic (unit tested, no DOM). `src/lib/i18n/strings.ts`
+holds one dictionary per language behind a `Strings` interface, so an
+untranslated key is a type error, plus localized day labels
+("PERJANTAI 31.7." / "FRIDAY 31st"). `useLanguage()` (provider in `__root`)
+is the only way components read the choice; SSR and first paint always render
+FI and the stored value is applied in an effect to avoid hydration mismatch.
+Event *titles* are not localized — the API's occurrence title is the specific
+one, while the program title is a generic umbrella; only excerpts have real
+FI/EN variants (`excerptFi` / `excerptEn`).
