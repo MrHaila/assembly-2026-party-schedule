@@ -59,28 +59,44 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-mid: var(--ink-mid);
+  --color-rule: var(--rule);
+  --color-spot: var(--spot);
+  --color-marker: var(--marker);
+  --font-listings: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow",
+    sans-serif;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
+  /* ASSYGUIDE newsprint tokens (docs/design/design-log.md #1).
+     Newsprint grey-tan, not luxury cream; one spot ink like 2-colour print. */
+  --paper: oklch(0.922 0.013 98);
+  --ink: oklch(0.206 0.008 90);
+  --ink-mid: oklch(0.443 0.016 90);
+  --rule: oklch(0.814 0.019 98);
+  --spot: oklch(0.548 0.236 27.5);
+  --marker: oklch(0.905 0.192 100);
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: var(--rule);
+  --secondary-foreground: var(--ink);
+  --muted: var(--rule);
+  --muted-foreground: var(--ink-mid);
+  --accent: var(--rule);
+  --accent-foreground: var(--ink);
+  --destructive: var(--spot);
+  --destructive-foreground: var(--paper);
+  --border: var(--rule);
+  --input: var(--rule);
   --ring: oklch(0.704 0.04 256.788);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -140,5 +156,29 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-listings);
   }
+}
+
+/* ASSYGUIDE schedule primitives (docs/design/design-log.md #1, #3).
+   Density comes from hairline rules and tight leading — never cards,
+   radii or shadows, which the printed page did not have either. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shared column template for the sticky header row and the grid body,
+   so the two grids stay column-aligned. */
+.schedule-cols {
+  grid-template-columns: 48px repeat(var(--venues, 6), minmax(140px, 1fr));
+}
+
+/* CSS Grid with 5-minute row units (780-minute day / 5 = 156 rows).
+   Blocks place by grid-row span — no absolute positioning, no collision
+   math. A future zoom control is just changing --slot-h. */
+.schedule-grid {
+  --slot-h: 7.5px;
+  display: grid;
+  grid-template-columns: 48px repeat(var(--venues, 6), minmax(140px, 1fr));
+  grid-template-rows: repeat(156, var(--slot-h));
 }
