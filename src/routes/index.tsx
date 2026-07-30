@@ -32,20 +32,20 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "ASSYGUIDE — Assembly Summer 2026 Schedule" },
+      { title: "Assembly Schedule" },
       {
         name: "description",
         content:
-          "What's on now, what's next, and what you're about to miss — every Assembly Summer 2026 stage on one dense TV-listings page.",
+          "The better party schedule viewer for Assembly Summer 2026.",
       },
       {
         property: "og:title",
-        content: "ASSYGUIDE — Assembly Summer 2026 Schedule",
+        content: "Assembly Schedule",
       },
       {
         property: "og:description",
         content:
-          "Every Assembly Summer 2026 stage on one dense TV-listings page. 210 events, 14 locations, 4 days.",
+          "The better party schedule viewer for Assembly Summer 2026.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

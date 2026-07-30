@@ -81,20 +81,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ASSYGUIDE" },
+      { title: "Assembly Schedule" },
       {
         name: "description",
         content:
-          "A printed-TV-listings schedule for Assembly at Messukeskus, Helsinki.",
+          "The better party schedule viewer for Assembly Summer 2026.",
       },
-      { property: "og:title", content: "ASSYGUIDE" },
+      { property: "og:title", content: "Assembly Schedule" },
       {
         property: "og:description",
         content:
-          "A printed-TV-listings schedule for Assembly at Messukeskus, Helsinki.",
+          "The better party schedule viewer for Assembly Summer 2026.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Assembly Schedule" },
+      { name: "twitter:description", content: "The better party schedule viewer for Assembly Summer 2026." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5ebf09e8-1b07-4af0-9428-47bef608f668/id-preview-e0c83d9f--c48fa985-3df6-4478-83f7-82bae601060a.lovable.app-1785440812358.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5ebf09e8-1b07-4af0-9428-47bef608f668/id-preview-e0c83d9f--c48fa985-3df6-4478-83f7-82bae601060a.lovable.app-1785440812358.png" },
     ],
     links: [
       {
@@ -107,7 +111,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
   shellComponent: RootShell,
