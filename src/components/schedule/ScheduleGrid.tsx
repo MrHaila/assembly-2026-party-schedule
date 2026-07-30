@@ -173,7 +173,7 @@ export function ScheduleGrid({
           <div
             aria-hidden
             data-now-marker
-            className="relative z-30 self-start"
+            className="relative z-[15] self-start"
             style={{
               gridColumn: "1 / -1",
               gridRow: Math.floor((now.minutes - win.startMin) / 5) + 1,
