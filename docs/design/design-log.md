@@ -103,3 +103,32 @@ the grid (it pinned to the top); its wrapper is now the positioning
 context, so the chip rides the rule. And `stripHtml` now decodes numeric
 entities (`it&#8217;s`) as well as the named ones — WordPress excerpts
 ship both, and titles are decoded too.
+
+## 7. Interaction states, sticky day band, priority locations (2026-07-30)
+
+1. **Every affordance is pointer-cursored and has both states.** Base layer
+   sets `cursor: pointer` on `button`, `summary`, `a[href]`, `[role=tab]`
+   and `[role=button]` (disabled controls keep the arrow). Hover is
+   *brighter* than default, active is *darker* — no exceptions. Two
+   utilities own the colours so components cannot drift: `.press` on paper,
+   `.press-invert` on the ink band. Event blocks use the `--event*` token
+   trio for the same contract.
+2. **Event surfaces are lighter than the page and translucent.** Blocks now
+   read as tiles against newsprint instead of vanishing into it, and the
+   hour rules stay faintly visible *through* them, so the timeline no longer
+   looks like half-drawn lines between opaque boxes.
+3. **The day heading is sticky.** It is exactly one line tall
+   (`--day-head-h`) on purpose: the location header row parks at
+   `top: var(--day-head-h)`, and a wrapping heading would desync that
+   offset. Long all-day runs scroll sideways inside the band. Full label
+   too — "THURSDAY 30th" on the band, compact "THU 30" on the tabs
+   (`Day.label` vs `Day.shortLabel`).
+4. **Grid block text is top-aligned**, so a title always sits next to its
+   start time — the whole point of a proportional axis.
+5. **Locations gained an editorial `priority`.** Main and Genelec are
+   pinned to columns 1–2; everything without a priority is still ranked by
+   event count. Promoting another location is a one-line config change.
+6. **Official program links are edition-scoped and configurable.** The API's
+   `program.uri` is edition-relative, so `event.config.ts` supplies
+   `EVENT_EDITION` (same slug as the GraphQL endpoint) and builds
+   `https://assembly.org/events/summer26/program/…`. Covered by a test.
