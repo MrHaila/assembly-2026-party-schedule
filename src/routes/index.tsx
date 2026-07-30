@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AssemblyMark } from "@/components/AssemblyMark";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { SiteFooter } from "@/components/SiteFooter";
 
 import { DayHeading } from "@/components/schedule/DayHeading";
 import { DetailSheet } from "@/components/schedule/DetailSheet";
@@ -256,12 +257,15 @@ function AssyguidePage() {
         })}
       </div>
 
-      <footer className="border-t border-rule bg-paper px-3 py-1 text-[10px] uppercase tracking-[0.05em] text-ink-mid">
-        {t.lastUpdated}{" "}
-        {nowFooter
-          ? formatRelativeTime(language, schedule.fetchedAt, nowFooter)
-          : "–"}{" "}
-        · {schedule.events.length} {t.events}
+      <footer className="border-t border-rule bg-paper text-ink-mid">
+        <div className="px-3 py-1 text-[10px] uppercase tracking-[0.05em]">
+          {t.lastUpdated}{" "}
+          {nowFooter
+            ? formatRelativeTime(language, schedule.fetchedAt, nowFooter)
+            : "–"}{" "}
+          · {schedule.events.length} {t.events}
+        </div>
+        <SiteFooter />
       </footer>
 
       <DetailSheet
