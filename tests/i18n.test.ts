@@ -7,7 +7,7 @@ import {
   readStoredLanguage,
   storeLanguage,
 } from "@/lib/i18n/language";
-import { dayLabel, dayShortLabel, formatRelativeTime, stringsFor } from "@/lib/i18n/strings";
+import { dayLabel, formatRelativeTime, isoDayLabel, stringsFor } from "@/lib/i18n/strings";
 import type { Day } from "@/lib/schedule/types";
 
 function fakeStorage(initial: Record<string, string> = {}) {
@@ -75,8 +75,8 @@ describe("day labels", () => {
   it("localizes the heading and tab labels", () => {
     expect(dayLabel(FRIDAY, "en")).toBe("FRIDAY 31st");
     expect(dayLabel(FRIDAY, "fi")).toBe("PERJANTAI 31.7.");
-    expect(dayShortLabel(FRIDAY, "en")).toBe("FRI 31");
-    expect(dayShortLabel(FRIDAY, "fi")).toBe("PE 31");
+    expect(isoDayLabel("2026-07-31T12:00:00+03:00", "en")).toBe("FRIDAY 31st");
+    expect(isoDayLabel("2026-07-31T12:00:00+03:00", "fi")).toBe("PERJANTAI 31.7.");
   });
 });
 

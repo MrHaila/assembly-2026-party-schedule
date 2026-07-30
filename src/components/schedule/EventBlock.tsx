@@ -19,6 +19,9 @@ interface EventBlockProps {
   window: DayWindow;
   /** True while the event is running right now — animates the stripe field. */
   live: boolean;
+  /** Already finished — muted so upcoming events read first. */
+  past: boolean;
+
   /** Starred by the visitor — gold outline, star always visible. */
   favourite: boolean;
   onToggleFavourite: (event: EventItem) => void;
@@ -41,6 +44,7 @@ export function EventBlock({
   lanes,
   window: win,
   live,
+  past,
   favourite,
   onToggleFavourite,
   onOpen,
@@ -59,9 +63,11 @@ export function EventBlock({
     <div
       data-col={venueColumn + 1}
       data-live={live ? "" : undefined}
+      data-past={past ? "" : undefined}
       style={style}
-      className={`group relative z-10 overflow-hidden border border-ink/45 bg-event transition-colors duration-100 hover:bg-event-hover active:bg-event-active${live ? " live-stripes" : ""}${favourite ? " event-favourite" : ""}`}
+      className={`group relative z-10 overflow-hidden border border-ink/45 bg-event transition-colors duration-100 hover:bg-event-hover active:bg-event-active${live ? " live-stripes" : ""}${favourite ? " event-favourite" : ""}${past ? " opacity-45 saturate-50 hover:opacity-100" : ""}`}
     >
+
       <button
         type="button"
         onClick={() => onOpen(event)}
