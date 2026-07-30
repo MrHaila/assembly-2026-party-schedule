@@ -282,3 +282,22 @@ never competes with the schedule. The GitHub repo link is a single placeholder
 constant in `src/lib/site.config.ts` so it can be replaced once the project is
 published.
 
+## 21 — External footer links and a more prominent grid favourite
+
+Three refinements from the latest dog-fooding comments:
+
+- **Footer links are external.** All links in `SiteFooter` open in a new
+  tab/window (`target="_blank"`, `rel="noopener noreferrer"`) and carry the
+  universal "↗" arrow so visitors know they are leaving the app. The markup
+  is shared through a single `ExternalLink` component in
+  `src/components/ui/ExternalLink.tsx`.
+- **Grid favourites are more prominent.** The `event-favourite` wash is now a
+  stronger grid-only mix (`--event-favourite-grid`, gold 34% over paper);
+  run-on list entries keep the lighter shared `--event-favourite` (gold 20%).
+  A large, muted gold star is clipped into the bottom-right corner of every
+  starred grid block: 55% of the block width, rotated 22°, and partially cut
+  off so it reads as a background texture rather than a floating icon.
+- **List favourites stay legible.** The run-on list keeps the ★ glyph before
+  the time and the gold wash, updated to the same 20% token as the rest of
+  the list projection.
+
