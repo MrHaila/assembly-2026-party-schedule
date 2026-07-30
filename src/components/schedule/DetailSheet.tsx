@@ -1,8 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import { useFavourites } from "@/hooks/use-favourites";
 import { useLanguage } from "@/hooks/use-language";
 import { pickLocalized } from "@/lib/i18n/language";
 import { formatTimeRange } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
+import { FavouriteStar } from "./FavouriteStar";
 
 interface DetailSheetProps {
   event: EventItem | null;
@@ -47,6 +49,7 @@ function SheetBody({
   onClose: () => void;
 }) {
   const { language, t } = useLanguage();
+  const { isFavourite, toggle } = useFavourites();
   const excerpt = pickLocalized(language, {
     fi: event.excerptFi,
     en: event.excerptEn,
@@ -67,6 +70,12 @@ function SheetBody({
             </span>
           )}
         </Dialog.Title>
+        <div className="flex shrink-0 items-center gap-2">
+        <FavouriteStar
+          favourite={isFavourite(event.id)}
+          onToggle={() => toggle(event.id)}
+          size="action"
+        />
         <button
           type="button"
           onClick={onClose}
@@ -75,6 +84,7 @@ function SheetBody({
         >
           ✕
         </button>
+        </div>
       </div>
 
       <dl className="mt-3 space-y-1 text-[13px]">
