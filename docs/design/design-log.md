@@ -193,3 +193,6 @@ FI/EN variants (`excerptFi` / `excerptEn`).
 
 ### 11b. Event blocks get a full border
 Event blocks now use a 1px border on all four sides (`border-ink/45`) instead of only a top rule, so adjacent/side-by-side events in the same location read as distinct cards.
+
+### 13. One segmented toggle
+Day shortcuts and the FI/EN switch both render through `src/components/ui/SegmentedToggle.tsx` (closed API: options, activeId, onSelect, label, semantics). Active segments never react to hover; inactive ones use `.press`.
