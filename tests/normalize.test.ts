@@ -13,7 +13,6 @@ import {
   stripHtml,
 } from "@/lib/schedule/normalize";
 import {
-  DAY_END_MIN,
   DAY_START_MIN,
   SLOT_COUNT,
   addMinutesIso,
