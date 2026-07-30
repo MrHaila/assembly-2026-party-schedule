@@ -225,8 +225,8 @@ describe("days", () => {
       "sat",
       "sun",
     ]);
-    expect(schedule.days[0]).toMatchObject({ date: "2026-07-30", label: "THU 30" });
-    expect(schedule.days[3]).toMatchObject({ date: "2026-08-02", label: "SUN 2" });
+    expect(schedule.days[0]).toMatchObject({ date: "2026-07-30", label: "THURSDAY 30th", shortLabel: "THU 30" });
+    expect(schedule.days[3]).toMatchObject({ date: "2026-08-02", label: "SUNDAY 2nd", shortLabel: "SUN 2" });
   });
 });
 
