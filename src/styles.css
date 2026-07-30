@@ -65,6 +65,9 @@
   --color-rule: var(--rule);
   --color-spot: var(--spot);
   --color-marker: var(--marker);
+  --color-event: var(--event);
+  --color-event-hover: var(--event-hover);
+  --color-event-active: var(--event-active);
   --font-listings: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow",
     sans-serif;
 }
