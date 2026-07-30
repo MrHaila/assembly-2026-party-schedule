@@ -135,12 +135,19 @@ export function ScheduleGrid({
                 window={win}
                 favourite={isFavourite(event.id)}
                 onToggleFavourite={(e) => toggle(e.id)}
+                past={
+                  !!now &&
+                  (day.date < now.date ||
+                    (day.date === now.date &&
+                      dayMinutes(event.end) <= now.minutes))
+                }
                 live={
                   showNow &&
                   !!now &&
                   dayMinutes(event.start) <= now.minutes &&
                   dayMinutes(event.end) > now.minutes
                 }
+
                 onOpen={onOpen}
               />
             );
