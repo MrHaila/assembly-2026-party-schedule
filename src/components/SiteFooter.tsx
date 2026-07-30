@@ -5,6 +5,7 @@
  * notice without competing with the schedule content. No props, no
  * className passthrough — the layout is fixed.
  */
+import { ExternalLink } from "@/components/ui/ExternalLink";
 import { GITHUB_REPO_URL } from "@/lib/site.config";
 
 export function SiteFooter() {
@@ -15,29 +16,14 @@ export function SiteFooter() {
       </h2>
       <p>
         Made by{" "}
-        <a
-          href="https://haila.fi"
-          className="text-ink hover:text-ink/80 active:text-ink/60 underline underline-offset-2 transition-colors"
-        >
-          MrHaila
-        </a>{" "}
+        <ExternalLink href="https://haila.fi">MrHaila</ExternalLink>{" "}
         as an entry to Assembly Summer 2026 Fix It compo.{" "}
-        <a
-          href={GITHUB_REPO_URL}
-          className="text-ink hover:text-ink/80 active:text-ink/60 underline underline-offset-2 transition-colors"
-        >
-          Open source
-        </a>{" "}
+        <ExternalLink href={GITHUB_REPO_URL}>Open source</ExternalLink>{" "}
         under MIT license.
       </p>
       <p className="mt-1">
         Data sourced from{" "}
-        <a
-          href="https://assembly.org"
-          className="text-ink hover:text-ink/80 active:text-ink/60 underline underline-offset-2 transition-colors"
-        >
-          assembly.org
-        </a>{" "}
+        <ExternalLink href="https://assembly.org">assembly.org</ExternalLink>{" "}
         open GraphQL API. Feel free to fork and update for future events!
       </p>
     </div>
