@@ -70,21 +70,10 @@ function SheetBody({
             </span>
           )}
         </Dialog.Title>
-        <div className="flex shrink-0 items-center gap-2">
-        <FavouriteStar
-          favourite={isFavourite(event.id)}
-          onToggle={() => toggle(event.id)}
-          size="action"
-        />
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t.close}
-          className="shrink-0 border border-ink px-2 py-0.5 text-[12px] font-bold uppercase transition-colors duration-100 hover:bg-ink hover:text-paper active:bg-ink-mid active:text-paper"
-        >
-          ✕
-        </button>
-        </div>
+        <ActionButton tone="outline" onClick={onClose} label={t.close}>
+          <span aria-hidden>✕</span>
+        </ActionButton>
+
       </div>
 
       <dl className="mt-3 space-y-1 text-[13px]">
