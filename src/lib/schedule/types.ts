@@ -15,9 +15,8 @@ export interface EventItem {
   id: number;
   /** Event occurrence title as shipped by the API (mixed FI/EN in practice). */
   title: string;
-  /** EN program translation title, when present and different from `title`. */
-  titleEn?: string;
   /** Program exists but has no EN translation — render an `FI` chip. */
+
   fiOnly: boolean;
   /** Location slug — stable key, never the display name. */
   venueId: string;
