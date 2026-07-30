@@ -19,6 +19,11 @@ import {
   formatTime,
   helsinkiNow,
   slotIndexFor,
+  scheduleDate,
+  dayMinutes,
+  toScheduleTime,
+  computeDayWindow,
+  formatDayMinutes,
   spanSlotsFor,
 } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
@@ -254,11 +259,44 @@ describe("grid slot math", () => {
   });
 
   it("slotIndexFor clamps out-of-window times into the grid", () => {
-    expect(slotIndexFor("2026-07-30T08:00:00+03:00")).toBe(0);
-    expect(slotIndexFor("2026-07-30T23:30:00+03:00")).toBe(SLOT_COUNT - 1);
-    expect(slotIndexFor("2026-07-30T14:00:00+03:00")).toBe(
+    const win = computeDayWindow([
+      { start: "2026-07-30T10:00:00+03:00", end: "2026-07-30T23:00:00+03:00", kind: "session" },
+    ]);
+    expect(win.slotCount).toBe(SLOT_COUNT);
+    expect(slotIndexFor("2026-07-30T08:00:00+03:00", win)).toBe(0);
+    expect(slotIndexFor("2026-07-30T23:30:00+03:00", win)).toBe(SLOT_COUNT - 1);
+    expect(slotIndexFor("2026-07-30T14:00:00+03:00", win)).toBe(
       (14 * 60 - DAY_START_MIN) / 5,
     );
+  });
+
+  it("the schedule day rolls over at 05:00, not midnight", () => {
+    expect(scheduleDate("2026-08-01T01:30:00+03:00")).toBe("2026-07-31");
+    expect(scheduleDate("2026-08-01T05:00:00+03:00")).toBe("2026-08-01");
+    expect(dayMinutes("2026-08-01T01:30:00+03:00")).toBe(25 * 60 + 30);
+    expect(dayMinutes("2026-08-01T13:00:00+03:00")).toBe(13 * 60);
+    expect(toScheduleTime({ date: "2026-08-01", minutes: 120 })).toEqual({
+      date: "2026-07-31",
+      minutes: 26 * 60,
+    });
+  });
+
+  it("computeDayWindow spans earliest start to latest end, incl. after midnight", () => {
+    const win = computeDayWindow([
+      { start: "2026-07-31T11:20:00+03:00", end: "2026-07-31T12:00:00+03:00", kind: "session" },
+      { start: "2026-07-31T22:00:00+03:00", end: "2026-08-01T02:30:00+03:00", kind: "session" },
+      { start: "2026-07-31T09:00:00+03:00", end: "2026-08-01T09:00:00+03:00", kind: "ongoing" },
+    ]);
+    expect(win.startMin).toBe(11 * 60);
+    expect(win.endMin).toBe(26 * 60 + 60);
+    expect(win.slotCount).toBe((win.endMin - win.startMin) / 5);
+    expect(formatDayMinutes(win.endMin)).toBe("03:00");
+  });
+
+  it("computeDayWindow falls back to 10:00-23:00 for an empty day", () => {
+    const win = computeDayWindow([]);
+    expect(win.startMin).toBe(DAY_START_MIN);
+    expect(win.slotCount).toBe(SLOT_COUNT);
   });
 
   it("formatTime reads the Helsinki local part", () => {

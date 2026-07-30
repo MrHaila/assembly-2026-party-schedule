@@ -1,10 +1,10 @@
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useLanguage } from "@/hooks/use-language";
 import {
-  DAY_END_MIN,
-  DAY_START_MIN,
+  computeDayWindow,
+  dayMinutes,
+  formatDayMinutes,
   formatTime,
-  helsinkiMinutes,
 } from "@/lib/schedule/time";
 import type { Day, EventItem, Venue } from "@/lib/schedule/types";
 
@@ -13,6 +13,7 @@ interface ScheduleLogProps {
   /** This day's events, all kinds. */
   events: readonly EventItem[];
   venueById: ReadonlyMap<string, Venue>;
+  /** Schedule-time now: date is the schedule day, minutes are day minutes. */
   now: { date: string; minutes: number } | null;
   onOpen: (event: EventItem) => void;
 }
@@ -30,11 +31,12 @@ export function ScheduleLog({
 }: ScheduleLogProps) {
   const { t } = useLanguage();
   const entries = events.filter((e) => e.kind !== "ongoing");
+  const win = useMemo(() => computeDayWindow(events), [events]);
   const showNow =
     !!now &&
     now.date === day.date &&
-    now.minutes >= DAY_START_MIN &&
-    now.minutes <= DAY_END_MIN;
+    now.minutes >= win.startMin &&
+    now.minutes <= win.endMin;
 
   const rows: ReactNode[] = [];
   let nowInserted = false;
@@ -42,7 +44,8 @@ export function ScheduleLog({
     showNow && now ? <NowMarker minutes={now.minutes} label={t.now} /> : null;
 
   entries.forEach((event, i) => {
-    if (nowMarker && !nowInserted && helsinkiMinutes(event.start) > now!.minutes) {
+    if (nowMarker && !nowInserted && dayMinutes(event.start) > now!.minutes) {
+
       rows.push(<li key="now-marker" aria-hidden>{nowMarker}</li>);
       nowInserted = true;
     }
@@ -88,7 +91,8 @@ export function ScheduleLog({
 }
 
 function NowMarker({ minutes, label: nowLabel }: { minutes: number; label: string }) {
-  const label = `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}`;
+  const label = formatDayMinutes(minutes);
+
   return (
     <div id="now-marker" data-now-marker className="flex items-center gap-2 py-1">
       <span className="h-0.5 flex-1 bg-spot" />
