@@ -48,8 +48,9 @@ export function ScheduleGrid({
   return (
     <div>
       {/* Sticky location headers — shares .schedule-cols with the body so the
-          two grids stay column-aligned. */}
-      <div className="schedule-cols sticky top-0 z-30 grid border-b-2 border-ink bg-paper">
+          two grids stay column-aligned. They park under the sticky day
+          heading (--day-head-h), never on top of it. */}
+      <div className="schedule-cols sticky top-[var(--day-head-h)] z-30 grid border-b-2 border-ink bg-paper">
         <div className="border-r border-rule" />
         {venues.map((venue, colIdx) => (
           <div
