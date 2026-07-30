@@ -136,7 +136,7 @@ function AssyguidePage() {
         )}
       </div>
 
-      <footer className="border-t border-rule px-3 py-1 text-[10px] uppercase tracking-[0.05em] text-ink-mid">
+      <footer className="border-t border-rule bg-paper px-3 py-1 text-[10px] uppercase tracking-[0.05em] text-ink-mid">
         Data as of {isoDate(schedule.fetchedAt)}{" "}
         {formatTime(schedule.fetchedAt)} · {schedule.events.length} events ·
         Source assembly.org

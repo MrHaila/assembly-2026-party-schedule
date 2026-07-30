@@ -38,7 +38,7 @@ export function EventBlock({
       type="button"
       onClick={() => onOpen(event)}
       style={style}
-      className="z-10 min-h-[22px] self-start overflow-hidden border-t border-ink/60 bg-paper px-1 pt-px text-left hover:bg-marker/70 focus-visible:outline-2 focus-visible:outline-spot"
+      className="z-10 overflow-hidden border-t border-ink/60 bg-paper px-1 pt-px text-left hover:bg-marker/70 focus-visible:outline-2 focus-visible:outline-spot"
     >
       <span className="tnum block text-[10.5px] font-medium uppercase leading-[1.2] tracking-[0.02em] text-ink-mid">
         {formatTimeRange(event.start, event.end, event.estimated)}
