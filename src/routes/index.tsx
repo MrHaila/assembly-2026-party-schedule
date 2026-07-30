@@ -202,13 +202,9 @@ function AssyguidePage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <DayTabs
-            days={schedule.days}
-            activeId={focusedDay}
-            onSelect={scrollToDay}
-          />
           <LanguageToggle />
         </div>
+
       </header>
 
       <NextUp entries={nextUp} venueById={venueById} onOpen={setSelected} />
