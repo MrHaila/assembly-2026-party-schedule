@@ -97,9 +97,11 @@
      spot ink — gold reads as "mine" on newsprint (design-log #17). */
   --gold: oklch(0.62 0.13 82);
   --gold-soft: oklch(0.72 0.09 82);
-  /* One faint gold wash shared by every favourited surface: grid block,
-     mobile row, run-on list entry. */
-  --event-favourite: color-mix(in oklab, var(--gold) 14%, var(--paper));
+  /* One faint gold wash shared by run-on list and mobile row favourites;
+     a stronger wash is used for grid blocks so the large star mark reads
+     as part of the surface without washing out the text. */
+  --event-favourite: color-mix(in oklab, var(--gold) 20%, var(--paper));
+  --event-favourite-grid: color-mix(in oklab, var(--gold) 34%, var(--paper));
 
   /* Sticky offset for the location header row: it parks directly under the
      sticky day heading, whose height is fixed on purpose (single line). */
@@ -249,12 +251,12 @@
   }
 }
 
-/* Favourited block: faint gold wash + one prominent gold edge on the left.
-   Same wash value the list rows use, so the two projections read alike.
-   Also retints the live stripe field from neutral grey to gold. */
+/* Favourited grid block: a more prominent gold wash than the list rows plus
+   one prominent gold edge on the left. The stronger wash lets the muted
+   oversized star mark sit behind the text as a background texture. */
 @utility event-favourite {
   border-left: 3px solid var(--gold);
-  background-color: var(--event-favourite);
+  background-color: var(--event-favourite-grid);
 
   /* Doubled specificity so this wins over live-stripes' own default. */
   &:is(.event-favourite) {
