@@ -1,3 +1,4 @@
+import { assignSubColumns } from "@/lib/schedule/normalize";
 import {
   DAY_END_MIN,
   DAY_LENGTH_MIN,
