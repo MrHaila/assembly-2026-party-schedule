@@ -1,21 +1,20 @@
 import { useLanguage } from "@/hooks/use-language";
 import { formatCountdown } from "@/lib/i18n/strings";
 import type { NextUpEntry } from "@/lib/schedule/favourites";
-import { formatTime } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
 
 interface NextUpProps {
   /** Already resolved and ordered by nextUpFavourites. */
   entries: readonly NextUpEntry[];
   venueById: ReadonlyMap<string, Venue>;
-  /** header = one dense line in the desktop header, strip = mobile board. */
+  /** header = compact badge in the desktop header, strip = mobile board. */
   variant: "header" | "strip";
   onOpen: (event: EventItem) => void;
 }
 
 /**
- * Departure-board for your starred events: what is next, in how long, where.
- * The mobile strip adds a one-line preview of the one after that.
+ * Departure-board for your starred events: two lines — what is next, then
+ * how long and where. A third muted line previews the one after that.
  */
 export function NextUp({ entries, venueById, variant, onOpen }: NextUpProps) {
   const { t, language } = useLanguage();
@@ -29,40 +28,49 @@ export function NextUp({ entries, venueById, variant, onOpen }: NextUpProps) {
       <div
         className={
           variant === "header"
-            ? "hidden min-w-0 items-center gap-2 text-[11px] uppercase tracking-[0.05em] text-ink-mid lg:flex"
+            ? "hidden min-w-0 items-center text-[11px] uppercase tracking-[0.05em] text-ink-mid lg:flex"
             : "border-b border-rule px-3 py-1.5 text-[11px] uppercase tracking-[0.05em] text-ink-mid"
         }
       >
-        <span className="text-gold">★</span>
         <span className="truncate">{t.noFavourites}</span>
       </div>
     );
   }
 
-  const countdown = first.live
-    ? t.liveNow
-    : formatCountdown(language, first.minutesUntil);
+  const lineTwo = (entry: NextUpEntry) =>
+    `${entry.live ? t.liveNow : formatCountdown(language, entry.minutesUntil)} ${t.atLocation} ${venueOf(entry.event)}`;
+
+  const thenLine = second
+    ? `${t.thenAfter}: ${second.event.title} ${
+        second.live
+          ? t.liveNow
+          : formatCountdown(language, second.minutesUntil)
+      }`
+    : null;
 
   if (variant === "header") {
     return (
       <button
         type="button"
         onClick={() => onOpen(first.event)}
-        className="press hidden min-w-0 items-baseline gap-2 border border-gold px-2 py-0.5 text-left lg:flex"
+        className="press hidden min-w-0 flex-col items-start border border-gold px-2 py-0.5 text-left lg:flex"
       >
-        <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-ink-mid">
-          {t.nextUp}
+        <span className="flex min-w-0 items-baseline gap-2">
+          <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-ink-mid">
+            {t.nextUp}
+          </span>
+          <span className="max-w-[28ch] truncate text-[13px] font-bold">
+            {first.event.title}
+          </span>
         </span>
-        <span className="text-gold">★</span>
-        <span className="max-w-[24ch] truncate text-[13px] font-bold">
-          {first.event.title}
+        <span className="tnum truncate text-[11px] uppercase tracking-[0.04em] text-ink-mid">
+          {lineTwo(first)}
         </span>
-        <span className="tnum shrink-0 text-[12px] font-semibold uppercase tracking-[0.04em]">
-          {countdown}
-        </span>
-        <span className="shrink-0 text-[11px] uppercase tracking-[0.05em] text-ink-mid">
-          {venueOf(first.event)}
-        </span>
+        {thenLine && (
+          <span className="tnum max-w-[40ch] truncate text-[10px] uppercase tracking-[0.04em] text-ink-mid">
+            {thenLine}
+          </span>
+        )}
       </button>
     );
   }
@@ -74,23 +82,16 @@ export function NextUp({ entries, venueById, variant, onOpen }: NextUpProps) {
         onClick={() => onOpen(first.event)}
         className="press block w-full px-3 py-1.5 text-left"
       >
-        <span className="flex items-baseline justify-between gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-ink-mid">
+        <span className="flex min-w-0 items-baseline gap-2">
+          <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-ink-mid">
             {t.nextUp}
           </span>
-          <span className="tnum text-[13px] font-bold uppercase tracking-[0.04em] text-gold">
-            {countdown}
-          </span>
-        </span>
-        <span className="mt-0.5 flex items-baseline gap-2">
-          <span className="text-gold">★</span>
           <span className="min-w-0 flex-1 truncate text-[16px] font-bold leading-tight">
             {first.event.title}
           </span>
         </span>
-        <span className="mt-0.5 flex items-baseline gap-2 text-[11px] uppercase tracking-[0.05em] text-ink-mid">
-          <span className="tnum">{formatTime(first.event.start)}</span>
-          <span className="truncate">{venueOf(first.event)}</span>
+        <span className="tnum mt-0.5 block truncate text-[12px] uppercase tracking-[0.04em]">
+          {lineTwo(first)}
         </span>
       </button>
 
@@ -98,18 +99,9 @@ export function NextUp({ entries, venueById, variant, onOpen }: NextUpProps) {
         <button
           type="button"
           onClick={() => onOpen(second.event)}
-          className="press flex w-full items-baseline gap-2 border-t border-rule px-3 py-1 text-left text-[11px]"
+          className="press tnum block w-full truncate border-t border-rule px-3 py-1 text-left text-[10px] uppercase tracking-[0.05em] text-ink-mid"
         >
-          <span className="shrink-0 font-bold uppercase tracking-[0.06em] text-ink-mid">
-            {t.thenAfter}
-          </span>
-          <span className="tnum shrink-0">{formatTime(second.event.start)}</span>
-          <span className="min-w-0 flex-1 truncate font-semibold">
-            {second.event.title}
-          </span>
-          <span className="shrink-0 uppercase tracking-[0.05em] text-ink-mid">
-            {venueOf(second.event)}
-          </span>
+          {thenLine}
         </button>
       )}
     </div>
