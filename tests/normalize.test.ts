@@ -202,14 +202,27 @@ describe("html entities", () => {
 });
 
 describe("venues", () => {
-  it("14 locations, ordered by event count (busiest first)", () => {
+  it("pins priority locations first, then ranks the rest by event count", () => {
     expect(schedule.venues).toHaveLength(14);
-    const counts = schedule.venues.map((v) => v.eventCount);
+    expect(schedule.venues.slice(0, 2).map((v) => v.slug)).toEqual([
+      "main-stage",
+      "scene-stage",
+    ]);
+    const rest = schedule.venues.filter((v) => v.priority === undefined);
+    const counts = rest.map((v) => v.eventCount);
     expect([...counts].sort((a, b) => b - a)).toEqual(counts);
     expect(schedule.venues.map((v) => v.order)).toEqual(
       schedule.venues.map((_, i) => i + 1),
     );
   });
+
+  it("builds edition-scoped official program links", () => {
+    const withSource = schedule.events.find((e) => e.sourceUrl);
+    expect(withSource?.sourceUrl).toMatch(
+      /^https:\/\/assembly\.org\/events\/summer26\/program\//,
+    );
+  });
+
 
   it("event counts sum to 210 (primary venue only)", () => {
     const total = schedule.venues.reduce((sum, v) => sum + v.eventCount, 0);
