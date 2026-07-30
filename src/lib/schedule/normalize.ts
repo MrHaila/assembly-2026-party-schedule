@@ -10,6 +10,7 @@ import type { RawEvent, RawScheduleData } from "./schema";
 import type { Day, EventItem, EventKind, ScheduleData, Venue } from "./types";
 import { VENUE_CONFIG, venueConfigFor } from "./venues.config";
 import { addMinutesIso, isoDate, minutesBetween } from "./time";
+import { programUrl } from "./event.config";
 
 /** Durations at or above this never enter the grid — they are the ongoing band. */
 export const ONGOING_THRESHOLD_MIN = 6 * 60;
