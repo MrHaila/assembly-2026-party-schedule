@@ -1,3 +1,5 @@
+import { useLanguage } from "@/hooks/use-language";
+import { dayShortLabel } from "@/lib/i18n/strings";
 import type { Day } from "@/lib/schedule/types";
 
 interface DayTabsProps {
@@ -8,10 +10,11 @@ interface DayTabsProps {
 
 /** Day switcher. Reverse-video active tab, like a newspaper date box. */
 export function DayTabs({ days, activeId, onSelect }: DayTabsProps) {
+  const { language, t } = useLanguage();
   return (
     <div
       role="tablist"
-      aria-label="Schedule day"
+      aria-label={t.scheduleDay}
       className="flex border border-ink"
     >
       {days.map((day) => {
@@ -29,7 +32,7 @@ export function DayTabs({ days, activeId, onSelect }: DayTabsProps) {
                 : "press bg-paper text-ink"
             }`}
           >
-            {day.shortLabel}
+            {dayShortLabel(day, language)}
           </button>
         );
       })}
