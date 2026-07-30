@@ -254,3 +254,21 @@ apart from the red spot ink that means "now". Rules:
   Desktop gets one dense line in the header (≥lg); mobile gets a persistent
   strip under the header with a one-line preview of the following favourite.
   Countdown wording comes from `formatCountdown()` (min / h min / d h).
+
+## 19 — One favourite wash, one departure board
+
+Refinements after dog-fooding #18:
+
+- The compact desktop "next up" badge is gone. The board has exactly one
+  presentation at every width, directly under the page header, so the two
+  variants can never drift apart.
+- Favourite surfaces share a single token, `--event-favourite`
+  (gold 14% over paper): grid blocks, mobile rows and run-on list entries all
+  use it. Grid blocks drop the full gold outline in favour of a 3px gold rule
+  on the left edge only — matching the list's left rule.
+- Run-on ("other locations") entries show the ★ glyph before the time and the
+  same gold wash, so a favourite is legible in every projection.
+- Live stripes are neutral grey (`--ink` 12%), not spot red: red reads as an
+  error. Favourited live events retint the field to gold via `--stripe-color`.
+- Vertical column hairlines are drawn once per column start instead of on both
+  edges; doubled 1px lines read heavier than the horizontal hour rules.

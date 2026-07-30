@@ -7,16 +7,16 @@ interface NextUpProps {
   /** Already resolved and ordered by nextUpFavourites. */
   entries: readonly NextUpEntry[];
   venueById: ReadonlyMap<string, Venue>;
-  /** header = compact badge in the desktop header, strip = mobile board. */
-  variant: "header" | "strip";
   onOpen: (event: EventItem) => void;
 }
 
 /**
  * Departure-board for your starred events: two lines — what is next, then
  * how long and where. A third muted line previews the one after that.
+ * One presentation at every width (design-log #18): the compact desktop
+ * badge was removed so the board can never drift into two designs.
  */
-export function NextUp({ entries, venueById, variant, onOpen }: NextUpProps) {
+export function NextUp({ entries, venueById, onOpen }: NextUpProps) {
   const { t, language } = useLanguage();
   const [first, second] = entries;
 
@@ -25,13 +25,7 @@ export function NextUp({ entries, venueById, variant, onOpen }: NextUpProps) {
 
   if (!first) {
     return (
-      <div
-        className={
-          variant === "header"
-            ? "hidden min-w-0 items-center text-[11px] uppercase tracking-[0.05em] text-ink-mid lg:flex"
-            : "border-b border-rule px-3 py-1.5 text-[11px] uppercase tracking-[0.05em] text-ink-mid"
-        }
-      >
+      <div className="border-b border-rule px-3 py-1.5 text-[11px] uppercase tracking-[0.05em] text-ink-mid">
         <span className="truncate">{t.noFavourites}</span>
       </div>
     );
@@ -48,32 +42,7 @@ export function NextUp({ entries, venueById, variant, onOpen }: NextUpProps) {
       }`
     : null;
 
-  if (variant === "header") {
-    return (
-      <button
-        type="button"
-        onClick={() => onOpen(first.event)}
-        className="press hidden min-w-0 flex-col items-start border border-gold px-2 py-0.5 text-left lg:flex"
-      >
-        <span className="flex min-w-0 items-baseline gap-2">
-          <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-ink-mid">
-            {t.nextUp}
-          </span>
-          <span className="max-w-[28ch] truncate text-[13px] font-bold">
-            {first.event.title}
-          </span>
-        </span>
-        <span className="tnum truncate text-[11px] uppercase tracking-[0.04em] text-ink-mid">
-          {lineTwo(first)}
-        </span>
-        {thenLine && (
-          <span className="tnum max-w-[40ch] truncate text-[10px] uppercase tracking-[0.04em] text-ink-mid">
-            {thenLine}
-          </span>
-        )}
-      </button>
-    );
-  }
+
 
   return (
     <div className="border-b-2 border-ink bg-paper">

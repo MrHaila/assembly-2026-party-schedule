@@ -1,3 +1,4 @@
+import { useFavourites } from "@/hooks/use-favourites";
 import { useLanguage } from "@/hooks/use-language";
 import { formatTime } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
@@ -28,6 +29,7 @@ export function OtherVenues({
   onOpen,
 }: OtherLocationsProps) {
   const { t } = useLanguage();
+  const { isFavourite } = useFavourites();
   const byVenue = new Map<string, EventItem[]>();
   for (const event of events) {
     if (event.kind === "ongoing") continue; // already on the day heading
@@ -58,21 +60,29 @@ export function OtherVenues({
               {venue.short}
             </span>
             <span className="text-ink-mid"> · </span>
-            {(byVenue.get(venue.slug) ?? []).map((event, i) => (
-              <span key={event.id}>
-                {i > 0 && " · "}
-                <button
-                  type="button"
-                  onClick={() => onOpen(event)}
-                  className="press px-0.5 underline decoration-transparent underline-offset-2 hover:decoration-ink"
-                >
-                  <span className="tnum font-semibold">
-                    {formatTime(event.start)}
-                  </span>{" "}
-                  {event.kind === "moment" ? `◆ ${event.title}` : event.title}
-                </button>
-              </span>
-            ))}
+            {(byVenue.get(venue.slug) ?? []).map((event, i) => {
+              const favourite = isFavourite(event.id);
+              return (
+                <span key={event.id}>
+                  {i > 0 && " · "}
+                  <button
+                    type="button"
+                    onClick={() => onOpen(event)}
+                    className={`press px-0.5 underline decoration-transparent underline-offset-2 hover:decoration-ink${favourite ? " bg-event-favourite" : ""}`}
+                  >
+                    {favourite && (
+                      <span aria-hidden className="text-gold">
+                        ★{" "}
+                      </span>
+                    )}
+                    <span className="tnum font-semibold">
+                      {formatTime(event.start)}
+                    </span>{" "}
+                    {event.kind === "moment" ? `◆ ${event.title}` : event.title}
+                  </button>
+                </span>
+              );
+            })}
           </p>
         ))}
       </div>

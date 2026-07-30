@@ -200,13 +200,6 @@ function AssyguidePage() {
           </h1>
         </div>
 
-        <NextUp
-          entries={nextUp}
-          venueById={venueById}
-          variant="header"
-          onOpen={setSelected}
-        />
-
         <div className="flex items-center gap-2">
           <DayTabs
             days={schedule.days}
@@ -217,14 +210,8 @@ function AssyguidePage() {
         </div>
       </header>
 
-      {isMobile && (
-        <NextUp
-          entries={nextUp}
-          venueById={venueById}
-          variant="strip"
-          onOpen={setSelected}
-        />
-      )}
+      <NextUp entries={nextUp} venueById={venueById} onOpen={setSelected} />
+
 
       <div
         ref={scrollRef}
