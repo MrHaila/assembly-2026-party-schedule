@@ -183,6 +183,23 @@ describe("rule 10/11 — language fallback and category de-suffixing", () => {
   });
 });
 
+describe("html entities", () => {
+  it("decodes numeric and named entities in excerpts", () => {
+    expect(stripHtml("<p>Experience k-Culture in all it&#8217;s aspects!</p>"))
+      .toBe("Experience k-Culture in all \u2019s aspects!".replace(" \u2019s", " it\u2019s"));
+    expect(stripHtml("A &amp; B &ndash; C &#x27;quoted&#x27;")).toBe(
+      "A & B \u2013 C 'quoted'",
+    );
+  });
+
+  it("no raw entity survives in any normalized title or excerpt", () => {
+    const offenders = schedule.events.filter(
+      (e) => /&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/.test(e.title + (e.excerpt ?? "")),
+    );
+    expect(offenders.map((e) => e.title)).toEqual([]);
+  });
+});
+
 describe("venues", () => {
   it("14 locations, ordered by event count (busiest first)", () => {
     expect(schedule.venues).toHaveLength(14);
