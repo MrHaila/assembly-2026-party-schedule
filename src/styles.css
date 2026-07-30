@@ -236,27 +236,27 @@
 }
 
 @container schedule (min-width: 520px) {
-  [data-col="3"] { display: revert-layer; }
+  [data-col="3"] { display: block; }
   [data-overflow-col="3"] { display: none; }
 }
 @container schedule (min-width: 680px) {
-  [data-col="4"] { display: revert-layer; }
+  [data-col="4"] { display: block; }
   [data-overflow-col="4"] { display: none; }
 }
 @container schedule (min-width: 840px) {
-  [data-col="5"] { display: revert-layer; }
+  [data-col="5"] { display: block; }
   [data-overflow-col="5"] { display: none; }
 }
 @container schedule (min-width: 1000px) {
-  [data-col="6"] { display: revert-layer; }
+  [data-col="6"] { display: block; }
   [data-overflow-col="6"] { display: none; }
 }
 @container schedule (min-width: 1160px) {
-  [data-col="7"] { display: revert-layer; }
+  [data-col="7"] { display: block; }
   [data-overflow-col="7"] { display: none; }
 }
 @container schedule (min-width: 1320px) {
-  [data-col="8"] { display: revert-layer; }
+  [data-col="8"] { display: block; }
   [data-overflow-col="8"] { display: none; }
 }
 
