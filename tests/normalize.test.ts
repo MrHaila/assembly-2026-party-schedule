@@ -184,13 +184,13 @@ describe("rule 10/11 — language fallback and category de-suffixing", () => {
 });
 
 describe("venues", () => {
-  it("14 venues in hand-authored order: 6 grid, 8 other", () => {
+  it("14 locations, ordered by event count (busiest first)", () => {
     expect(schedule.venues).toHaveLength(14);
-    expect(schedule.venues.filter((v) => v.tier === "grid")).toHaveLength(6);
-    expect(schedule.venues.filter((v) => v.tier === "other")).toHaveLength(8);
-    expect(schedule.venues[0].slug).toBe("main-stage");
-    expect(schedule.venues[1].short).toBe("GENELEC");
-    expect(schedule.venues[13].slug).toBe("infodesk");
+    const counts = schedule.venues.map((v) => v.eventCount);
+    expect([...counts].sort((a, b) => b - a)).toEqual(counts);
+    expect(schedule.venues.map((v) => v.order)).toEqual(
+      schedule.venues.map((_, i) => i + 1),
+    );
   });
 
   it("event counts sum to 210 (primary venue only)", () => {
