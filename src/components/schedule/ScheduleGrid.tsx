@@ -1,10 +1,10 @@
+import { useMemo } from "react";
 import { assignSubColumns } from "@/lib/schedule/normalize";
 import {
-  DAY_END_MIN,
-  DAY_LENGTH_MIN,
-  DAY_START_MIN,
+  computeDayWindow,
+  dayMinutes,
+  formatDayMinutes,
   formatTime,
-  helsinkiMinutes,
   slotIndexFor,
 } from "@/lib/schedule/time";
 import type { Day, EventItem, Venue } from "@/lib/schedule/types";
@@ -16,16 +16,17 @@ interface ScheduleGridProps {
   venues: readonly Venue[];
   /** This day's events, all kinds. */
   events: readonly EventItem[];
+  /** Schedule-time now: date is the schedule day, minutes are day minutes. */
   now: { date: string; minutes: number } | null;
   onOpen: (event: EventItem) => void;
 }
-
-const HOURS = Array.from({ length: 13 }, (_, i) => 10 + i); // 10..22
 
 /**
  * The desktop projection for one day: location columns on a proportional
  * time axis, sticky gutter + headers, hour rules, moment markers, now bar.
  * The visible column count is pure CSS (see .schedule-cols in styles.css).
+ * The vertical extent is data-driven: earliest start → latest end of the day,
+ * snapped to whole hours, with the day rolling over at 05:00.
  */
 export function ScheduleGrid({
   day,
@@ -40,11 +41,14 @@ export function ScheduleGrid({
   );
   const sessions = events.filter((e) => e.kind === "session");
 
+  const win = useMemo(() => computeDayWindow(events), [events]);
+  const length = win.endMin - win.startMin;
+
   const showNow =
     !!now &&
     now.date === day.date &&
-    now.minutes >= DAY_START_MIN &&
-    now.minutes <= DAY_END_MIN;
+    now.minutes >= win.startMin &&
+    now.minutes <= win.endMin;
 
   return (
     <div>
@@ -64,7 +68,10 @@ export function ScheduleGrid({
         ))}
       </div>
 
-      <div className="schedule-grid relative border-b border-rule">
+      <div
+        className="schedule-grid relative border-b border-rule"
+        style={{ ["--slots" as string]: win.slotCount }}
+      >
         {/* Sticky time gutter spanning every row. It draws its own hour
             ticks, so the hairline still reads across to the page edge even
             though the rules over the columns sit BEHIND the event blocks. */}
@@ -72,22 +79,20 @@ export function ScheduleGrid({
           className="sticky left-0 z-20 border-r border-rule bg-paper"
           style={{ gridColumn: 1, gridRow: "1 / -1" }}
         >
-          {HOURS.map((h) => (
+          {win.hours.map((h) => (
             <div key={h}>
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-x-0 border-t border-rule"
-                style={{
-                  top: `${((h * 60 - DAY_START_MIN) / DAY_LENGTH_MIN) * 100}%`,
-                }}
+                style={{ top: `${((h - win.startMin) / length) * 100}%` }}
               />
               <span
                 className="tnum absolute right-1 text-[11px] font-semibold leading-none tracking-[0.04em] text-ink-mid"
                 style={{
-                  top: `calc(${((h * 60 - DAY_START_MIN) / DAY_LENGTH_MIN) * 100}% + 3px)`,
+                  top: `calc(${((h - win.startMin) / length) * 100}% + 3px)`,
                 }}
               >
-                {String(h).padStart(2, "0")}:00
+                {formatDayMinutes(h)}
               </span>
             </div>
           ))}
@@ -96,14 +101,14 @@ export function ScheduleGrid({
         {/* Hour rules over the location columns — heavier rule at the hour,
             none between (M1). z-0 puts them UNDER the event blocks, whose
             translucent surface mutes the line like frosted glass. */}
-        {HOURS.map((h) => (
+        {win.hours.map((h) => (
           <div
             key={h}
             aria-hidden
             className="pointer-events-none z-0 self-start border-t border-rule"
             style={{
               gridColumn: "2 / -1",
-              gridRow: (h * 60 - DAY_START_MIN) / 5 + 1,
+              gridRow: (h - win.startMin) / 5 + 1,
             }}
           />
         ))}
@@ -125,11 +130,12 @@ export function ScheduleGrid({
                 venueColumn={colIdx}
                 lane={p.lane}
                 lanes={p.lanes}
+                window={win}
                 live={
                   showNow &&
                   !!now &&
-                  helsinkiMinutes(event.start) <= now.minutes &&
-                  helsinkiMinutes(event.end) > now.minutes
+                  dayMinutes(event.start) <= now.minutes &&
+                  dayMinutes(event.end) > now.minutes
                 }
                 onOpen={onOpen}
               />
@@ -146,7 +152,7 @@ export function ScheduleGrid({
             className="z-20 self-start text-left"
             style={{
               gridColumn: "1 / -1",
-              gridRow: slotIndexFor(moment.start) + 1,
+              gridRow: slotIndexFor(moment.start, win) + 1,
             }}
           >
             <span className="press relative -top-[7px] ml-12 inline-block border border-ink/50 bg-paper px-1.5 text-[11px] font-semibold uppercase tracking-[0.04em]">
@@ -166,13 +172,12 @@ export function ScheduleGrid({
             className="relative z-30 self-start"
             style={{
               gridColumn: "1 / -1",
-              gridRow: Math.floor((now.minutes - DAY_START_MIN) / 5) + 1,
+              gridRow: Math.floor((now.minutes - win.startMin) / 5) + 1,
             }}
           >
             <div className="absolute inset-x-0 top-0 border-t-2 border-spot" />
             <span className="tnum absolute left-0 top-[-7px] bg-spot px-1 text-[10px] font-bold leading-[14px] text-paper">
-              {Math.floor(now.minutes / 60)}:
-              {String(now.minutes % 60).padStart(2, "0")}
+              {formatDayMinutes(now.minutes)}
             </span>
           </div>
         )}
