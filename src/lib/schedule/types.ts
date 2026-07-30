@@ -15,9 +15,8 @@ export interface EventItem {
   id: number;
   /** Event occurrence title as shipped by the API (mixed FI/EN in practice). */
   title: string;
-  /** EN program translation title, when present and different from `title`. */
-  titleEn?: string;
   /** Program exists but has no EN translation — render an `FI` chip. */
+
   fiOnly: boolean;
   /** Location slug — stable key, never the display name. */
   venueId: string;
@@ -39,8 +38,10 @@ export interface EventItem {
   streamUrls: string[];
   /** WPGraphQL global ID (opaque base64 string — NOT numeric). */
   programId?: string;
-  /** Program excerpt, EN preferred, HTML stripped. */
-  excerpt?: string;
+  /** Finnish program excerpt, HTML stripped. */
+  excerptFi?: string;
+  /** English program excerpt, HTML stripped. Absent for FI-only programs. */
+  excerptEn?: string;
   /** Absolute link back to the official program page. */
   sourceUrl?: string;
   /** Helsinki-local timestamp without offset, as the API ships it. */

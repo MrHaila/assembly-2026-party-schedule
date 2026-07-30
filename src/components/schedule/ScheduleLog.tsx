@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useLanguage } from "@/hooks/use-language";
 import {
   DAY_END_MIN,
   DAY_START_MIN,
@@ -27,6 +28,7 @@ export function ScheduleLog({
   now,
   onOpen,
 }: ScheduleLogProps) {
+  const { t } = useLanguage();
   const entries = events.filter((e) => e.kind !== "ongoing");
   const showNow =
     !!now &&
@@ -36,7 +38,8 @@ export function ScheduleLog({
 
   const rows: ReactNode[] = [];
   let nowInserted = false;
-  const nowMarker = showNow && now ? <NowMarker minutes={now.minutes} /> : null;
+  const nowMarker =
+    showNow && now ? <NowMarker minutes={now.minutes} label={t.now} /> : null;
 
   entries.forEach((event, i) => {
     if (nowMarker && !nowInserted && helsinkiMinutes(event.start) > now!.minutes) {
@@ -62,7 +65,7 @@ export function ScheduleLog({
           <span className="min-w-0">
             <span className="block text-[11px] font-semibold uppercase tracking-[0.05em] text-ink-mid">
               {venueById.get(event.venueId)?.short ?? event.venueId}
-              {event.estimated ? " · ≈ estimated" : ""}
+              {event.estimated ? ` · ≈ ${t.estimated}` : ""}
               {event.streamUrls.length > 0 ? " ●" : ""}
             </span>
             <span className="block text-[15px] font-semibold leading-[1.3]">
@@ -84,13 +87,13 @@ export function ScheduleLog({
   );
 }
 
-function NowMarker({ minutes }: { minutes: number }) {
+function NowMarker({ minutes, label: nowLabel }: { minutes: number; label: string }) {
   const label = `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}`;
   return (
     <div id="now-marker" className="flex items-center gap-2 py-1">
       <span className="h-0.5 flex-1 bg-spot" />
       <span className="tnum text-[11px] font-bold uppercase tracking-[0.06em] text-spot">
-        Now · {label}
+        {nowLabel} · {label}
       </span>
       <span className="h-0.5 flex-1 bg-spot" />
     </div>

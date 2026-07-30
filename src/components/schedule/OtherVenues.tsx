@@ -1,3 +1,4 @@
+import { useLanguage } from "@/hooks/use-language";
 import { formatTime } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
 
@@ -26,6 +27,7 @@ export function OtherVenues({
   events,
   onOpen,
 }: OtherLocationsProps) {
+  const { t } = useLanguage();
   const byVenue = new Map<string, EventItem[]>();
   for (const event of events) {
     if (event.kind === "ongoing") continue; // already on the day heading
@@ -43,7 +45,7 @@ export function OtherVenues({
   return (
     <section className="border-t-2 border-ink bg-paper px-2 py-2">
       <h3 className="text-[12px] font-bold uppercase tracking-[0.06em]">
-        Other locations
+        {t.otherLocations}
       </h3>
       <div className="mt-1 space-y-1">
         {rows.map(({ venue, overflowCol }) => (

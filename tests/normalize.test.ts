@@ -163,7 +163,7 @@ describe("rule 10/11 — language fallback and category de-suffixing", () => {
   it("20 programs without EN translation are tagged fiOnly", () => {
     const fiOnly = schedule.events.filter((e) => e.fiOnly);
     expect(fiOnly).toHaveLength(20);
-    for (const e of fiOnly) expect(e.titleEn).toBeUndefined();
+    for (const e of fiOnly) expect(e.excerptEn).toBeUndefined();
   });
 
   it("no category slug keeps its -en suffix; uncategorized is gone", () => {
@@ -175,11 +175,11 @@ describe("rule 10/11 — language fallback and category de-suffixing", () => {
     }
   });
 
-  it("EN excerpts are preferred over FI when a translation exists", () => {
-    const withTranslation = schedule.events.find(
-      (e) => e.programId && !e.fiOnly && e.excerpt,
+  it("keeps FI and EN excerpts side by side when a translation exists", () => {
+    const withBoth = schedule.events.find(
+      (e) => e.excerptFi && e.excerptEn && e.excerptFi !== e.excerptEn,
     );
-    expect(withTranslation).toBeDefined();
+    expect(withBoth).toBeDefined();
   });
 });
 
@@ -195,7 +195,10 @@ describe("html entities", () => {
 
   it("no raw entity survives in any normalized title or excerpt", () => {
     const offenders = schedule.events.filter(
-      (e) => /&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/.test(e.title + (e.excerpt ?? "")),
+      (e) =>
+        /&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/.test(
+          e.title + (e.excerptFi ?? "") + (e.excerptEn ?? ""),
+        ),
     );
     expect(offenders.map((e) => e.title)).toEqual([]);
   });
