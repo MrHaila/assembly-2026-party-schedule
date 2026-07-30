@@ -130,6 +130,13 @@ function normalizeDays(data: RawScheduleData): Day[] {
   return days;
 }
 
+/**
+ * Locations, ordered by how many events they host across the whole weekend.
+ * Busiest first — that is what earns the leftmost, always-visible column.
+ * Event COUNT, not total duration, so an all-day booth cannot outrank a
+ * stage running ten sessions. Editorial config only supplies short names
+ * and the deterministic tie-break.
+ */
 function normalizeVenues(data: RawScheduleData, events: EventItem[]): Venue[] {
   const counts = new Map<string, number>();
   for (const e of events) {
@@ -146,7 +153,10 @@ function normalizeVenues(data: RawScheduleData, events: EventItem[]): Venue[] {
       eventCount: counts.get(loc.slug) ?? 0,
     };
   });
-  venues.sort((a, b) => a.order - b.order);
+  venues.sort((a, b) => b.eventCount - a.eventCount || a.order - b.order);
+  venues.forEach((v, i) => {
+    v.order = i + 1;
+  });
   return venues;
 }
 
