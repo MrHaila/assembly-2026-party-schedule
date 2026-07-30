@@ -150,4 +150,21 @@ ship both, and titles are decoded too.
 Hour hairlines over the location columns render at `z-0`, under the event
 blocks; the block's translucent surface (`--event`, alpha 0.84) mutes the
 line instead of the line cutting across the block. The sticky time gutter
-draws its own hour ticks so the hairline still reaches the page edge.
+   draws its own hour ticks so the hairline still reaches the page edge.
+
+## 10 — Vertical column borders
+
+**Decision.** The location columns in the grid body now have faint vertical
+borders drawn with a repeating CSS background, aligned to the same positions
+as the sticky header's `border-r` cells. The rule sits behind the translucent
+event blocks, so it reads through the frosted surface rather than sitting on
+top of events.
+
+**Why.** The header columns were easy to read because each had a clear
+separator; the body columns ran together without one, making it harder to
+trace an event up to its location header.
+
+**Technical note.** The grid background uses `background-size:
+calc((100% - 48px) / var(--cols))` and `background-position: 48px 0`, so
+it stays in sync with the responsive column count and the time gutter width.
+No extra DOM elements or JS measurement required.
