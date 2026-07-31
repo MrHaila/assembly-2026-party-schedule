@@ -233,8 +233,19 @@
 }
 
 
+/* iOS safe-area insets: keeps the fixed chrome clear of the notch and the
+   home indicator when the app is added to the home screen in standalone mode. */
+@utility safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Press contract for the favourite star: muted by default, gold once set.
    Lives here so no component can invent its own gold. */
+
 @utility press-gold {
   color: color-mix(in oklab, var(--ink-mid) 70%, transparent);
   transition:
