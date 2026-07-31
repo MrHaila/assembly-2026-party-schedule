@@ -7,7 +7,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 
-const NEWS_ENDPOINT = "https://scene.assembly.org/api/v1/news/";
+const NEWS_ENDPOINT = "https://scene.assembly.org/api/v1/timetable/";
 
 export const Route = createFileRoute("/api/public/scene-news")({
   server: {
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/public/scene-news")({
             headers: { accept: "application/json" },
           });
           if (!upstream.ok) {
-            return new Response("[]", {
+            return new Response('{"ungrouped":[]}', {
               status: 200,
               headers: { "content-type": "application/json" },
             });
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/public/scene-news")({
             },
           });
         } catch {
-          return new Response("[]", {
+          return new Response('{"ungrouped":[]}', {
             status: 200,
             headers: { "content-type": "application/json" },
           });

@@ -12,7 +12,7 @@
 import { newsResponseSchema, normalizeNews } from "@/lib/schedule/news";
 import type { EventItem } from "@/lib/schedule/types";
 
-export const NEWS_ENDPOINT = "https://scene.assembly.org/api/v1/news/";
+export const NEWS_ENDPOINT = "https://scene.assembly.org/api/v1/timetable/";
 export const NEWS_PROXY_PATH = "/api/public/scene-news";
 
 function newsUrl(): string {

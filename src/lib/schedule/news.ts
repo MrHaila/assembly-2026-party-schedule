@@ -19,6 +19,7 @@ import { z } from "zod";
 import type { EventItem, ScheduleData, Venue } from "./types";
 import { decodeEntities, rankVenues } from "./normalize";
 import { venueConfigFor } from "./venues.config";
+import { addMinutesIso } from "./time";
 
 /** Synthetic location slug — never appears in the WordPress locations list. */
 export const NEWS_VENUE_SLUG = "demoscene-news";
@@ -29,21 +30,47 @@ export const NEWS_CATEGORY = "demoscene";
 /** Offset keeping news ids out of the calendar's id space. */
 export const NEWS_ID_BASE = 900_000_000;
 
-export const newsItemSchema = z.object({
+export const newsTagSchema = z.object({
   id: z.number(),
-  headline: z.string(),
-  text: z.string(),
-  publish_datetime: z.string(),
+  name: z.string(),
+  color: z.string().optional(),
 });
 
-export const newsResponseSchema = z.array(newsItemSchema);
+export const newsItemSchema = z.object({
+  name: z.string(),
+  time: z.string(),
+  tags: z.array(newsTagSchema).optional(),
+});
+
+/**
+ * The timetable payload. `grouped` collapses simultaneous entries into one
+ * bucket for the upstream site's own rendering; we want each entry on its own
+ * row, so only `ungrouped` is read.
+ */
+export const newsResponseSchema = z.object({
+  ungrouped: z.array(newsItemSchema),
+  grouped: z.unknown().optional(),
+});
 
 export type RawNewsItem = z.infer<typeof newsItemSchema>;
+export type RawNewsResponse = z.infer<typeof newsResponseSchema>;
+
+/**
+ * The feed has no ids, so one is minted from the item's identity (name +
+ * time). Stable across fetches, and offset out of the calendar's id space.
+ */
+export function newsItemId(item: RawNewsItem): number {
+  const key = `${item.time}|${item.name}`;
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash * 31 + key.charCodeAt(i)) % 100_000_000;
+  }
+  return NEWS_ID_BASE + hash;
+}
 
 /**
  * Strip the light markdown/HTML the feed ships (`###`, `**`, `_`, `<u>`) while
- * keeping paragraph breaks — unlike program excerpts, these bodies are
- * multi-paragraph and read badly as one run-on line.
+ * keeping paragraph breaks.
  */
 export function plainTextFromNews(text: string): string {
   return decodeEntities(text.replace(/<[^>]*>/g, ""))
@@ -55,12 +82,15 @@ export function plainTextFromNews(text: string): string {
     .trim();
 }
 
-/** One news item → a zero-duration event at the demoscene news location. */
+/** One timetable entry → a zero-duration event at the demoscene location. */
 export function normalizeNewsItem(item: RawNewsItem): EventItem {
-  const start = item.publish_datetime;
+  // Timetable times are UTC (`...Z`); the rest of the app assumes Helsinki
+  // local ISO strings, so shift once here.
+  const start = addMinutesIso(item.time, 0);
+  const tags = (item.tags ?? []).map((tag) => plainTextFromNews(tag.name));
   return {
-    id: NEWS_ID_BASE + item.id,
-    title: decodeEntities(item.headline),
+    id: newsItemId(item),
+    title: plainTextFromNews(item.name),
     fiOnly: false,
     venueId: NEWS_VENUE_SLUG,
     start,
@@ -70,12 +100,15 @@ export function normalizeNewsItem(item: RawNewsItem): EventItem {
     kind: "moment",
     categories: [NEWS_CATEGORY],
     streamUrls: [],
-    body: plainTextFromNews(item.text) || undefined,
+    body: tags.length ? tags.join(" · ") : undefined,
     sourceUrl: "https://scene.assembly.org/",
   };
 }
 
-export function normalizeNews(items: readonly RawNewsItem[]): EventItem[] {
+export function normalizeNews(
+  payload: RawNewsResponse | readonly RawNewsItem[],
+): EventItem[] {
+  const items = Array.isArray(payload) ? payload : payload.ungrouped;
   return items.map(normalizeNewsItem);
 }
 
