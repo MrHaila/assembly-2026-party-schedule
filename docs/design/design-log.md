@@ -460,3 +460,17 @@ category slug — never from the API — so the lean query keeps every field the
 colour bar and filters need. We identify via a `?client=` query param + named
 operations; a custom request header fails the CORS preflight (endpoint allows
 only Authorization/Content-Type/X-JWT-*), and `User-Agent` is forbidden anyway.
+
+## 31. Theme picker (MODERN + KUAKE placeholder)
+
+A `THEMES` button sits left of `FILTERS` in the header and opens the same modal
+chrome as the event detail (one modal shape for the whole app —
+`src/components/themes/ThemesDialog.tsx`). Each theme is a card: screenshot on
+top, name + blurb below, and a status chip (`ACTIVE` / `COMING SOON`).
+
+The catalogue lives in `src/lib/theme/themes.config.ts` — a typed list, not
+markup, so adding a theme is a data change. `MODERN` is the current dark
+listings design and carries a real screenshot (uploaded as a CDN asset).
+`KUAKE` is announced with a placeholder tile and `available: false`; the theme
+engine (token swapping + persistence) is a follow-up step, so selection is
+deliberately inert today rather than half-wired.
