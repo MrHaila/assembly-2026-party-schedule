@@ -511,9 +511,10 @@
   --font-listings: "VT323", "Courier New", monospace;
   --font-display: "Silkscreen", "VT323", monospace;
 
-  /* Bevel contract: one light edge, one shadow edge, no radii, no blur. */
-  --bevel-light: oklch(1 0 0 / 0.22);
-  --bevel-dark: oklch(0 0 0 / 0.55);
+  /* Bevel contract: one light edge, one shadow edge, no radii, no blur.
+     Heavy on purpose — 90s chrome is embossed, not hairlined. */
+  --bevel-light: oklch(1 0 0 / 0.34);
+  --bevel-dark: oklch(0 0 0 / 0.72);
 
   --tex-panel: url("/__l5e/assets-v1/90313d86-fea2-4bc9-be06-765344a99abe/kuake-panel.jpg");
   --tex-tile: url("/__l5e/assets-v1/7cc033ea-f54f-441c-9806-3b39a96c56a0/kuake-tile.jpg");
@@ -555,7 +556,7 @@
   font-size: 0.86em;
 }
 
-/* Chrome bands: bolted metal plates with a bevelled edge. */
+/* Chrome bands: bolted metal plates with a heavy bevelled edge. */
 [data-theme="kuake"] .bg-band {
   background-image:
     linear-gradient(
@@ -565,8 +566,9 @@
     var(--tex-panel);
   background-size: auto, 260px 260px;
   box-shadow:
-    inset 1px 1px 0 var(--bevel-light),
-    inset -1px -1px 0 var(--bevel-dark);
+    inset 2px 2px 0 var(--bevel-light),
+    inset -2px -2px 0 var(--bevel-dark),
+    inset 0 0 0 1px oklch(0 0 0 / 0.35);
 }
 
 /* Modal / detail sheet: the brightest plate in the room. */
@@ -579,8 +581,25 @@
     var(--tex-panel);
   background-size: auto, 260px 260px;
   box-shadow:
+    inset 3px 3px 0 var(--bevel-light),
+    inset -3px -3px 0 var(--bevel-dark),
+    0 0 0 2px oklch(0 0 0 / 0.6);
+}
+
+/* Location column headers: each cell is its own raised key, so the header
+   row reads as a bank of bolted plates rather than a hairline table. */
+[data-theme="kuake"] .schedule-cols > div {
+  box-shadow:
     inset 2px 2px 0 var(--bevel-light),
     inset -2px -2px 0 var(--bevel-dark);
+  border-color: transparent;
+  background-image:
+    linear-gradient(
+      color-mix(in oklab, var(--surface) 62%, transparent),
+      color-mix(in oklab, var(--paper) 55%, transparent)
+    ),
+    var(--tex-panel);
+  background-size: auto, 260px 260px;
 }
 
 /* Event tiles and header controls get the subtler plate plus a bevel.
@@ -596,21 +615,30 @@
     var(--tex-tile);
   background-size: auto, 180px 180px;
   box-shadow:
-    inset 1px 1px 0 var(--bevel-light),
-    inset -1px -1px 0 var(--bevel-dark);
+    inset 2px 2px 0 var(--bevel-light),
+    inset -2px -2px 0 var(--bevel-dark);
 }
 
 [data-theme="kuake"] button:not(:disabled) {
   box-shadow:
-    inset 1px 1px 0 var(--bevel-light),
-    inset -1px -1px 0 var(--bevel-dark);
+    inset 2px 2px 0 var(--bevel-light),
+    inset -2px -2px 0 var(--bevel-dark);
 }
 
 [data-theme="kuake"] button:not(:disabled):active {
   box-shadow:
-    inset -1px -1px 0 var(--bevel-light),
-    inset 1px 1px 0 var(--bevel-dark);
+    inset -2px -2px 0 var(--bevel-light),
+    inset 2px 2px 0 var(--bevel-dark);
 }
+
+/* Tiles already carry the emboss; their inner hit-target must stay flat, and
+   the star overlay must not stamp a second frame on top of the tile. */
+[data-theme="kuake"] .bg-event button,
+[data-theme="kuake"] .event-favourite button,
+[data-theme="kuake"] [class*="bg-event"] button {
+  box-shadow: none;
+}
+
 
 /* Sprite art, not vector art: the Assembly mark and theme previews render
    with nearest-neighbour sampling and a chunky pixel step. */
@@ -629,16 +657,3 @@
   border-radius: 0 !important;
 }
 
-/* Faint CRT scanlines over the page, static so it costs nothing to paint. */
-[data-theme="kuake"] body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    oklch(0 0 0 / 0.16) 0 1px,
-    transparent 1px 3px
-  );
-}
