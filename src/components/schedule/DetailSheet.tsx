@@ -33,7 +33,7 @@ export function DetailSheet({ event, venueById, onClose }: DetailSheetProps) {
         <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/40" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="fixed inset-x-0 bottom-0 z-50 max-h-[82dvh] overflow-y-auto border-t-2 border-ink bg-paper p-4 pb-8 sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(480px,92vw)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:border-2"
+          className="fixed inset-x-0 bottom-0 z-50 max-h-[82dvh] overflow-y-auto border-t-2 border-strong bg-paper p-4 pb-8 sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(480px,92vw)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:border-2"
         >
           {event && (
             <SheetBody event={event} venueById={venueById} onClose={onClose} />
@@ -78,7 +78,7 @@ function SheetBody({
         <Dialog.Title className="text-[20px] font-bold leading-tight">
           {event.title}
           {event.fiOnly && (
-            <span className="ml-2 border border-ink px-1 align-middle text-[10px] font-bold uppercase tracking-[0.06em]">
+            <span className="ml-2 border border-strong px-1 align-middle text-[10px] font-bold uppercase tracking-[0.06em]">
               FI
             </span>
           )}

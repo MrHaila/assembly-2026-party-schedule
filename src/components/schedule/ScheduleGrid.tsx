@@ -61,7 +61,7 @@ export function ScheduleGrid({
       {/* Sticky location headers — shares .schedule-cols with the body so the
           two grids stay column-aligned. They park under the sticky day
           heading (--day-head-h), never on top of it. */}
-      <div className="schedule-cols sticky top-[var(--day-head-h)] z-30 grid border-b-2 border-ink bg-paper">
+      <div className="schedule-cols sticky top-[var(--day-head-h)] z-30 grid border-b-2 border-strong bg-paper">
         <div className="border-r border-rule" />
         {venues.map((venue, colIdx) => (
           <div
@@ -175,7 +175,7 @@ export function ScheduleGrid({
               gridRow: slotIndexFor(moment.start, win) + 1,
             }}
           >
-            <span className="press relative -top-[7px] ml-1 inline-block max-w-full truncate border border-ink/50 bg-paper px-1 text-[10.5px] font-semibold uppercase tracking-[0.04em]">
+            <span className="press relative -top-[7px] ml-1 inline-block max-w-full truncate border border-strong bg-paper px-1 text-[10.5px] font-semibold uppercase tracking-[0.04em]">
               ◆ <span className="tnum">{formatTime(moment.start)}</span>{" "}
               {moment.title}
             </span>

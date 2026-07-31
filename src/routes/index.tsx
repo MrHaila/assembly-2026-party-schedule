@@ -226,7 +226,7 @@ function AssyguidePage() {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-ink px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
         <div className="flex min-w-0 items-center gap-2">
           <AssemblyMark size={24} />
           <h1 className="truncate text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
