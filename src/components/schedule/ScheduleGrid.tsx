@@ -82,7 +82,7 @@ export function ScheduleGrid({
             ticks, so the hairline still reads across to the page edge even
             though the rules over the columns sit BEHIND the event blocks. */}
         <div
-          className="sticky left-0 z-20 border-r border-rule bg-paper"
+          className="sticky left-0 z-20 border-r border-rule bg-paper relative"
           style={{ gridColumn: 1, gridRow: "1 / -1" }}
         >
           {win.hours.map((h) => (
