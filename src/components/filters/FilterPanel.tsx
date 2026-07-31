@@ -23,7 +23,7 @@ export function FilterPanel({ counts }: FilterPanelProps) {
   const hiding = counts.filter((c) => hidden.has(c.category));
 
   return (
-    <div className="border-b-2 border-strong bg-paper px-3 py-2">
+    <div className="border-b-2 border-strong bg-band px-3 py-2">
       <Row title={t.showing}>
         {showing.map((c) => (
           <FilterBadge
