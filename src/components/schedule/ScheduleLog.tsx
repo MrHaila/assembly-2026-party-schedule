@@ -71,8 +71,9 @@ export function ScheduleLog({
         <button
           type="button"
           onClick={() => onOpen(event)}
-          className={`press flex min-h-[44px] w-full items-baseline gap-2.5 px-1 py-1.5 text-left${favourite ? " border-l-2 border-gold bg-event-favourite pl-1.5" : ""}${past ? " opacity-45 saturate-50" : ""}`}
+          className={`press relative flex min-h-[44px] w-full items-baseline gap-2.5 py-1.5 pl-2.5 pr-1 text-left${favourite ? " bg-event-favourite" : ""}${past ? " opacity-45 saturate-50" : ""}`}
         >
+          <CategoryBar categories={event.categories} favourite={favourite} />
 
           <span className="tnum w-11 shrink-0 text-[13px] font-bold">
             {formatTime(event.start)}
