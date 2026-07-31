@@ -41,12 +41,6 @@ export interface Strings {
   showing: string;
   hiding: string;
   noneHidden: string;
-  themes: string;
-  themesHint: string;
-  themeActive: string;
-  themeComingSoon: string;
-  themeModernBlurb: string;
-  themeKuakeBlurb: string;
   /** Display names per category slug; missing slugs fall back to the slug. */
   categoryLabels: Record<string, string>;
 }
@@ -85,12 +79,6 @@ const FI: Strings = {
   showing: "Näytetään",
   hiding: "Piilotettu",
   noneHidden: "Valitse piilotettavat tapahtumatyypit",
-  themes: "Teemat",
-  themesHint: "Valitse ohjelman ulkoasu",
-  themeActive: "Käytössä",
-  themeComingSoon: "Tulossa",
-  themeModernBlurb: "Teema tavallisille ihmisille, jotka vihaavat hauskanpitoa.",
-  themeKuakeBlurb: "TAPPA KAIKKI ÄÄNET JA VALOT!!!",
   categoryLabels: {
     expo: "Expo",
     gaming: "Pelit",
@@ -147,12 +135,6 @@ const EN: Strings = {
   showing: "Showing",
   hiding: "Hiding",
   noneHidden: "Select event types to hide them",
-  themes: "Themes",
-  themesHint: "Pick how the schedule looks",
-  themeActive: "Active",
-  themeComingSoon: "Coming soon",
-  themeModernBlurb: "A theme for normal people that hate fun.",
-  themeKuakeBlurb: "KILL ALL AUDIO AND LIGHTS!!!",
   categoryLabels: {
     expo: "Expo",
     gaming: "Gaming",

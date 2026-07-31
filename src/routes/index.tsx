@@ -22,8 +22,6 @@ import { NextUp } from "@/components/schedule/NextUp";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FilterPanel } from "@/components/filters/FilterPanel";
 import { FiltersButton } from "@/components/filters/FiltersButton";
-import { ThemesButton } from "@/components/themes/ThemesButton";
-import { ThemesDialog } from "@/components/themes/ThemesDialog";
 import { useFavourites } from "@/hooks/use-favourites";
 import { useFilters } from "@/hooks/use-filters";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -33,7 +31,6 @@ import { useLanguage } from "@/hooks/use-language";
 import { useSchedule } from "@/hooks/use-schedule";
 import { usePrefetchDetails } from "@/hooks/use-event-detail";
 import { fetchScheduleListCached } from "@/lib/api/schedule-server";
-import { FEATURE_FLAGS } from "@/lib/site.config";
 import { formatRelativeTime } from "@/lib/i18n/strings";
 import { nextUpFavourites } from "@/lib/schedule/favourites";
 import { categoryCounts, filterEvents } from "@/lib/schedule/filters";
@@ -140,7 +137,6 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
   const prefetchDetails = usePrefetchDetails();
   const { hidden } = useFilters();
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [themesOpen, setThemesOpen] = useState(false);
 
   // Counts come from the full feed so a hidden type keeps showing its size.
   const counts = useMemo(
@@ -343,12 +339,6 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
         </div>
 
         <div className="flex items-center gap-2">
-          {FEATURE_FLAGS.themeSwitcher && (
-            <ThemesButton
-              open={themesOpen}
-              onOpen={() => setThemesOpen(true)}
-            />
-          )}
           <FiltersButton
             open={filtersOpen}
             onToggle={() => setFiltersOpen((v) => !v)}
@@ -360,10 +350,6 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
 
 
       {filtersOpen && <FilterPanel counts={counts} />}
-
-      {FEATURE_FLAGS.themeSwitcher && (
-        <ThemesDialog open={themesOpen} onClose={() => setThemesOpen(false)} />
-      )}
 
       <NextUp entries={nextUp} venueById={venueById} onOpen={setSelected} />
 

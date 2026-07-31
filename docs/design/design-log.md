@@ -461,19 +461,19 @@ colour bar and filters need. We identify via a `?client=` query param + named
 operations; a custom request header fails the CORS preflight (endpoint allows
 only Authorization/Content-Type/X-JWT-*), and `User-Agent` is forbidden anyway.
 
-## 31. Theme picker (MODERN + KUAKE placeholder)
+## 31. Theme selector removed (was: MODERN + KUAKE picker)
 
-A `THEMES` button sits left of `FILTERS` in the header and opens the same modal
-chrome as the event detail (one modal shape for the whole app —
-`src/components/themes/ThemesDialog.tsx`). Each theme is a card: screenshot on
-top, name + blurb below, and a status chip (`ACTIVE` / `COMING SOON`).
+A theme picker (header `THEMES` button → modal of theme cards) and a full theme
+engine (`data-theme` on `<html>`, persisted choice, provider) plus a KUAKE
+90s/DOS skin were prototyped, then **cut entirely** as unnecessary complexity
+against the project's core goal. Removed: `src/components/themes/*`,
+`src/lib/theme/*`, `src/hooks/use-theme.tsx`, the anti-flash script + KUAKE font
+link in `__root.tsx`, the `themeSwitcher` feature flag, the `theme*` i18n
+strings, `public/kuake/` assets, and the KUAKE CSS block in `src/styles.css`.
 
-The catalogue lives in `src/lib/theme/themes.config.ts` — a typed list, not
-markup, so adding a theme is a data change. `MODERN` is the current dark
-listings design and carries a real screenshot (uploaded as a CDN asset).
-`KUAKE` is announced with a placeholder tile and `available: false`; the theme
-engine (token swapping + persistence) is a follow-up step, so selection is
-deliberately inert today rather than half-wired.
+**Why.** The skin never landed a look worth shipping, and a second visual
+identity is scope the app doesn't need. MODERN is now the single, unconditional
+design — no attribute, no picker, no dead code paths.
 
 ## 32. Progressive Web App (iOS standalone + offline)
 
@@ -501,4 +501,3 @@ previews never get stuck on an old cache.
 through the weekend. Making it home-screen installable keeps it one tap away;
 letting Workbox serve the offline shell means the schedule still loads once the
 user has opened it online at least once.
-
