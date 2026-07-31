@@ -60,9 +60,13 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-paper: var(--paper);
+  --color-band: var(--band);
+  --color-surface: var(--surface);
+  --color-scrim: var(--scrim);
   --color-ink: var(--ink);
   --color-ink-mid: var(--ink-mid);
   --color-rule: var(--rule);
+  --color-strong: var(--strong);
   --color-spot: var(--spot);
   --color-marker: var(--marker);
   --color-event: var(--event);
@@ -70,6 +74,7 @@
   --color-event-active: var(--event-active);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
+
   --color-event-favourite: var(--event-favourite);
   --color-cat-vermillion: var(--cat-vermillion);
   --color-cat-orange: var(--cat-orange);
