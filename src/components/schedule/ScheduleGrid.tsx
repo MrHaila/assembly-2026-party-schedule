@@ -169,16 +169,17 @@ export function ScheduleGrid({
             type="button"
             data-col={colIdx + 1}
             onClick={() => onOpen(moment)}
-            className="z-20 self-start overflow-hidden text-left"
+            className="relative z-20 flex min-w-0 self-start text-left"
             style={{
               gridColumn: colIdx + 2,
               gridRow: slotIndexFor(moment.start, win) + 1,
             }}
           >
-            <span className="press relative -top-[7px] ml-1 inline-block max-w-full truncate border border-strong bg-paper px-1 text-[10.5px] font-semibold uppercase tracking-[0.04em]">
+            <span className="press ml-1 -mt-[9px] block max-w-full truncate border border-strong bg-paper px-1 text-[10.5px] font-semibold uppercase leading-[16px] tracking-[0.04em]">
               ◆ <span className="tnum">{formatTime(moment.start)}</span>{" "}
               {moment.title}
             </span>
+
           </button>
           );
         })}
