@@ -112,11 +112,15 @@ export function computeDayWindow(
     start = DAY_START_MIN;
     end = DAY_END_MIN;
   }
-  let startMin = Math.floor(start / 60) * 60;
-  let endMin = Math.ceil(end / 60) * 60;
-  if (endMin - startMin < 60) endMin = startMin + 60;
+  const firstHour = Math.floor(start / 60) * 60;
+  let lastHour = Math.ceil(end / 60) * 60;
+  if (lastHour - firstHour < 60) lastHour = firstHour + 60;
   const hours: number[] = [];
-  for (let h = startMin; h <= endMin - 60; h += 60) hours.push(h);
+  for (let h = firstHour; h <= lastHour - 60; h += 60) hours.push(h);
+  // 30 min of breathing room top and bottom so the first and last events of
+  // a day never sit flush against the day's edge.
+  const startMin = firstHour - 30;
+  const endMin = lastHour + 30;
   return {
     startMin,
     endMin,
