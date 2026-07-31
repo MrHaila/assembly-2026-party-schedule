@@ -28,11 +28,13 @@ export default defineConfig({
         injectRegister: null,
         devOptions: { enabled: false },
         workbox: {
-          // Serve the app shell even when offline, but never cache OAuth flows.
+          // Serve the app shell even when offline, but never cache OAuth or
+          // API routes in the app-shell fallback.
           navigateFallback: "/",
-          navigateFallbackDenylist: [/^\/api\/|/^\/~oauth/],
+          navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/],
           // Cache the static build assets aggressively (hashed filenames).
           globPatterns: ["**/*.{js,css,html,woff2,woff,png,svg,ico,webmanifest}"],
+
           // Runtime caches for external fonts and the demoscene proxy.
           runtimeCaching: [
             {
