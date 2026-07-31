@@ -10,6 +10,7 @@ import { DetailSheet } from "@/components/schedule/DetailSheet";
 
 import { OtherVenues } from "@/components/schedule/OtherVenues";
 import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
+import { NowRail } from "@/components/schedule/NowRail";
 import { ScheduleLog } from "@/components/schedule/ScheduleLog";
 import { NextUp } from "@/components/schedule/NextUp";
 import { useFavourites } from "@/hooks/use-favourites";
@@ -20,7 +21,8 @@ import { useLanguage } from "@/hooks/use-language";
 import { fetchLiveSchedule, getSnapshotSchedule } from "@/lib/api/assembly-graphql";
 import { formatRelativeTime } from "@/lib/i18n/strings";
 import { nextUpFavourites } from "@/lib/schedule/favourites";
-import { scheduleDate, toScheduleTime } from "@/lib/schedule/time";
+import { resolveNowPlacement } from "@/lib/schedule/now-placement";
+import { computeDayWindow, scheduleDate, toScheduleTime } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
 
 /** Most columns the responsive CSS can ever show (see .schedule-cols). */
