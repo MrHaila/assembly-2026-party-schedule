@@ -52,7 +52,8 @@ export function ThemesDialog({ open, onClose }: ThemesDialogProps) {
 
 function ThemeCard({ theme }: { theme: ThemeOption }) {
   const { t } = useLanguage();
-  const active = theme.available && theme.id === DEFAULT_THEME_ID;
+  const { theme: current, setTheme } = useTheme();
+  const active = theme.available && theme.id === current;
   return (
     <article
       className={`grid grid-cols-1 border sm:grid-cols-2 ${active ? "border-strong" : "border-rule"} bg-paper`}
