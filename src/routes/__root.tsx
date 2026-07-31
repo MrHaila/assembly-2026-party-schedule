@@ -12,7 +12,6 @@ import { useEffect, type ReactNode } from "react";
 import { FavouritesProvider } from "@/hooks/use-favourites";
 import { FiltersProvider } from "@/hooks/use-filters";
 import { LanguageProvider } from "@/hooks/use-language";
-import { ThemeProvider } from "@/hooks/use-theme";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -113,12 +112,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap",
       },
-      // KUAKE theme faces. Loaded up front (they are tiny bitmap-style
-      // fonts) so switching themes never flashes a fallback.
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=VT323&family=Silkscreen:wght@400;700&display=swap",
-      },
     ],
   }),
   shellComponent: RootShell,
@@ -146,16 +139,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <LanguageProvider>
-          <FiltersProvider>
-          <FavouritesProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-          </FavouritesProvider>
-          </FiltersProvider>
-        </LanguageProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <FiltersProvider>
+        <FavouritesProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </FavouritesProvider>
+        </FiltersProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

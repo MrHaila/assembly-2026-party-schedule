@@ -474,38 +474,3 @@ listings design and carries a real screenshot (uploaded as a CDN asset).
 `KUAKE` is announced with a placeholder tile and `available: false`; the theme
 engine (token swapping + persistence) is a follow-up step, so selection is
 deliberately inert today rather than half-wired.
-
-## 32. Theme engine + the KUAKE skin
-
-**Engine.** `src/lib/theme/theme.ts` is the pure layer (theme union, default,
-localStorage read/write, unit-tested in `tests/theme.test.ts`);
-`src/hooks/use-theme.tsx` is the provider, mirroring `use-language` exactly —
-SSR and first paint render the default, an effect applies the stored choice.
-The single runtime effect is `data-theme` on `<html>`. Components never branch
-on the theme: every visual difference is a CSS override keyed off that
-attribute. Selecting a card in the themes modal applies and persists instantly.
-
-**MODERN is the null theme.** All existing token values stay in `:root`. With
-no attribute, or `data-theme="modern"`, not one KUAKE declaration matches, so
-MODERN renders exactly as it did before the engine landed.
-
-**KUAKE token contract** (`[data-theme="kuake"]` block in `src/styles.css`):
-
-- surfaces: `--paper` a near-black stone wall, `--band` a bolted plate one step
-  up, `--surface` (modals) the brightest plate; `--event` becomes warm
-  olive-amber metal instead of neutral grey.
-- ink: `--ink` bone, `--ink-mid` phosphor green, `--spot` blood red,
-  `--marker` amber. Gold is retuned brighter/more saturated (8-bit gold).
-- `--font-listings` swaps to a VGA-style pixel face and headings pick up a
-  chunkier bitmap display face via `--font-display`. Body size steps up and
-  headings step down, because the pixel faces have a small x-height and wide
-  advance — component font sizes are untouched, the theme corrects optically.
-- chrome: `--bevel-light` / `--bevel-dark` drive inset box-shadow bevels on
-  bands, plates, tiles and buttons (pressed buttons invert the bevel), plus two
-  tiling textures (`--tex-panel`, `--tex-tile`) laid under a colour wash. Radii
-  are forced to zero and a static CRT scanline overlay sits above the page.
-- the Assembly mark stays — tinted amber with a hard 1px drop shadow so it
-  reads as sprite art. No third-party logos.
-
-Textures and the theme screenshot are generated art stored as CDN assets
-(`src/assets/*.asset.json`), never binaries in the repo.
