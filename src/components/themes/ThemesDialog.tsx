@@ -1,7 +1,8 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { ActionButton } from "@/components/ui/ActionButton";
 import { useLanguage } from "@/hooks/use-language";
-import { DEFAULT_THEME_ID, THEMES, type ThemeOption } from "@/lib/theme/themes.config";
+import { useTheme } from "@/hooks/use-theme";
+import { THEMES, type ThemeOption } from "@/lib/theme/themes.config";
 
 interface ThemesDialogProps {
   open: boolean;
@@ -10,8 +11,8 @@ interface ThemesDialogProps {
 
 /**
  * Theme picker. Same sheet/panel chrome as the event detail so the app only
- * ever has one modal shape. Selection is inert until the theme engine lands:
- * MODERN is the active theme, KUAKE is announced only.
+ * ever has one modal shape. Picking an available theme applies it instantly
+ * and persists the choice (design-log #31).
  */
 export function ThemesDialog({ open, onClose }: ThemesDialogProps) {
   const { t } = useLanguage();
@@ -51,10 +52,17 @@ export function ThemesDialog({ open, onClose }: ThemesDialogProps) {
 
 function ThemeCard({ theme }: { theme: ThemeOption }) {
   const { t } = useLanguage();
-  const active = theme.available && theme.id === DEFAULT_THEME_ID;
+  const { theme: current, setTheme } = useTheme();
+  const active = theme.available && theme.id === current;
   return (
-    <article
-      className={`grid grid-cols-1 border sm:grid-cols-2 ${active ? "border-strong" : "border-rule"} bg-paper`}
+    <button
+      type="button"
+      disabled={!theme.available}
+      aria-pressed={active}
+      onClick={() => setTheme(theme.id)}
+      className={`grid w-full grid-cols-1 border text-left transition-colors duration-100 sm:grid-cols-2 ${
+        active ? "border-strong" : "border-rule"
+      } ${theme.available ? "press bg-paper" : "bg-paper opacity-70"}`}
     >
       <div className="aspect-[16/10] w-full overflow-hidden border-b border-rule bg-band sm:border-b-0 sm:border-r">
         {theme.preview ? (
@@ -66,7 +74,7 @@ function ThemeCard({ theme }: { theme: ThemeOption }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-mid">
-            {t.themeComingSoon}
+            {theme.available ? theme.name : t.themeComingSoon}
           </div>
         )}
       </div>
@@ -75,20 +83,23 @@ function ThemeCard({ theme }: { theme: ThemeOption }) {
           <h3 className="text-[14px] font-bold uppercase tracking-[0.08em]">
             {theme.name}
           </h3>
-          <span
-            className={`shrink-0 border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em] ${
-              active
-                ? "border-strong bg-ink text-paper"
-                : "border-rule text-ink-mid"
-            }`}
-          >
-            {active ? t.themeActive : t.themeComingSoon}
-          </span>
+          {(active || !theme.available) && (
+            <span
+              className={`shrink-0 border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em] ${
+                active
+                  ? "border-strong bg-ink text-paper"
+                  : "border-rule text-ink-mid"
+              }`}
+            >
+              {active ? t.themeActive : t.themeComingSoon}
+            </span>
+          )}
         </div>
         <p className="text-[12px] leading-snug text-ink-mid">
           {t[theme.blurbKey]}
         </p>
       </div>
-    </article>
+    </button>
   );
 }
+

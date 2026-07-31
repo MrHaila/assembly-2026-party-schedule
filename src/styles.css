@@ -469,3 +469,176 @@
     animation: none;
   }
 }
+
+/* ==========================================================================
+   KUAKE theme (docs/design/design-log.md #31)
+   A 90s id-Software skin. Everything below is scoped to [data-theme="kuake"]
+   on <html>; with no attribute, or with "modern", not one declaration applies,
+   so the MODERN theme is byte-identical to before the theme engine landed.
+   The skin is expressed as token overrides plus theme-scoped chrome
+   (textures, bevels, pixel fonts) — no component markup is theme-aware.
+   ========================================================================== */
+
+[data-theme="kuake"] {
+  /* Stone-and-rust surfaces: the page is a dark dungeon wall, chrome bands
+     are plates bolted onto it, tiles are lit metal. */
+  --paper: oklch(0.155 0.008 60);
+  --band: oklch(0.225 0.012 60);
+  --surface: oklch(0.265 0.014 60);
+  --scrim: oklch(0.09 0.01 60 / 0.78);
+
+  /* Bone body text, phosphor-green secondary, blood-red spot. */
+  --ink: oklch(0.92 0.03 85);
+  --ink-mid: oklch(0.76 0.12 128);
+  --rule: oklch(0.36 0.02 60);
+  --strong: oklch(0.52 0.035 60);
+  --spot: oklch(0.58 0.23 28);
+  --marker: oklch(0.78 0.15 78);
+
+  /* Event plates: warm olive-amber metal instead of neutral grey. */
+  --event: color-mix(in oklab, oklch(0.72 0.07 78) 17%, var(--paper));
+  --event-hover: color-mix(in oklab, oklch(0.82 0.09 78) 27%, var(--paper));
+  --event-active: color-mix(in oklab, oklch(0.4 0.03 60) 22%, var(--paper));
+
+  /* 8-bit gold — brighter and more saturated than MODERN's. */
+  --gold: oklch(0.83 0.17 82);
+  --gold-soft: oklch(0.91 0.12 84);
+  --event-favourite: color-mix(in oklab, var(--gold) 18%, var(--paper));
+  --event-favourite-grid: color-mix(in oklab, var(--gold) 30%, var(--paper));
+  --event-favourite-hover: color-mix(in oklab, var(--gold) 42%, var(--paper));
+  --event-favourite-active: color-mix(in oklab, var(--gold) 18%, var(--paper));
+
+  --font-listings: "VT323", "Courier New", monospace;
+  --font-display: "Silkscreen", "VT323", monospace;
+
+  /* Bevel contract: one light edge, one shadow edge, no radii, no blur. */
+  --bevel-light: oklch(1 0 0 / 0.22);
+  --bevel-dark: oklch(0 0 0 / 0.55);
+
+  --tex-panel: url("/__l5e/assets-v1/90313d86-fea2-4bc9-be06-765344a99abe/kuake-panel.jpg");
+  --tex-tile: url("/__l5e/assets-v1/7cc033ea-f54f-441c-9806-3b39a96c56a0/kuake-tile.jpg");
+}
+
+/* VT323 has a small x-height, so the shared type scale reads a step down.
+   Sizes in components are untouched; the theme corrects optically instead. */
+[data-theme="kuake"] body {
+  font-size: 118%;
+  letter-spacing: 0.01em;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(
+      color-mix(in oklab, var(--paper) 88%, transparent),
+      color-mix(in oklab, var(--paper) 88%, transparent)
+    ),
+    var(--tex-panel);
+  background-size: auto, 320px 320px;
+  background-attachment: fixed, fixed;
+}
+
+[data-theme="kuake"] h1,
+[data-theme="kuake"] h2,
+[data-theme="kuake"] h3 {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+/* Silkscreen is much wider per character than the condensed MODERN face, so
+   headings step down to keep the same lines fitting the same boxes — the
+   page title must not truncate on a phone. */
+[data-theme="kuake"] h1 {
+  font-size: 0.78em;
+  letter-spacing: 0;
+}
+
+[data-theme="kuake"] h2,
+[data-theme="kuake"] h3 {
+  font-size: 0.86em;
+}
+
+/* Chrome bands: bolted metal plates with a bevelled edge. */
+[data-theme="kuake"] .bg-band {
+  background-image:
+    linear-gradient(
+      color-mix(in oklab, var(--band) 86%, transparent),
+      color-mix(in oklab, var(--band) 86%, transparent)
+    ),
+    var(--tex-panel);
+  background-size: auto, 260px 260px;
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-light),
+    inset -1px -1px 0 var(--bevel-dark);
+}
+
+/* Modal / detail sheet: the brightest plate in the room. */
+[data-theme="kuake"] .bg-surface {
+  background-image:
+    linear-gradient(
+      color-mix(in oklab, var(--surface) 88%, transparent),
+      color-mix(in oklab, var(--surface) 88%, transparent)
+    ),
+    var(--tex-panel);
+  background-size: auto, 260px 260px;
+  box-shadow:
+    inset 2px 2px 0 var(--bevel-light),
+    inset -2px -2px 0 var(--bevel-dark);
+}
+
+/* Event tiles and header controls get the subtler plate plus a bevel.
+   Applied through existing classes only — no new markup. */
+[data-theme="kuake"] .bg-event,
+[data-theme="kuake"] .event-favourite,
+[data-theme="kuake"] [class*="bg-event"] {
+  background-image:
+    linear-gradient(
+      color-mix(in oklab, var(--paper) 34%, transparent),
+      color-mix(in oklab, var(--paper) 34%, transparent)
+    ),
+    var(--tex-tile);
+  background-size: auto, 180px 180px;
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-light),
+    inset -1px -1px 0 var(--bevel-dark);
+}
+
+[data-theme="kuake"] button:not(:disabled) {
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-light),
+    inset -1px -1px 0 var(--bevel-dark);
+}
+
+[data-theme="kuake"] button:not(:disabled):active {
+  box-shadow:
+    inset -1px -1px 0 var(--bevel-light),
+    inset 1px 1px 0 var(--bevel-dark);
+}
+
+/* Sprite art, not vector art: the Assembly mark and theme previews render
+   with nearest-neighbour sampling and a chunky pixel step. */
+[data-theme="kuake"] svg[aria-label="Assembly"] {
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 1px 0 var(--bevel-dark));
+  color: var(--marker);
+}
+
+[data-theme="kuake"] img {
+  image-rendering: pixelated;
+}
+
+/* Everything is square in 1996. */
+[data-theme="kuake"] * {
+  border-radius: 0 !important;
+}
+
+/* Faint CRT scanlines over the page, static so it costs nothing to paint. */
+[data-theme="kuake"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    oklch(0 0 0 / 0.16) 0 1px,
+    transparent 1px 3px
+  );
+}
