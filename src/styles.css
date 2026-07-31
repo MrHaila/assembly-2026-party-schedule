@@ -511,9 +511,10 @@
   --font-listings: "VT323", "Courier New", monospace;
   --font-display: "Silkscreen", "VT323", monospace;
 
-  /* Bevel contract: one light edge, one shadow edge, no radii, no blur. */
-  --bevel-light: oklch(1 0 0 / 0.22);
-  --bevel-dark: oklch(0 0 0 / 0.55);
+  /* Bevel contract: one light edge, one shadow edge, no radii, no blur.
+     Heavy on purpose — 90s chrome is embossed, not hairlined. */
+  --bevel-light: oklch(1 0 0 / 0.34);
+  --bevel-dark: oklch(0 0 0 / 0.72);
 
   --tex-panel: url("/__l5e/assets-v1/90313d86-fea2-4bc9-be06-765344a99abe/kuake-panel.jpg");
   --tex-tile: url("/__l5e/assets-v1/7cc033ea-f54f-441c-9806-3b39a96c56a0/kuake-tile.jpg");
