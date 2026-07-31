@@ -158,19 +158,21 @@ export function ScheduleGrid({
           });
         })}
 
-        {/* Moment markers — labelled rules across all columns */}
+        {/* Moment markers — a labelled tick inside their OWN location
+            column, never a band across the whole grid: an EXPO opening is
+            not a Main Stage event (design-log #27). */}
         {moments.map((moment) => (
           <button
             key={moment.id}
             type="button"
             onClick={() => onOpen(moment)}
-            className="z-20 self-start text-left"
+            className="z-20 self-start overflow-hidden text-left"
             style={{
-              gridColumn: "1 / -1",
+              gridColumn: venues.findIndex((v) => v.slug === moment.venueId) + 2,
               gridRow: slotIndexFor(moment.start, win) + 1,
             }}
           >
-            <span className="press relative -top-[7px] ml-12 inline-block border border-ink/50 bg-paper px-1.5 text-[11px] font-semibold uppercase tracking-[0.04em]">
+            <span className="press relative -top-[7px] ml-1 inline-block max-w-full truncate border border-ink/50 bg-paper px-1 text-[10.5px] font-semibold uppercase tracking-[0.04em]">
               ◆ <span className="tnum">{formatTime(moment.start)}</span>{" "}
               {moment.title}
             </span>

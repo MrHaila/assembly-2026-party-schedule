@@ -377,3 +377,12 @@ wrapping rows: `SHOWING` and `HIDING`. Clicking a badge moves it between them.
   locations earn grid columns and which fall into "Other locations".
 - Day sections, the all-day band, "Next up" and the footer tally all read the
   same filtered set — no view may filter on its own.
+
+## 27. Timeline breathing room and column-scoped moments
+
+- Each day's grid window is padded by 30 minutes before the first and after
+  the last event, so nothing renders flush against the day's edge.
+  Hour rules and labels stay on whole hours.
+- Zero-duration "moment" markers (area opens/closes, doors) render as a
+  labelled tick *inside their own location column* instead of a band across
+  the whole grid — an EXPO opening must never read as a Main Stage event.
