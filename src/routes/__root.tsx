@@ -107,7 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "The better party schedule viewer for Assembly Summer 2026.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Assembly Schedule" },
       { name: "twitter:description", content: "The better party schedule viewer for Assembly Summer 2026." },
       { property: "og:image", content: "https://assyt.haila.fi/og.jpg" },
