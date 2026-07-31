@@ -603,7 +603,7 @@
    with nearest-neighbour sampling and a chunky pixel step. */
 [data-theme="kuake"] svg[aria-label="Assembly"] {
   image-rendering: pixelated;
-  filter: url(#kuake-pixelate) drop-shadow(1px 1px 0 var(--bevel-dark));
+  filter: drop-shadow(1px 1px 0 var(--bevel-dark));
   color: var(--marker);
 }
 
