@@ -58,7 +58,9 @@ function SheetBody({
   const { isFavourite, toggle } = useFavourites();
   // The body is the only field not in the list item — load it on demand.
   // Everything else below renders instantly from `event`.
-  const detail = useEventDetail(event.id, language);
+  // News items ship their body inline; only calendar events need the fetch.
+  const detail = useEventDetail(event.body ? null : event.id, language);
+  const body = event.body ?? detail.data?.excerpt;
   const venue = venueById.get(event.venueId);
   const secondary = event.venueIdSecondary
     ? venueById.get(event.venueIdSecondary)
@@ -133,16 +135,16 @@ function SheetBody({
         </div>
       </dl>
 
-      {detail.isPending ? (
+      {!event.body && detail.isPending ? (
         <div className="mt-3 space-y-2 border-t border-rule pt-3">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-11/12" />
           <Skeleton className="h-4 w-3/4" />
         </div>
       ) : (
-        detail.data?.excerpt && (
-          <p className="mt-3 border-t border-rule pt-3 text-[14px] leading-relaxed">
-            {detail.data.excerpt}
+        body && (
+          <p className="mt-3 whitespace-pre-line border-t border-rule pt-3 text-[14px] leading-relaxed">
+            {body}
           </p>
         )
       )}

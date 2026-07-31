@@ -40,6 +40,9 @@ export const VENUE_CONFIG: readonly VenueConfigEntry[] = [
   { slug: "kids-active-zone", short: "KIDS", order: 12, tier: "other" },
   { slug: "lan", short: "LAN", order: 13, tier: "other" },
   { slug: "infodesk", short: "INFO", order: 14, tier: "other" },
+  // Not a physical room: the scene.assembly.org news stream, folded in as a
+  // location so party announcements sit on the timeline (see news.ts).
+  { slug: "demoscene-news", short: "SCENE", order: 15, tier: "grid" },
 ] as const;
 
 export function venueConfigFor(slug: string): VenueConfigEntry | undefined {

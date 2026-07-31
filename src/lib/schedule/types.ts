@@ -36,6 +36,12 @@ export interface EventItem {
   /** De-suffixed category slugs. Never empty: programless events get "general". */
   categories: string[];
   streamUrls: string[];
+  /**
+   * Inline body shipped with the list item. Only feeds without a per-language
+   * detail endpoint use this (the demoscene news stream); calendar events keep
+   * loading their excerpt on demand.
+   */
+  body?: string;
   /** Absolute link back to the official program page. */
   sourceUrl?: string;
 }
