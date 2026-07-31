@@ -1,20 +1,17 @@
 # ASSYGUIDE data model
 
-The normalized model (`src/lib/schedule/types.ts`) is the only shape view
-components may consume. Raw WPGraphQL shapes are parsed by zod at the
-boundary (`src/lib/schedule/schema.ts`) and transformed by
-`src/lib/schedule/normalize.ts`. Every rule below is driven by a measured
-quirk in the live summer26 payload (verified 2026-07-30, 210 events) and
-pinned by a fixture test in `tests/normalize.test.ts`.
+Normalized model (`types.ts`) = the only shape views consume. Raw WPGraphQL
+parsed by zod at the boundary (`schema.ts`), transformed by `normalize.ts`.
+Every rule below is driven by a measured quirk in the live summer26 payload
+(verified 2026-07-30, 210 events), pinned by `tests/normalize.test.ts`.
 
 ## Core principle
 
-**Trust the API for facts, never for presentation.** Every ordering /
-presentation field in the API is unpopulated: `locations[].priority` is null
-on all 14 venues, `categories[].icon` null on all 34, `program.order` is
-999999 on everything, one venue colour is the string `"red"`. Order, short
-names, tiering and icons are editorial and live in
-`src/lib/schedule/venues.config.ts`.
+**Trust the API for facts, never presentation.** Every ordering/presentation
+field is unpopulated: `locations[].priority` null on all 14 venues,
+`categories[].icon` null on all 34, `program.order` 999999 on everything, one
+venue colour is the string `"red"`. Order, short names, tiering, icons are
+editorial in `venues.config.ts`.
 
 ## Normalization rules
 
@@ -33,13 +30,11 @@ names, tiering and icons are editorial and live in
 | 11 | Venue colours | 11/14 | Not fetched. Nothing renders colour — venues are distinguished by position and rule weight, not 14 pastels. The list query also drops all category/location names and the top-level categories block for the same reason (unused), for a ~25% faster resolve. |
 | 12 | Concurrency | max 4–5 | Only in `content-corner-seats` / `casual-tournaments`, both `other` tier. Grid-tier concurrency ≤ 2 → two-lane sub-columns (`assignSubColumns`). |
 
-## Types that surprised the PRD (caught by the fixture)
+## Type gotchas (caught by the fixture)
 
-- `programId` is a WPGraphQL global ID (`"cG9zdDo2NDE="`), **not** a number
-  (no longer fetched — was unused).
-- `modified` is Helsinki-local with **no** timezone offset (no longer fetched
-  — was unused).
-- `excerpt`/`content` are HTML — stripped to text for display (`stripHtml`).
+- `programId` is a WPGraphQL global ID (`"cG9zdDo2NDE="`), not a number (unused, not fetched).
+- `modified` is Helsinki-local with no timezone offset (unused, not fetched).
+- `excerpt`/`content` are HTML — stripped to text (`stripHtml`).
 
 ## Model
 
@@ -71,32 +66,29 @@ Day   = { id: "thu"|"fri"|"sat"|"sun", date, label }  // derived from eventSetti
 
 ## Time
 
-Europe/Helsinki is hardcoded (`src/lib/schedule/time.ts`) — never the device
-timezone; attendees arrive from abroad. The verified day window is
-**10:00–23:00** (780 min). Grid rows are 5-minute units (156 rows).
-`kind: "deadline" | "jury"` exist for the future hand-authored compo overlay
-(Partyman data is not in the API).
+Europe/Helsinki hardcoded (`time.ts`) — never device timezone; attendees arrive
+from abroad. Grid rows are 5-min units; each day's window is data-driven
+(`computeDayWindow`), 10:00–23:00 / 156 rows only as the empty-day fallback.
+`kind: "deadline" | "jury"` reserved for the future hand-authored compo overlay
+(Partyman data not in the API).
 
 ## Freshness
 
-Nothing is bundled — the page opens on a loading skeleton and fetches live
-(`src/lib/api/schedule-client.ts`). Two payloads, because the timeline is
-language-agnostic but bodies are not:
+Nothing bundled. Two payloads — timeline is language-agnostic, bodies aren't
+(`schedule-client.ts`):
 
-- **List** — the lean, language-independent timeline (`SCHEDULE_LIST_QUERY`).
-  Fetched once and polled every 60 s while the tab is focused (React Query
-  `staleTime`/`refetchInterval` in `use-schedule.ts`). Footer stamp is
-  `fetchedAt`. On failure there is no snapshot to fall back on, so the route
-  shows an error + retry.
-- **Detail** — the per-`(id, language)` excerpt, fetched on demand when a sheet
-  opens and prefetched for the visible range 1 s after scrolling settles
-  (`use-event-detail.ts`). Cached for 1 h. Concurrent fetches (a click plus a
-  whole-day warm) collapse into a single batched `calendarEvents(where:{in:…})`
-  request via the coalescing loader (`batch-loader.ts`, unit-tested).
+- **List** — lean, language-independent (`SCHEDULE_LIST_QUERY`). SSR'd in the
+  route loader from a two-tier server cache (in-isolate memo + Cloudflare
+  per-colo Cache API, stale-while-revalidate), so the HTML ships data — no
+  skeleton. `use-schedule.ts` seeds React Query, polls 60 s while focused.
+  Footer stamp `fetchedAt`. No snapshot fallback → error + retry on failure.
+- **Detail** — per-`(id, language)` excerpt, fetched when a sheet opens,
+  prefetched for the visible range 1 s after scroll settles
+  (`use-event-detail.ts`). Cached 1 h. Concurrent fetches collapse into one
+  batched `calendarEvents(where:{in:…})` via the coalescing loader
+  (`batch-loader.ts`, unit-tested).
 
-Occurrence titles are **not** localized, so swapping language refetches details
-only, never the list. We identify ourselves CORS-safely — a `?client=` query
-param plus named GraphQL operations; a custom request header is impossible
-because the endpoint's `Access-Control-Allow-Headers` allows only
-Authorization/Content-Type/X-JWT-*. Schema drift in either payload is caught by
-`bun run test:smoke` against the live endpoint.
+Titles not localized → swapping language refetches details only, never the list.
+CORS-safe identity: `?client=` query param + named operations; a custom header
+is impossible (`Access-Control-Allow-Headers` allows only
+Authorization/Content-Type/X-JWT-*). Schema drift caught by `bun run test:smoke`.

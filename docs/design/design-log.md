@@ -1,503 +1,159 @@
-# ASSYGUIDE design log
-
-Every visual and information-architecture decision gets a dated entry here.
-Change the design → update this file in the same commit. Style decisions
-must never become implicit.
-
----
-
-## #1 — 2026-07-30 — Milestone 1 theme: functional newsprint
-
-**Decision.** One light theme, newsprint-adjacent but deliberately not the
-final design. Tokens in `src/styles.css`: `--paper #E9E7DE` (newsprint
-grey-tan, not luxury cream), `--ink`, `--ink-mid`, `--rule`, `--spot
-#E4002B` (one spot ink, like 2-colour print — now bar only), `--marker
-#FFE800` (reserved for favourites). Type: IBM Plex Sans Condensed,
-`tabular-nums` on all times (`.tnum`). Density comes from hairline rules and
-tight leading — **no cards, radii, or shadows anywhere**, which the printed
-page did not have either.
-
-**Why.** Ship something real and dog-food it at the event before locking a
-visual identity. The PRD's teletext (`teksti`) dark theme is a later,
-separate effort.
-
-**Guardrails.** Components take domain-typed props only — no `className` or
-style passthrough — so styling can only drift in one file at a time.
-
-## #2 — 2026-07-30 — Fetch strategy: snapshot + live refresh
-
-> **Superseded by #31.** The bundled snapshot shipped 2 MB and, combined with
-> `initialData` + a 5-min `staleTime`, the "live refresh" never fired on load —
-> short sessions only ever saw build-time data.
-
-**Decision.** A committed JSON snapshot (`src/data/schedule-summer26.
-snapshot.json`, captured 2026-07-30) is bundled and paints instantly; the
-client refreshes stale-while-revalidate (5 min stale time) against
-`https://wp.assembly.org/summer26/graphql`. Any failure keeps the snapshot.
-
-**Why.** Venue wifi is terrible; the API's CORS is permissive (verified);
-the whole dataset is one small payload.
-
-## #3 — 2026-07-30 — Grid technique: 5-minute CSS grid rows
-
-**Decision.** The desktop grid is CSS Grid with 5-minute row units
-(156 rows for the 780-minute day). Blocks place by `grid-row: start / span
-n`; the span is guarded by `Math.max(1, …)`. No absolute positioning, no
-collision math. Overlaps become sub-column lanes (`assignSubColumns`), max 2
-in practice for grid-tier venues. A future zoom control is just changing
-`--slot-h` (currently 7.5px = 1.5px/min).
-
-**Deferred deliberately.** Alternate-hour tint bands, the minute scanline
-tick on the now bar, zoom presets, the 14-column wide view, `role="grid"`
-keyboard navigation, `prefers-reduced-motion` audit.
-
-## #4 — 2026-07-30 — Titles: occurrence title primary, EN as secondary
-
-**Decision.** Grid, log and sheet show the **event occurrence title**
-(`CalendarEvent.title`). The EN program translation title appears in the
-detail sheet as a secondary line when it differs. FI-only programs get an
-`FI` chip.
-
-**Why.** The PRD suggested leading with the EN program title, but 58
-programs back 210 events: streamer slots ("aitopr1") share the program
-"Content Corner Seats", so leading with program titles would erase
-occurrence identity — the opposite of what a schedule is for.
-
-## #5 — 2026-07-30 — Milestone 1 deferrals (do not re-add without an entry)
-
-Favourites (localStorage + URL bitmask), category filter (dims, never
-removes; programless events exempt), "mine only", conflict detection,
-search, the `teksti` dark theme, compo `overlay.json` (Partyman deadlines,
-hand-authored), change tracking on `modified`, print stylesheet, .ics
-export, now/next route, event-slug routing (`/winter26`), 14-column wide
-view, landscape mobile mini-grid.
-
-**Why.** The minimal thing has to work in a real setting first. Each of
-these is its own effort with its own log entry when it lands.
-
-## #6 — 2026-07-30 — Continuous timeline, "location", count ordering, CSS overflow
-
-**Decision.** Four changes from the first dog-fooding pass:
-
-1. **One continuous timeline.** All four days render in a single scroll
-   container as `<section data-day-id>` blocks with an inline `DayHeading`
-   band. The day tabs are no longer pages — they are scroll shortcuts, and
-   an `IntersectionObserver` moves the highlight to whichever day is in
-   focus. `?day=` still deep-links; it now sets the initial scroll offset.
-2. **All-day is part of the timeline.** The ≥6h ongoing items moved from a
-   floating band above the grid onto the day heading itself
-   (`OngoingBand` deleted, `DayHeading` owns the run-on line).
-3. **"Venue" → "location"** in every user-facing string. Type and prop
-   names still say `venue` — renaming the domain model is a separate,
-   mechanical change and not worth mixing into a UI pass.
-4. **Locations order by event COUNT, descending** (`normalizeVenues`),
-   with the editorial config kept only for short names and a deterministic
-   tie-break. Count, not total duration, so an all-day booth cannot outrank
-   a stage running ten sessions.
-5. **Grid/list split is now responsive, not editorial.** The scroll
-   container is a size container; `.schedule-cols` steps `--cols` 2→8 at
-   `48px + n × 150px`. Columns that do not fit are `display: none` via
-   `[data-col]`, and the same location's run-on paragraph in "Other
-   locations" carries `[data-overflow-col]` and is hidden exactly when its
-   column is visible. Zero JS measurement, no horizontal overflow ever.
-   Ultrawide guard: `max-width: calc(48px + var(--cols) * 280px)`.
-
-**Also fixed.** The now-bar time chip was absolutely positioned against
-the grid (it pinned to the top); its wrapper is now the positioning
-context, so the chip rides the rule. And `stripHtml` now decodes numeric
-entities (`it&#8217;s`) as well as the named ones — WordPress excerpts
-ship both, and titles are decoded too.
-
-## 7. Interaction states, sticky day band, priority locations (2026-07-30)
-
-1. **Every affordance is pointer-cursored and has both states.** Base layer
-   sets `cursor: pointer` on `button`, `summary`, `a[href]`, `[role=tab]`
-   and `[role=button]` (disabled controls keep the arrow). Hover is
-   *brighter* than default, active is *darker* — no exceptions. Two
-   utilities own the colours so components cannot drift: `.press` on paper,
-   `.press-invert` on the ink band. Event blocks use the `--event*` token
-   trio for the same contract.
-2. **Event surfaces are lighter than the page and translucent.** Blocks now
-   read as tiles against newsprint instead of vanishing into it, and the
-   hour rules stay faintly visible *through* them, so the timeline no longer
-   looks like half-drawn lines between opaque boxes.
-3. **The day heading is sticky.** It is exactly one line tall
-   (`--day-head-h`) on purpose: the location header row parks at
-   `top: var(--day-head-h)`, and a wrapping heading would desync that
-   offset. Long all-day runs scroll sideways inside the band. Full label
-   too — "THURSDAY 30th" on the band, compact "THU 30" on the tabs
-   (`Day.label` vs `Day.shortLabel`).
-4. **Grid block text is top-aligned**, so a title always sits next to its
-   start time — the whole point of a proportional axis.
-5. **Locations gained an editorial `priority`.** Main and Genelec are
-   pinned to columns 1–2; everything without a priority is still ranked by
-   event count. Promoting another location is a one-line config change.
-6. **Official program links are edition-scoped and configurable.** The API's
-   `program.uri` is edition-relative, so `event.config.ts` supplies
-   `EVENT_EDITION` (same slug as the GraphQL endpoint) and builds
-   `https://assembly.org/events/summer26/program/…`. Covered by a test.
-
-## 8 — Day band split, edge-to-edge hour rules, absolute block labels
-
-- The day heading is two bands: a sticky one-line day name (`--day-head-h`,
-  the anchor for the location header row) and a non-sticky all-day run-on
-  below it that wraps freely instead of hiding rows in a side scroller.
-- Hour hairlines span `grid-column: 1 / -1`, so the rule crosses the time
-  gutter to the page edge. Hour labels are `HH:MM` and sit just below their
-  own rule, so the first hour is never clipped.
-- Event block labels are absolutely positioned at the block's top edge:
-  buttons vertically centre their content in every engine, and neither
-  flex nor `align-content` reliably beats that UA behaviour.
-
-## 9 — Hour rules behind the glass
-
-Hour hairlines over the location columns render at `z-0`, under the event
-blocks; the block's translucent surface (`--event`, alpha 0.84) mutes the
-line instead of the line cutting across the block. The sticky time gutter
-   draws its own hour ticks so the hairline still reaches the page edge.
-
-## 10 — Vertical column borders
-
-**Decision.** The location columns in the grid body now have faint vertical
-borders drawn with a repeating CSS background, aligned to the same positions
-as the sticky header's `border-r` cells. The rule sits behind the translucent
-event blocks, so it reads through the frosted surface rather than sitting on
-top of events.
-
-**Why.** The header columns were easy to read because each had a clear
-separator; the body columns ran together without one, making it harder to
-trace an event up to its location header.
-
-**Technical note.** The grid background uses `background-size:
-calc((100% - 48px) / var(--cols))` and `background-position: 48px 0`, so
-it stays in sync with the responsive column count and the time gutter width.
-No extra DOM elements or JS measurement required.
-
-## 11 — FI/EN language switch (FI default)
-
-**Decision.** A two-state FI/EN switch sits in the header, right of the day
-tabs. FI is the default for first-time visitors; the choice persists in
-`localStorage` under `assyguide.language`. The detail sheet no longer shows a
-separate "EN: …" title line.
-
-**Why.** The event is Finnish and most on-site visitors read Finnish, but the
-site copy was English-only. With a real switch, the EN title line in the modal
-became redundant duplication of the same information.
-
-**Technical note.** `src/lib/i18n/language.ts` holds the pure persistence and
-`pickLocalized` fallback logic (unit tested, no DOM). `src/lib/i18n/strings.ts`
-holds one dictionary per language behind a `Strings` interface, so an
-untranslated key is a type error, plus localized day labels
-("PERJANTAI 31.7." / "FRIDAY 31st"). `useLanguage()` (provider in `__root`)
-is the only way components read the choice; SSR and first paint always render
-FI and the stored value is applied in an effect to avoid hydration mismatch.
-Event *titles* are not localized — the API's occurrence title is the specific
-one, while the program title is a generic umbrella; only excerpts have real
-FI/EN variants, and those are fetched on demand (`EventDetail`, see #2).
-
-### 11b. Event blocks get a full border
-Event blocks now use a 1px border on all four sides (`border-ink/45`) instead of only a top rule, so adjacent/side-by-side events in the same location read as distinct cards.
-
-### 13. One segmented toggle
-Day shortcuts and the FI/EN switch both render through `src/components/ui/SegmentedToggle.tsx` (closed API: options, activeId, onSelect, label, semantics). Active segments never react to hover; inactive ones use `.press`.
-
-### 14. Landing scroll anchors on "now"
-On first paint (no `?day=` deep link) the timeline scrolls so the now-bar sits
-~20% down the scroll viewport: a little past for context, most of the screen
-for upcoming events. Both the grid now-bar and the log now-marker carry
-`data-now-marker` so the route needs one selector. Without a now marker
-(outside event dates) it falls back to the today/first-day heading.
-
-### 15. Live events wear moving stripes
-Grid blocks whose start ≤ now < end get `.live-stripes`: a 45° muted spot-colour
-stripe field on a `::before` at `z-index:-1`, drifting left→right on an endless
-1.6s linear loop (one background-size period = 16px × √2, so the loop is
-seamless). It sits above the translucent event background but below the label,
-and freezes under `prefers-reduced-motion`.
-
-### 16. Footer shows relative "last updated" time
-Footer copy changed from "Data as of YYYY-MM-DD HH:mm · Source assembly.org" to
-"Last updated N seconds/minutes/hours/days ago · N events". The value is computed
-client-side and ticks once a second, with a placeholder dash on first render to
-avoid hydration mismatch. Both FI and EN use idiomatic pluralization.
-
-
-## 17 — Data-driven day windows, 05:00 rollover
-
-The grid used to hardcode 10:00–23:00 for every day. Two problems: quiet days
-(Sunday ends early) wasted a third of the page, and anything after midnight was
-clamped into the wrong day.
-
-- `scheduleDate()` / `dayMinutes()` / `toScheduleTime()` in `time.ts` move the
-  day boundary to 05:00 — a Friday-night set at 01:30 stays on Friday, as
-  minute 1530 rather than 90.
-- `computeDayWindow()` derives each day's visible range from its own timed
-  events (ongoing/all-day items excluded), snapped out to whole hours, falling
-  back to 10:00–23:00 for an empty day.
-- The grid row count is now the `--slots` custom property set per day;
-  `.schedule-grid` reads `repeat(var(--slots, 156), var(--slot-h))`.
-- Hour labels come from `formatDayMinutes()`, which wraps 24h+ back to 00–04.
-
-
-## 18 — Favourites and the departure board
-
-A second accent joins the palette: gold (`--gold`) for "mine", kept clearly
-apart from the red spot ink that means "now". Rules:
-
-- One control only — `FavouriteStar` in three fixed sizes (`grid`, `inline`,
-  `action`). No surface may draw its own star or its own gold.
-- Grid blocks reveal a muted star on hover/focus; once starred the star stays
-  visible and the block takes the `event-favourite` outline + warmer surface.
-- Touch has no hover, so the mobile list favourites through the detail sheet's
-  labelled star button, and starred rows carry a gold left rule and a ★ glyph.
-- State lives in `FavouritesProvider` over the pure helpers in
-  `lib/schedule/favourites.ts`; persistence is localStorage under
-  `assyguide.favourites` and never throws in private mode. SSR renders zero
-  favourites and the stored set is applied post-hydration.
-- "Next up" is a departure board, clarity first: event, countdown, location.
-  Desktop gets one dense line in the header (≥lg); mobile gets a persistent
-  strip under the header with a one-line preview of the following favourite.
-  Countdown wording comes from `formatCountdown()` (min / h min / d h).
-
-## 19 — One favourite wash, one departure board
-
-Refinements after dog-fooding #18:
-
-- The compact desktop "next up" badge is gone. The board has exactly one
-  presentation at every width, directly under the page header, so the two
-  variants can never drift apart.
-- Favourite surfaces share a single token, `--event-favourite`
-  (gold 14% over paper): grid blocks, mobile rows and run-on list entries all
-  use it. Grid blocks drop the full gold outline in favour of a 3px gold rule
-  on the left edge only — matching the list's left rule.
-- Run-on ("other locations") entries show the ★ glyph before the time and the
-  same gold wash, so a favourite is legible in every projection.
-- Live stripes are neutral grey (`--ink` 12%), not spot red: red reads as an
-  error. Favourited live events retint the field to gold via `--stripe-color`.
-- Vertical column hairlines are drawn once per column start instead of on both
-  edges; doubled 1px lines read heavier than the horizontal hour rules.
-
-## 20 — About-site footer band
-
-A muted, secondary footer band at the very bottom of the page carries the
-attribution and open-source notice. It sits below the existing "last updated"
-stats row, uses the same paper/rule palette, and is intentionally small so it
-never competes with the schedule. The GitHub repo link is a single placeholder
-constant in `src/lib/site.config.ts` so it can be replaced once the project is
-published.
-
-## 21 — External footer links and a more prominent grid favourite
-
-Three refinements from the latest dog-fooding comments:
-
-- **Footer links are external.** All links in `SiteFooter` open in a new
-  tab/window (`target="_blank"`, `rel="noopener noreferrer"`) and carry the
-  universal "↗" arrow so visitors know they are leaving the app. The markup
-  is shared through a single `ExternalLink` component in
-  `src/components/ui/ExternalLink.tsx`.
-- **Grid favourites are more prominent.** The `event-favourite` wash is now a
-  stronger grid-only mix (`--event-favourite-grid`, gold 34% over paper);
-  run-on list entries keep the lighter shared `--event-favourite` (gold 20%).
-  A large, muted gold star is clipped into the bottom-right corner of every
-  starred grid block: 55% of the block width, rotated 22°, and partially cut
-  off so it reads as a background texture rather than a floating icon.
-- **List favourites stay legible.** The run-on list keeps the ★ glyph before
-  the time and the gold wash, updated to the same 20% token as the rest of
-  the list projection.
-
-## 22 — "About this site" belongs to the timeline, not the sticky footer
-
-The attribution band is now the last element inside the scrollable timeline
-container instead of being part of the persistent bottom footer. It only
-appears once the user scrolls past the last day's schedule. The "last updated"
-stats strip remains sticky so it is always visible at the bottom of the
-viewport.
-
-
-## Entry #23 — Alignment, layering, star, repo link
-
-- Day heading, ALL DAY row and "Other locations" now use `px-3`, matching the
-  page header, "Next up" strip and "About this site" band.
-- Now bar sits at `z-[25]`: above event blocks (`z-10`) and the sticky time
-  gutter (`z-20`), behind the sticky
-  location header (`z-30`) and day heading (`z-40`).
-- Favourite background star nudged left (`right-[-6%]`) so more of the
-  silhouette reads inside the block.
-- `GITHUB_REPO_URL` set to the real repository.
-
-## Entry #24 — The now indicator is unconditional
-
-The red current-time marker must never disappear. `resolveNowPlacement()`
-(`src/lib/schedule/now-placement.ts`) picks exactly one home for it per render:
-
-- `inside` — the clock is within a day's computed window: the familiar red
-  rule in the grid (or between rows in the mobile log).
-- `before` — the day has not started yet (including before the whole weekend
-  and the dead gap between two days): a full-width `NowRail` band directly
-  above that day's inline heading.
-- `after` — the last day is over: the same band at the very bottom of the
-  last day's section, under "Other locations".
-
-Only one element ever carries `data-now-marker`, so the initial
-scroll-to-now landing keeps working unchanged. Copy lives in the i18n
-dictionary (`nowBeforeDay`, `nowAfterEvent`).
-
-
-## Entry #25 — Category colour bar
-
-Every event surface carries a thick (3px) left bar drawn by one component,
-`<CategoryBar />`. No component may draw its own edge.
-
-- Palette: 12 fixed swatches (`--cat-*` in `styles.css`), Okabe-Ito derived
-  and lightness-staggered so they separate for protan/deutan/tritan viewers.
-  Deliberately larger than the number of colours currently in use so new
-  categories can be added without a reshuffle.
-- Assignment lives in `src/lib/schedule/categories.ts`. Near-synonym slugs
-  share a swatch (musiikki/tanssi, byoc/lan, k-week/k-pop, kids/cosplay);
-  unknown slugs hash deterministically into the palette.
-- Multiple categories stack evenly, top to bottom, capped at four segments.
-- Gold is reserved for favourites: a favourited event collapses the bar to a
-  single gold segment, overriding category colour everywhere.
-
-
-## Entry #26 — Event type filters
-
-A `FILTERS` header button (left of the language switch) expands a drawer with
-every event type in the feed as a coloured badge, split into two labelled,
-wrapping rows: `SHOWING` and `HIDING`. Clicking a badge moves it between them.
-
-- Subtractive model: the visitor hides types, never selects them. An empty
-  stored set means "show everything", so new categories from the feed are
-  visible by default. Persisted in `localStorage`
-  (`assyguide.hiddenCategories`), applied in an effect to avoid a hydration
-  mismatch.
-- An event only disappears when *every* one of its categories is hidden — a
-  multi-category event stays as long as one of its types is still shown.
-- `<CategoryBar />` draws only the *visible* swatches, so filtering also cuts
-  colour noise. Gold still overrides everything for favourites.
-- Locations are re-ranked from the visible events (`rankVenues()`, the same
-  pure helper `normalize.ts` uses), so filtering genuinely reshapes which
-  locations earn grid columns and which fall into "Other locations".
-- Day sections, the all-day band, "Next up" and the footer tally all read the
-  same filtered set — no view may filter on its own.
-
-## 27. Timeline breathing room and column-scoped moments
-
-- Each day's grid window is padded by 30 minutes before the first and after
-  the last event, so nothing renders flush against the day's edge.
-  Hour rules and labels stay on whole hours.
-- Zero-duration "moment" markers (area opens/closes, doors) render as a
-  labelled tick *inside their own location column* instead of a band across
-  the whole grid — an EXPO opening must never read as a Main Stage event.
-
-## 28. Dark theme: brightness is importance
-
-- The product is used in a dark hall, so the palette is permanently dark.
-  There is no light mode and no `.dark` class toggle — the tokens in
-  `:root` *are* the dark theme.
-- One rule governs every surface: **darker = less important, lighter = more
-  important.** Four steps, all defined in `src/styles.css`:
-  - `--paper` — the page itself, the darkest thing on screen.
-  - `--band` — sticky chrome one step up (header, filter panel, "Next up",
-    day headings, location header row, "Other locations", footer). Opaque so
-    scrolling content never bleeds through.
-  - `--event` — event tiles, a translucent *light* overlay so the hour rules
-    still read faintly through them (the frosted-glass contract of #7/#9
-    survives the inversion; only the direction of the tint flipped).
-  - `--surface` — the detail sheet, the brightest surface, over `--scrim`.
-- `--ink` / `--ink-mid` / `--rule` are inverted rather than re-invented, so
-  every existing component keeps its semantics.
-- `border-ink` is gone: structural lines now use `--strong`, a muted
-  near-white that separates without the glare of a pure white hairline.
-- Gold (favourites), the red spot ink (now marker) and the 12-swatch category
-  palette (#22, #25) were each re-tuned for a dark ground — same hues and
-  same meanings, higher lightness so they survive on near-black.
-
-## 29. Event tiles are opaque (supersedes the frosted-glass rule)
-
-- Hour rules no longer show through event blocks. `--event` / `--event-hover`
-  / `--event-active` are opaque `color-mix()` results over `--paper` instead
-  of translucent overlays, so a tile fully covers the hairline behind it.
-- The gutter's hour ticks are now scoped to the gutter (it is `relative`), so
-  they still read from the page edge to the first column but never paint over
-  the columns from the sticky layer above the blocks.
-- The rules keep structuring the *empty* grid; the moment a block occupies a
-  slot, the block owns those pixels.
-
-## 30. Gold is a surface, not a hint
-
-- A favourited grid block no longer shares the neutral event surface: the
-  `event-favourite` utility owns the whole surface contract — gold wash, gold
-  border, and its own hover/active pair. The neutral `bg-event` classes are
-  not applied at all when a block is starred, so there is no ordering race
-  between the two.
-- The "Next up" board is styled as a favourite, because that is exactly what
-  it lists: the same gold wash, gold border and gold "NEXT UP" label. It
-  reads as the most prominent band on the page.
-
-## Entry #31 — Data loading: live list + on-demand details + server cache (supersedes #2)
-
-**Decision.** Nothing is bundled. Two payloads, split on the measured fact
-that the timeline is language-agnostic but bodies are not:
-
-- **List** (`SCHEDULE_LIST_QUERY`) — lean, language-independent timeline. Only
-  the fields the grid renders: no `excerpt/content`, no colours, names, or the
-  top-level categories block (~25% faster resolve). Fetched server-side in the
-  route loader from a two-tier server-held cache (in-isolate memo + Cloudflare
-  per-colo Cache API, stale-while-revalidate), so SSR ships data in the HTML —
-  no skeleton. `use-schedule.ts` seeds React Query from the loader and polls
-  60 s while focused.
-- **Detail** (`EventDetail`) — per-`(id, language)` excerpt, fetched when a
-  sheet opens and prefetched for the on-screen range 1 s after scroll settles
-  (`use-event-detail.ts`), cached 1 h. Concurrent fetches collapse into one
-  `calendarEvents(where:{in:…})` batch via a coalescing loader
-  (`src/lib/api/batch-loader.ts`, unit-tested — the one tricky bit gets its
-  own pure module).
-
-**Why.** The old snapshot was 2 MB in the bundle and its refresh was dead on
-arrival (see #2). Category colour is editorial (#25, `categories.ts`), keyed by
-category slug — never from the API — so the lean query keeps every field the
-colour bar and filters need. We identify via a `?client=` query param + named
-operations; a custom request header fails the CORS preflight (endpoint allows
-only Authorization/Content-Type/X-JWT-*), and `User-Agent` is forbidden anyway.
-
-## 31. Theme selector removed (was: MODERN + KUAKE picker)
-
-A theme picker (header `THEMES` button → modal of theme cards) and a full theme
-engine (`data-theme` on `<html>`, persisted choice, provider) plus a KUAKE
-90s/DOS skin were prototyped, then **cut entirely** as unnecessary complexity
-against the project's core goal. Removed: `src/components/themes/*`,
-`src/lib/theme/*`, `src/hooks/use-theme.tsx`, the anti-flash script + KUAKE font
-link in `__root.tsx`, the `themeSwitcher` feature flag, the `theme*` i18n
-strings, `public/kuake/` assets, and the KUAKE CSS block in `src/styles.css`.
-
-**Why.** The skin never landed a look worth shipping, and a second visual
-identity is scope the app doesn't need. MODERN is now the single, unconditional
-design — no attribute, no picker, no dead code paths.
-
-## 32. Progressive Web App (iOS standalone + offline)
-
-**Decision.** The app is installable as a home-screen PWA on iOS. A manually
-maintained `public/manifest.webmanifest` gives the browser the icon set and
-standalone display mode. iOS-specific tags in `src/routes/__root.tsx` enable the
-black-translucent status bar and set the short name. Safe-area utilities
-(`safe-area-top`, `safe-area-bottom`) pad the fixed header and footer so the
-notch and home indicator do not overlap them.
-
-Because the project is TanStack Start (SSR), the client build does not emit a
-static `index.html`. A build plugin in `vite.config.ts` writes a minimal
-`client/index.html` fallback after the hashed assets are emitted, using the
-real hashed asset names. `vite-plugin-pwa` precaches that fallback, and Workbox
-serves it for any navigation to `/` when the network is unavailable. The SSR
-HTML remains the normal online path; the fallback only matters for offline
-return visits.
-
-Service worker registration is guarded by `src/lib/pwa-register.ts`: it never
-registers in dev, in the Lovable editor preview, in an iframe, or when the URL
-contains `?sw=off`. In those contexts it unregisters any stale `/sw.js` so
-previews never get stuck on an old cache.
-
-**Why.** Venue wifi is unreliable and the app is likely to be used repeatedly
-through the weekend. Making it home-screen installable keeps it one tap away;
-letting Workbox serve the offline shell means the schedule still loads once the
-user has opened it online at least once.
+# ASSYGUIDE design decisions
+
+Live decisions only — superseded ones folded in. Change the design → update
+this file in the same commit. No implicit style.
+
+Related: [data-model.md](data-model.md) (API quirks), [pwa.md](pwa.md).
+
+## Theme
+
+- Dark-only. No light mode, no `.dark` toggle — `:root` tokens *are* the theme.
+  Used in a dark hall.
+- **Brightness = importance.** Four surfaces in `styles.css`: `--paper`
+  (page, darkest), `--band` (sticky chrome, opaque), `--event` (tiles, opaque
+  `color-mix` over paper — covers the hour rule behind it), `--surface` (detail
+  sheet, brightest, over `--scrim`).
+- `--ink`/`--ink-mid`/`--rule` inverted, not re-invented, so components keep
+  semantics. Structural lines use `--strong` (muted near-white); no pure-white
+  hairlines. Gold (favourites), red spot (now), 12-swatch category palette
+  re-tuned lighter for near-black.
+- Type: IBM Plex Sans Condensed, `tabular-nums` on times (`.tnum`). Density from
+  hairline rules + tight leading. No cards, radii, or shadows.
+- **Styling discipline.** Components take domain-typed props only — no
+  `className`/style passthrough. Style drifts in one file at a time.
+- Single visual identity. Theme engine + KUAKE skin prototyped, cut — needless
+  scope.
+
+## Interaction
+
+- Every affordance pointer-cursored, hover *brighter* / active *darker*. Two
+  utilities own colours: `.press` on paper, `.press-invert` on ink band. Blocks
+  use the `--event*` trio.
+- One `SegmentedToggle` component for day shortcuts and the FI/EN switch. Active
+  segments never react to hover.
+
+## Grid
+
+- CSS Grid, 5-min rows. `--slots` per day. Blocks place `grid-row: start /
+  span n`, guarded `Math.max(1, …)`. Overlaps → sub-column lanes
+  (`assignSubColumns`), ≤2 grid-tier. Zoom = change `--slot-h`. No absolute
+  positioning, no collision math.
+- **Responsive columns, zero JS.** Scroll container is a size container;
+  `--cols` steps 2→8 at `48px + n×150px`. Non-fitting columns `display:none` via
+  `[data-col]`; the same location's "Other locations" run-on carries
+  `[data-overflow-col]`, hidden exactly when its column shows. No horizontal
+  overflow. Ultrawide guard `max-width: calc(48px + var(--cols) * 280px)`.
+- Hour hairlines span `grid-column: 1 / -1` to the page edge; labels `HH:MM`
+  below their own rule. Gutter (`relative`) draws its own ticks. Rules structure
+  the *empty* grid; an opaque tile owns its pixels.
+- Vertical column borders: repeating CSS background, one per column start, synced
+  to `--cols` and the 48px gutter. No extra DOM.
+- Block labels absolutely positioned at the block top (buttons vertically centre
+  content otherwise). Text top-aligned to its start time.
+- **Day windows data-driven, 05:00 rollover** (`time.ts`). A 01:30 set stays on
+  Friday (minute 1530). `computeDayWindow()` derives each day's range from its
+  timed events (ongoing/all-day excluded), snapped to whole hours, +30 min pad
+  each side, fallback 10:00–23:00. `formatDayMinutes()` wraps 24h+ to 00–04.
+- Live blocks (`start ≤ now < end`): `.live-stripes`, 45° animated field on a
+  `::before` at `z-1`, seamless 1.6s loop, frozen under
+  `prefers-reduced-motion`. Neutral grey (`--ink` 12%); gold via `--stripe-color`
+  if favourited (red reads as error).
+- Zero-duration moments render as a labelled tick *inside their own column*, not
+  a band across the grid.
+
+## Timeline / IA
+
+- One continuous timeline — all days in a single scroll container as
+  `<section data-day-id>`. Day tabs are scroll shortcuts; `IntersectionObserver`
+  moves the highlight; `?day=` sets initial scroll offset.
+- Day heading = sticky one-line day name (`--day-head-h`, the anchor for the
+  location header row at `top: var(--day-head-h)`) + non-sticky all-day run-on
+  below (wraps). Full label "THURSDAY 30th" on the band, "THU 30" on tabs
+  (`Day.label`/`shortLabel`). All-day (≥6h ongoing) lives on the run-on.
+- Locations order by event COUNT desc (`normalizeVenues`), editorial `priority`
+  pins Main + Genelec to cols 1–2. Re-ranked from *visible* events after
+  filtering (`rankVenues`), so filtering reshapes which earn columns.
+- "venue" → "location" in user-facing strings; type/prop names still `venue`.
+- `px-3` aligns header, day heading, all-day, Other locations, Next up, About.
+- z-order: blocks `z-10`, gutter `z-20`, now bar `z-25`, location header `z-30`,
+  day heading `z-40`.
+
+## Now indicator
+
+- Unconditional — never disappears. `resolveNowPlacement()`
+  (`now-placement.ts`) picks one home per render: `inside` (red rule in grid /
+  between log rows), `before` (`NowRail` band above the day heading, incl. gaps
+  between days), `after` (band at the bottom of the last day). Exactly one
+  element carries `data-now-marker`.
+- Landing scrolls the now-bar ~20% down the viewport; fallback today/first-day
+  heading. Copy in i18n (`nowBeforeDay`, `nowAfterEvent`).
+
+## Titles
+
+- Show the occurrence title (`CalendarEvent.title`), not the program title —
+  streamer slots share one program, so program titles erase occurrence identity.
+  EN program title is a secondary line in the detail sheet when it differs.
+  FI-only program → `FI` chip.
+
+## Favourites
+
+- Gold (`--gold`) = "mine", kept apart from red = "now". One control,
+  `FavouriteStar` (sizes `grid`/`inline`/`action`) — no surface draws its own
+  star or gold. State in `FavouritesProvider` over `favourites.ts`, localStorage
+  `assyguide.favourites`, never throws in private mode; SSR renders zero, applied
+  post-hydration.
+- Starred grid block: `event-favourite` owns the whole surface (gold wash
+  `--event-favourite-grid` 34%, gold border, own hover/active — neutral
+  `bg-event` not applied, no ordering race), 3px gold left rule, and a big muted
+  gold star clipped into the bottom-right (55% width, rot 22°, `right:-6%`). List
+  / run-on: ★ glyph + gold wash `--event-favourite` 20% + gold left rule.
+- **Next up** — departure board (event · countdown · location), one presentation
+  at every width under the header, styled as a favourite. `formatCountdown()`
+  (min / h min / d h). Mobile keeps a persistent strip.
+
+## Category colour / filters
+
+- `<CategoryBar />` — 3px left bar, the only component that draws an event edge.
+  12 fixed Okabe-Ito swatches (`--cat-*`), lightness-staggered for
+  protan/deutan/tritan. Assignment in `categories.ts`: near-synonyms share a
+  swatch, unknown slugs hash deterministically. Stacks ≤4 segments. Favourite
+  collapses it to one gold segment.
+- **Filters** — `FILTERS` drawer, `SHOWING`/`HIDING` rows, click moves a badge.
+  Subtractive: hide types, never select; empty set = show all (new feed
+  categories visible by default). localStorage `assyguide.hiddenCategories`,
+  post-hydration. An event hides only when *every* category is hidden.
+  `CategoryBar` draws only visible swatches. All views read the one filtered set.
+
+## i18n
+
+- FI/EN switch in header, FI default, localStorage `assyguide.language`.
+  `i18n/language.ts` = pure persistence + `pickLocalized` (tested).
+  `strings.ts` = one dict per language behind a `Strings` interface (untranslated
+  key = type error) + localized day labels. `useLanguage()` provider in
+  `__root`; SSR/first paint always FI, stored value applied in an effect (no
+  hydration mismatch). Titles not localized — only excerpts have FI/EN, fetched
+  on demand.
+
+## Data loading
+
+Two payloads — the timeline is language-agnostic, bodies aren't. Details in
+[data-model.md § Freshness](data-model.md#freshness) and `use-schedule.ts` /
+`use-event-detail.ts`. Nothing bundled (the old 2 MB snapshot's refresh was dead
+on load). Category colour is editorial (`categories.ts`), never from the API.
+
+## Footer
+
+- "Last updated N ago · N events", ticks 1s, dash placeholder on first render,
+  idiomatic FI/EN plurals.
+- About band is the last element *inside* the scrollable timeline (shows after
+  the last day); the "last updated" stats strip stays sticky. Muted, small.
+- Footer links external: `target=_blank rel=noopener noreferrer` + ↗, via one
+  `ExternalLink` component. `GITHUB_REPO_URL` in `site.config.ts`.
+
+## Deferred
+
+Conflict detection, search, compo `overlay.json` (Partyman deadlines,
+hand-authored), change tracking on `modified`, print stylesheet, `.ics` export,
+now/next route, event-slug routing (`/winter26`), 14-column wide view, landscape
+mobile mini-grid, zoom presets, `role="grid"` keyboard nav, alternate-hour tint
+bands, minute scanline tick on the now bar. Each lands with its own entry.

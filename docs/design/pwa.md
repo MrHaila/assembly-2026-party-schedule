@@ -8,7 +8,7 @@ ASSYguide is built to work as a standalone app on iOS when added to the home scr
 - Offline use: the app shell is served by the service worker even when the network is unavailable, so the schedule still loads once it has been visited at least once.
 - Safe-area insets so the fixed header and footer avoid the notch and home indicator.
 
-No push notifications, no background sync, and no custom "native" app features. Keep it simple and safe.
+No push notifications, background sync, or other "native" features.
 
 ## Service worker
 
