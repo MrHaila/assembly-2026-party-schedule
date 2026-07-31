@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest";
-import {
-  isRefusedHost,
-  shouldRegister,
-} from "../src/lib/pwa-register";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { isRefusedHost, shouldRegister } from "../src/lib/pwa-register";
 
-// Simulate the module-scope browser environment for the tests.
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 function withWindowEnv(
   overrides: {
     hostname?: string;
@@ -15,14 +15,6 @@ function withWindowEnv(
   },
   fn: () => void,
 ) {
-  const originalNavigator = globalThis.navigator;
-  const originalWindow = globalThis.window;
-  const originalLocation = globalThis.location;
-
-  const mockNavigator = {
-    serviceWorker: overrides.serviceWorker !== false ? {} : undefined,
-  } as Navigator;
-
   const mockWindow = {
     self: {} as Window,
     top: overrides.top === undefined ? ({} as Window) : overrides.top,
@@ -32,26 +24,15 @@ function withWindowEnv(
     } as Location,
   } as Window;
 
-  // @ts-expect-error — test harness only
-  globalThis.navigator = mockNavigator;
-  // @ts-expect-error — test harness only
-  globalThis.window = mockWindow;
-  // @ts-expect-error — test harness only
-  globalThis.location = mockWindow.location;
+  vi.stubGlobal("window", mockWindow);
+  vi.stubGlobal("location", mockWindow.location);
 
-  // import.meta.env.PROD is read in the module; we cannot change it per-test
-  // without re-evaluating. Instead, run the hostname/refused-host tests.
-
-  try {
-    fn();
-  } finally {
-    // @ts-expect-error — test harness only
-    globalThis.navigator = originalNavigator;
-    // @ts-expect-error — test harness only
-    globalThis.window = originalWindow;
-    // @ts-expect-error — test harness only
-    globalThis.location = originalLocation;
+  // Default serviceWorker to true unless explicitly disabled.
+  if (overrides.serviceWorker !== false) {
+    vi.stubGlobal("navigator", { serviceWorker: {} } as Navigator);
   }
+
+  fn();
 }
 
 describe("isRefusedHost", () => {
@@ -81,14 +62,12 @@ describe("isRefusedHost", () => {
 
 describe("shouldRegister", () => {
   it("returns false when navigator is missing", () => {
-    withWindowEnv({ serviceWorker: false }, () => {
-      expect(shouldRegister()).toBe(false);
-    });
+    vi.stubGlobal("navigator", undefined);
+    expect(shouldRegister()).toBe(false);
   });
 
   it("returns false inside an iframe", () => {
     withWindowEnv({ top: {} as Window }, () => {
-      // self !== top, so it's an iframe
       expect(shouldRegister()).toBe(false);
     });
   });
@@ -102,6 +81,14 @@ describe("shouldRegister", () => {
   it("returns false with ?sw=off", () => {
     withWindowEnv({ search: "?sw=off" }, () => {
       expect(shouldRegister()).toBe(false);
+    });
+  });
+
+  it("returns true for a production domain with service worker support", () => {
+    // import.meta.env.PROD is true in the test build, so the only remaining
+    // guard should be the host check. assembly.haila.fi is allowed.
+    withWindowEnv({ hostname: "assembly.haila.fi" }, () => {
+      expect(shouldRegister()).toBe(true);
     });
   });
 });
