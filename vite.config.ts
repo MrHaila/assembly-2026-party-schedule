@@ -75,12 +75,16 @@ function clientOnlyPWA(): Plugin[] {
   const plugins = Array.isArray(raw) ? raw : [raw];
   return plugins.map((plugin) => ({
     ...plugin,
-    apply: (config, env) => {
+    apply: (config: any, env: any) => {
+      console.log(
+        `[pwa-apply] plugin=${plugin.name} isSsrBuild=${env.isSsrBuild} ssr=${config?.build?.ssr} command=${env.command}`,
+      );
       if (env.isSsrBuild || config?.build?.ssr) return false;
       return true;
     },
   })) as Plugin[];
 }
+
 
 export default defineConfig({
   tanstackStart: {
