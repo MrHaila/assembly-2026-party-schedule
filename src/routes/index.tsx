@@ -33,6 +33,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useSchedule } from "@/hooks/use-schedule";
 import { usePrefetchDetails } from "@/hooks/use-event-detail";
 import { fetchScheduleListCached } from "@/lib/api/schedule-server";
+import { FEATURE_FLAGS } from "@/lib/site.config";
 import { formatRelativeTime } from "@/lib/i18n/strings";
 import { nextUpFavourites } from "@/lib/schedule/favourites";
 import { categoryCounts, filterEvents } from "@/lib/schedule/filters";
