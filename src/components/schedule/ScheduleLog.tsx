@@ -8,6 +8,7 @@ import {
   formatTime,
 } from "@/lib/schedule/time";
 import type { Day, EventItem, Venue } from "@/lib/schedule/types";
+import { CategoryBar } from "./CategoryBar";
 
 interface ScheduleLogProps {
   day: Day;
