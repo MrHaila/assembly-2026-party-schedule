@@ -72,7 +72,7 @@ export function NextUp({ entries, venueById, onOpen }: NextUpProps) {
             <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-gold">
               {t.thenAfter}
             </span>
-            <span className="min-w-0 flex-1 truncate text-[12px] font-semibold leading-tight">
+            <span className="min-w-0 truncate text-[12px] font-semibold leading-tight">
               {second.event.title}
             </span>
             <span className="tnum shrink-0 text-[10px] uppercase tracking-[0.05em] text-ink-mid">
