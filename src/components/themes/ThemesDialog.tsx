@@ -54,9 +54,9 @@ function ThemeCard({ theme }: { theme: ThemeOption }) {
   const active = theme.available && theme.id === DEFAULT_THEME_ID;
   return (
     <article
-      className={`border ${active ? "border-strong" : "border-rule"} bg-paper`}
+      className={`grid grid-cols-1 border sm:grid-cols-2 ${active ? "border-strong" : "border-rule"} bg-paper`}
     >
-      <div className="aspect-[16/10] w-full overflow-hidden border-b border-rule bg-band">
+      <div className="aspect-[16/10] w-full overflow-hidden border-b border-rule bg-band sm:border-b-0 sm:border-r">
         {theme.preview ? (
           <img
             src={theme.preview}
@@ -70,7 +70,7 @@ function ThemeCard({ theme }: { theme: ThemeOption }) {
           </div>
         )}
       </div>
-      <div className="flex items-start justify-between gap-3 p-2.5">
+      <div className="flex min-w-0 items-start justify-between gap-3 p-2.5">
         <div className="min-w-0">
           <h3 className="text-[14px] font-bold uppercase tracking-[0.08em]">
             {theme.name}
