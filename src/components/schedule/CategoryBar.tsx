@@ -1,4 +1,6 @@
+import { useFilters } from "@/hooks/use-filters";
 import { barSwatches, SWATCH_CLASS } from "@/lib/schedule/categories";
+import { visibleCategories } from "@/lib/schedule/filters";
 
 interface CategoryBarProps {
   /** Normalized category slugs from EventItem.categories. */
@@ -12,11 +14,20 @@ interface CategoryBarProps {
  * stacked evenly top-to-bottom, gold when favourited. The only place category
  * colour is ever drawn — components must not invent their own edges.
  *
+ * Hidden types are dropped from the stack so filtering also reduces the
+ * colour noise; an event whose every type is hidden (only reachable via a
+ * still-visible sibling type) falls back to the neutral slate swatch.
+ *
  * The parent must be `relative`; the host is responsible for the matching
  * left padding so text never sits under the bar.
  */
 export function CategoryBar({ categories, favourite }: CategoryBarProps) {
-  const swatches = barSwatches(categories, favourite);
+  const { hidden } = useFilters();
+  const swatches = barSwatches(
+    visibleCategories(categories, hidden),
+    favourite,
+  );
+
 
   return (
     <span
