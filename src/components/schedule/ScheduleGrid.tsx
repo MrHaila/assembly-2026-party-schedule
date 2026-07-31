@@ -180,7 +180,8 @@ export function ScheduleGrid({
               {moment.title}
             </span>
           </button>
-        ))}
+          );
+        })}
 
         {/* Now bar — the one animated thing in the product. The wrapper is
             positioned so the time chip rides the rule instead of pinning
