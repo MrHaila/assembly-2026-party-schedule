@@ -1,7 +1,8 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { ActionButton } from "@/components/ui/ActionButton";
 import { useLanguage } from "@/hooks/use-language";
-import { DEFAULT_THEME_ID, THEMES, type ThemeOption } from "@/lib/theme/themes.config";
+import { useTheme } from "@/hooks/use-theme";
+import { THEMES, type ThemeOption } from "@/lib/theme/themes.config";
 
 interface ThemesDialogProps {
   open: boolean;
@@ -10,8 +11,8 @@ interface ThemesDialogProps {
 
 /**
  * Theme picker. Same sheet/panel chrome as the event detail so the app only
- * ever has one modal shape. Selection is inert until the theme engine lands:
- * MODERN is the active theme, KUAKE is announced only.
+ * ever has one modal shape. Picking an available theme applies it instantly
+ * and persists the choice (design-log #31).
  */
 export function ThemesDialog({ open, onClose }: ThemesDialogProps) {
   const { t } = useLanguage();
