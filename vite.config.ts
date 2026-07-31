@@ -7,7 +7,7 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
@@ -15,55 +15,72 @@ export default defineConfig({
   },
   vite: {
     plugins: [
-      VitePWA({
-        // Manifest is maintained manually in public/manifest.webmanifest so the
-        // iOS tags and icon set stay visible in the repo.
-        manifest: false,
-        // Generate the service worker; no hand-written SW.
-        strategies: "generateSW",
-        filename: "sw.js",
-        registerType: "autoUpdate",
-        // We register manually from a guarded wrapper so dev/preview never
-        // get a service worker.
-        injectRegister: null,
-        devOptions: { enabled: false },
-        workbox: {
-          // Serve the app shell even when offline, but never cache OAuth or
-          // API routes in the app-shell fallback.
-          navigateFallback: "/",
-          navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/],
-          // Cache the static build assets aggressively (hashed filenames).
-          globPatterns: ["**/*.{js,css,html,woff2,woff,png,svg,ico,webmanifest}"],
-
-          // Runtime caches for external fonts and the demoscene proxy.
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-              handler: "CacheFirst",
-              options: {
-                cacheName: "google-fonts",
-                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+      // Only generate the service worker for the client environment. The SSR
+      // build has no use for a SW and would otherwise overwrite dist/sw.js
+      // with server-side entries.
+      ...(isSsrBuild
+        ? []
+        : [
+            VitePWA({
+              // Manifest is maintained manually in public/manifest.webmanifest so the
+              // iOS tags and icon set stay visible in the repo.
+              manifest: false,
+              // Generate the service worker; no hand-written SW.
+              strategies: "generateSW",
+              filename: "sw.js",
+              registerType: "autoUpdate",
+              // We register manually from a guarded wrapper so dev/preview never
+              // get a service worker.
+              injectRegister: null,
+              devOptions: { enabled: false },
+              workbox: {
+                // Serve the app shell even when offline, but never cache OAuth or
+                // API routes in the app-shell fallback.
+                navigateFallback: "/",
+                navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/],
+                // Cache the static build assets aggressively (hashed filenames).
+                globPatterns: [
+                  "**/*.{js,css,html,woff2,woff,png,svg,ico,webmanifest}",
+                ],
+                // Runtime caches for external fonts and the demoscene proxy.
+                runtimeCaching: [
+                  {
+                    urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+                    handler: "CacheFirst",
+                    options: {
+                      cacheName: "google-fonts",
+                      expiration: {
+                        maxEntries: 10,
+                        maxAgeSeconds: 60 * 60 * 24 * 365,
+                      },
+                    },
+                  },
+                  {
+                    urlPattern: /^https:\/\/scene\.assembly\.org\/api\/v1\/timetable\//i,
+                    handler: "NetworkFirst",
+                    options: {
+                      cacheName: "scene-timetable",
+                      expiration: {
+                        maxEntries: 1,
+                        maxAgeSeconds: 60 * 15,
+                      },
+                    },
+                  },
+                  {
+                    urlPattern: /^https:\/\/api\.assembly\.org\/v1\/graphql/i,
+                    handler: "NetworkFirst",
+                    options: {
+                      cacheName: "assembly-graphql",
+                      expiration: {
+                        maxEntries: 60,
+                        maxAgeSeconds: 60 * 60,
+                      },
+                    },
+                  },
+                ],
               },
-            },
-            {
-              urlPattern: /^https:\/\/scene\.assembly\.org\/api\/v1\/timetable\//i,
-              handler: "NetworkFirst",
-              options: {
-                cacheName: "scene-timetable",
-                expiration: { maxEntries: 1, maxAgeSeconds: 60 * 15 },
-              },
-            },
-            {
-              urlPattern: /^https:\/\/api\.assembly\.org\/v1\/graphql/i,
-              handler: "NetworkFirst",
-              options: {
-                cacheName: "assembly-graphql",
-                expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 },
-              },
-            },
-          ],
-        },
-      }),
+            }) as any,
+          ]),
     ],
   },
-});
+}));
