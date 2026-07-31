@@ -34,12 +34,10 @@ export function NextUp({ entries, venueById, onOpen }: NextUpProps) {
   const lineTwo = (entry: NextUpEntry) =>
     `${entry.live ? t.liveNow : formatCountdown(language, entry.minutesUntil)} ${t.atLocation} ${venueOf(entry.event)}`;
 
-  const thenLine = second
-    ? `${t.thenAfter}: ${second.event.title} ${
-        second.live
-          ? t.liveNow
-          : formatCountdown(language, second.minutesUntil)
-      }`
+  const thenTiming = second
+    ? second.live
+      ? t.liveNow
+      : formatCountdown(language, second.minutesUntil)
     : null;
 
 
