@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import { FavouritesProvider } from "@/hooks/use-favourites";
 import { FiltersProvider } from "@/hooks/use-filters";
 import { LanguageProvider } from "@/hooks/use-language";
+import { ThemeProvider } from "@/hooks/use-theme";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
