@@ -11,7 +11,7 @@
 
 const SW_PATH = "/sw.js";
 
-function isRefusedHost(hostname: string): boolean {
+export function isRefusedHost(hostname: string): boolean {
   if (hostname === "localhost") return false;
   if (hostname.startsWith("id-preview--")) return true;
   if (hostname.startsWith("preview--")) return true;
@@ -23,7 +23,8 @@ function isRefusedHost(hostname: string): boolean {
   return false;
 }
 
-function shouldRegister(): boolean {
+export function shouldRegister(): boolean {
+
   if (typeof navigator === "undefined" || typeof window === "undefined") return false;
   if (!("serviceWorker" in navigator)) return false;
   if (!import.meta.env.PROD) return false;
