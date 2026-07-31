@@ -41,6 +41,10 @@ export interface Strings {
   showing: string;
   hiding: string;
   noneHidden: string;
+  themes: string;
+  themesHint: string;
+  themeActive: string;
+  themeComingSoon: string;
   /** Display names per category slug; missing slugs fall back to the slug. */
   categoryLabels: Record<string, string>;
 }
@@ -79,6 +83,10 @@ const FI: Strings = {
   showing: "Näytetään",
   hiding: "Piilotettu",
   noneHidden: "Valitse piilotettavat tapahtumatyypit",
+  themes: "Teemat",
+  themesHint: "Valitse ohjelman ulkoasu",
+  themeActive: "Käytössä",
+  themeComingSoon: "Tulossa",
   categoryLabels: {
     expo: "Expo",
     gaming: "Pelit",
@@ -135,6 +143,10 @@ const EN: Strings = {
   showing: "Showing",
   hiding: "Hiding",
   noneHidden: "Select event types to hide them",
+  themes: "Themes",
+  themesHint: "Pick how the schedule looks",
+  themeActive: "Active",
+  themeComingSoon: "Coming soon",
   categoryLabels: {
     expo: "Expo",
     gaming: "Gaming",
