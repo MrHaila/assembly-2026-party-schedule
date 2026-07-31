@@ -98,6 +98,19 @@ function AssyguidePage() {
     return map;
   }, [schedule.events, schedule.days]);
 
+  // One marker, always: inside a day, above the next day, or after the last.
+  const dayWindows = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof computeDayWindow>>();
+    for (const day of schedule.days) {
+      map.set(day.date, computeDayWindow(eventsByDay.get(day.date) ?? []));
+    }
+    return map;
+  }, [schedule.days, eventsByDay]);
+  const placement = useMemo(
+    () => resolveNowPlacement(schedule.days, dayWindows, now),
+    [schedule.days, dayWindows, now],
+  );
+
   const venueById = useMemo(
     () => new Map(schedule.venues.map((v) => [v.slug, v] as const)),
     [schedule.venues],
