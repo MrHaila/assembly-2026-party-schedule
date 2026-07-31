@@ -420,3 +420,14 @@ wrapping rows: `SHOWING` and `HIDING`. Clicking a badge moves it between them.
   the columns from the sticky layer above the blocks.
 - The rules keep structuring the *empty* grid; the moment a block occupies a
   slot, the block owns those pixels.
+
+## 30. Gold is a surface, not a hint
+
+- A favourited grid block no longer shares the neutral event surface: the
+  `event-favourite` utility owns the whole surface contract — gold wash, gold
+  border, and its own hover/active pair. The neutral `bg-event` classes are
+  not applied at all when a block is starred, so there is no ordering race
+  between the two.
+- The "Next up" board is styled as a favourite, because that is exactly what
+  it lists: the same gold wash, gold border and gold "NEXT UP" label. It
+  reads as the most prominent band on the page.
