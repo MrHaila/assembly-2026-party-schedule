@@ -211,6 +211,9 @@ function AssyguidePage() {
           const dayEvents = eventsByDay.get(day.date) ?? [];
           return (
             <section key={day.id} data-day-id={day.id}>
+              {placement?.kind === "before" && placement.dayId === day.id && (
+                <NowRail minutes={now!.minutes} variant="before" />
+              )}
               <DayHeading
                 day={day}
                 ongoing={dayEvents.filter((e) => e.kind === "ongoing")}
@@ -222,6 +225,9 @@ function AssyguidePage() {
                   events={dayEvents}
                   venueById={venueById}
                   now={now}
+                  showNowMarker={
+                    placement?.kind === "inside" && placement.dayId === day.id
+                  }
                   onOpen={setSelected}
                 />
               ) : (
@@ -231,6 +237,9 @@ function AssyguidePage() {
                     venues={gridVenues}
                     events={dayEvents}
                     now={now}
+                    showNowMarker={
+                      placement?.kind === "inside" && placement.dayId === day.id
+                    }
                     onOpen={setSelected}
                   />
                   <OtherVenues
@@ -240,6 +249,9 @@ function AssyguidePage() {
                     onOpen={setSelected}
                   />
                 </>
+              )}
+              {placement?.kind === "after" && placement.dayId === day.id && (
+                <NowRail minutes={now!.minutes} variant="after" />
               )}
             </section>
           );
