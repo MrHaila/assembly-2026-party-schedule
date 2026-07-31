@@ -67,15 +67,16 @@ export function EventBlock({
       style={style}
       className={`group relative z-10 overflow-hidden border border-ink/45 bg-event transition-colors duration-100 hover:bg-event-hover active:bg-event-active${live ? " live-stripes" : ""}${favourite ? " event-favourite" : ""}${past ? " opacity-45 saturate-50 hover:opacity-100" : ""}`}
     >
+      <CategoryBar categories={event.categories} favourite={favourite} />
 
       <button
         type="button"
         onClick={() => onOpen(event)}
-        className="block h-full w-full px-1 pt-px text-left focus-visible:outline-2 focus-visible:outline-spot"
+        className="block h-full w-full py-px pl-2 pr-1 text-left focus-visible:outline-2 focus-visible:outline-spot"
       >
         {/* Absolutely positioned so the label always hugs the start time —
             buttons vertically centre their content in every engine. */}
-        <span className="absolute inset-x-1 top-px block">
+        <span className="absolute left-2 right-1 top-px block">
           <span className="tnum block text-[10.5px] font-medium uppercase leading-[1.2] tracking-[0.02em] text-ink-mid">
             {formatTimeRange(event.start, event.end, event.estimated)}
             {event.streamUrls.length > 0 ? " ●" : ""}
@@ -86,6 +87,7 @@ export function EventBlock({
           </span>
         </span>
       </button>
+
 
       {/* Muted until hover/focus, permanent once starred. */}
       <span
