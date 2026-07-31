@@ -409,3 +409,14 @@ wrapping rows: `SHOWING` and `HIDING`. Clicking a badge moves it between them.
 - Gold (favourites), the red spot ink (now marker) and the 12-swatch category
   palette (#22, #25) were each re-tuned for a dark ground — same hues and
   same meanings, higher lightness so they survive on near-black.
+
+## 29. Event tiles are opaque (supersedes the frosted-glass rule)
+
+- Hour rules no longer show through event blocks. `--event` / `--event-hover`
+  / `--event-active` are opaque `color-mix()` results over `--paper` instead
+  of translucent overlays, so a tile fully covers the hairline behind it.
+- The gutter's hour ticks are now scoped to the gutter (it is `relative`), so
+  they still read from the page edge to the first column but never paint over
+  the columns from the sticky layer above the blocks.
+- The rules keep structuring the *empty* grid; the moment a block occupies a
+  slot, the block owns those pixels.
