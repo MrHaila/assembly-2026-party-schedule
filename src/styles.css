@@ -111,12 +111,14 @@
   --strong: oklch(0.455 0.012 265);
   --spot: oklch(0.655 0.21 27.5);
   --marker: oklch(0.72 0.1 95);
-  /* Event surfaces: a translucent LIGHTER layer over the page so blocks read
-     as tiles and the hour rules still ghost through them like frosted glass
-     (design-log #7, #9). Hover brighter, active darker — always both. */
-  --event: oklch(0.86 0.012 265 / 0.13);
-  --event-hover: oklch(0.93 0.012 265 / 0.21);
-  --event-active: oklch(0.5 0.01 265 / 0.14);
+  /* Event surfaces: an OPAQUE lighter layer over the page. Tiles sit fully on
+     top of the hour rules — the rules structure the empty grid, never the
+     blocks (design-log #29 supersedes the frosted-glass idea of #7, #9).
+     Hover brighter, active darker — always both. */
+  --event: color-mix(in oklab, oklch(0.86 0.012 265) 13%, var(--paper));
+  --event-hover: color-mix(in oklab, oklch(0.93 0.012 265) 21%, var(--paper));
+  --event-active: color-mix(in oklab, oklch(0.5 0.01 265) 14%, var(--paper));
+
   /* Favourites: a warmer accent that never competes with the red spot ink —
      gold reads as "mine" (design-log #17). */
   --gold: oklch(0.8 0.13 85);
