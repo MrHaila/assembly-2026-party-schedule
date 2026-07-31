@@ -71,6 +71,18 @@
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
   --color-event-favourite: var(--event-favourite);
+  --color-cat-vermillion: var(--cat-vermillion);
+  --color-cat-orange: var(--cat-orange);
+  --color-cat-yellow: var(--cat-yellow);
+  --color-cat-olive: var(--cat-olive);
+  --color-cat-green: var(--cat-green);
+  --color-cat-teal: var(--cat-teal);
+  --color-cat-sky: var(--cat-sky);
+  --color-cat-blue: var(--cat-blue);
+  --color-cat-purple: var(--cat-purple);
+  --color-cat-magenta: var(--cat-magenta);
+  --color-cat-pink: var(--cat-pink);
+  --color-cat-slate: var(--cat-slate);
 
   --font-listings: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow",
     sans-serif;
