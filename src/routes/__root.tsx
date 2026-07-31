@@ -9,11 +9,13 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
+import { registerPWA } from "@/lib/pwa-register";
 import { FavouritesProvider } from "@/hooks/use-favourites";
 import { FiltersProvider } from "@/hooks/use-filters";
 import { LanguageProvider } from "@/hooks/use-language";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+
 
 function NotFoundComponent() {
   return (
@@ -150,6 +152,10 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    registerPWA();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
@@ -163,3 +169,4 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
+
