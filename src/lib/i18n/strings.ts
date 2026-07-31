@@ -45,6 +45,8 @@ export interface Strings {
   themesHint: string;
   themeActive: string;
   themeComingSoon: string;
+  themeModernBlurb: string;
+  themeKuakeBlurb: string;
   /** Display names per category slug; missing slugs fall back to the slug. */
   categoryLabels: Record<string, string>;
 }
@@ -87,6 +89,8 @@ const FI: Strings = {
   themesHint: "Valitse ohjelman ulkoasu",
   themeActive: "Käytössä",
   themeComingSoon: "Tulossa",
+  themeModernBlurb: "Teema tavallisille ihmisille, jotka vihaavat hauskanpitoa.",
+  themeKuakeBlurb: "TAPPA KAIKKI ÄÄNET JA VALOT!!!",
   categoryLabels: {
     expo: "Expo",
     gaming: "Pelit",
@@ -147,6 +151,8 @@ const EN: Strings = {
   themesHint: "Pick how the schedule looks",
   themeActive: "Active",
   themeComingSoon: "Coming soon",
+  themeModernBlurb: "A theme for normal people that hate fun.",
+  themeKuakeBlurb: "KILL ALL AUDIO AND LIGHTS!!!",
   categoryLabels: {
     expo: "Expo",
     gaming: "Gaming",

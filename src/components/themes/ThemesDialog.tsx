@@ -70,24 +70,24 @@ function ThemeCard({ theme }: { theme: ThemeOption }) {
           </div>
         )}
       </div>
-      <div className="flex min-w-0 items-start justify-between gap-3 p-2.5">
-        <div className="min-w-0">
+      <div className="flex flex-col gap-1.5 p-2.5">
+        <div className="flex items-center gap-2">
           <h3 className="text-[14px] font-bold uppercase tracking-[0.08em]">
             {theme.name}
           </h3>
-          <p className="mt-0.5 text-[12px] leading-snug text-ink-mid">
-            {theme.blurb}
-          </p>
+          <span
+            className={`shrink-0 border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em] ${
+              active
+                ? "border-strong bg-ink text-paper"
+                : "border-rule text-ink-mid"
+            }`}
+          >
+            {active ? t.themeActive : t.themeComingSoon}
+          </span>
         </div>
-        <span
-          className={`shrink-0 border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em] ${
-            active
-              ? "border-strong bg-ink text-paper"
-              : "border-rule text-ink-mid"
-          }`}
-        >
-          {active ? t.themeActive : t.themeComingSoon}
-        </span>
+        <p className="text-[12px] leading-snug text-ink-mid">
+          {t[theme.blurbKey]}
+        </p>
       </div>
     </article>
   );
