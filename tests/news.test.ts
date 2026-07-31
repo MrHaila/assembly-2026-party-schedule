@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   NEWS_CATEGORY,
-  NEWS_ID_BASE,
   NEWS_VENUE_SLUG,
   isNewsId,
   mergeNewsIntoSchedule,

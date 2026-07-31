@@ -108,7 +108,9 @@ export function normalizeNewsItem(item: RawNewsItem): EventItem {
 export function normalizeNews(
   payload: RawNewsResponse | readonly RawNewsItem[],
 ): EventItem[] {
-  const items = Array.isArray(payload) ? payload : payload.ungrouped;
+  const items: readonly RawNewsItem[] = Array.isArray(payload)
+    ? payload
+    : (payload as RawNewsResponse).ungrouped;
   return items.map(normalizeNewsItem);
 }
 
