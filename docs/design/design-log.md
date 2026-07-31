@@ -474,3 +474,31 @@ listings design and carries a real screenshot (uploaded as a CDN asset).
 `KUAKE` is announced with a placeholder tile and `available: false`; the theme
 engine (token swapping + persistence) is a follow-up step, so selection is
 deliberately inert today rather than half-wired.
+
+## 32. Progressive Web App (iOS standalone + offline)
+
+**Decision.** The app is installable as a home-screen PWA on iOS. A manually
+maintained `public/manifest.webmanifest` gives the browser the icon set and
+standalone display mode. iOS-specific tags in `src/routes/__root.tsx` enable the
+black-translucent status bar and set the short name. Safe-area utilities
+(`safe-area-top`, `safe-area-bottom`) pad the fixed header and footer so the
+notch and home indicator do not overlap them.
+
+Because the project is TanStack Start (SSR), the client build does not emit a
+static `index.html`. A build plugin in `vite.config.ts` writes a minimal
+`client/index.html` fallback after the hashed assets are emitted, using the
+real hashed asset names. `vite-plugin-pwa` precaches that fallback, and Workbox
+serves it for any navigation to `/` when the network is unavailable. The SSR
+HTML remains the normal online path; the fallback only matters for offline
+return visits.
+
+Service worker registration is guarded by `src/lib/pwa-register.ts`: it never
+registers in dev, in the Lovable editor preview, in an iframe, or when the URL
+contains `?sw=off`. In those contexts it unregisters any stale `/sw.js` so
+previews never get stuck on an old cache.
+
+**Why.** Venue wifi is unreliable and the app is likely to be used repeatedly
+through the weekend. Making it home-screen installable keeps it one tap away;
+letting Workbox serve the offline shell means the schedule still loads once the
+user has opened it online at least once.
+
