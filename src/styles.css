@@ -124,10 +124,13 @@
   --gold: oklch(0.8 0.13 85);
   --gold-soft: oklch(0.88 0.09 85);
   /* One faint gold wash shared by run-on list and mobile row favourites;
-     a stronger wash is used for grid blocks so the large star mark reads
-     as part of the surface without washing out the text. */
+     a stronger wash is used for grid blocks and the "Next up" board so the
+     surface itself says "mine". Hover brighter, active darker — always both. */
   --event-favourite: color-mix(in oklab, var(--gold) 16%, var(--paper));
   --event-favourite-grid: color-mix(in oklab, var(--gold) 26%, var(--paper));
+  --event-favourite-hover: color-mix(in oklab, var(--gold) 38%, var(--paper));
+  --event-favourite-active: color-mix(in oklab, var(--gold) 16%, var(--paper));
+
 
   /* Category palette (design-log #22, retuned for dark in #28). Okabe-Ito
      derived, CVD-safe, and lightness-staggered so neighbours separate
