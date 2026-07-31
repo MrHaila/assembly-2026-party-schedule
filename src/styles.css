@@ -631,6 +631,15 @@
     inset 2px 2px 0 var(--bevel-dark);
 }
 
+/* Tiles already carry the emboss; their inner hit-target must stay flat, and
+   the star overlay must not stamp a second frame on top of the tile. */
+[data-theme="kuake"] .bg-event button,
+[data-theme="kuake"] .event-favourite button,
+[data-theme="kuake"] [class*="bg-event"] button {
+  box-shadow: none;
+}
+
+
 /* Sprite art, not vector art: the Assembly mark and theme previews render
    with nearest-neighbour sampling and a chunky pixel step. */
 [data-theme="kuake"] svg[aria-label="Assembly"] {
