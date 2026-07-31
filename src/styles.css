@@ -542,6 +542,19 @@
   letter-spacing: 0.02em;
 }
 
+/* Silkscreen is much wider per character than the condensed MODERN face, so
+   headings step down to keep the same lines fitting the same boxes — the
+   page title must not truncate on a phone. */
+[data-theme="kuake"] h1 {
+  font-size: 0.78em;
+  letter-spacing: 0;
+}
+
+[data-theme="kuake"] h2,
+[data-theme="kuake"] h3 {
+  font-size: 0.86em;
+}
+
 /* Chrome bands: bolted metal plates with a bevelled edge. */
 [data-theme="kuake"] .bg-band {
   background-image:
