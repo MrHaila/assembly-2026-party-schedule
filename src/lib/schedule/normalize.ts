@@ -127,9 +127,7 @@ function normalizeEvent(event: RawEvent): EventItem {
     kind: times.kind,
     categories: normalizeCategories(event),
     streamUrls: event.streamUrls ?? [],
-    programId: event.programId ?? undefined,
     sourceUrl: program ? programUrl(program.uri) : undefined,
-    modified: event.modified,
   };
 }
 

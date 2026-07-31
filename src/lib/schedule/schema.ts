@@ -20,60 +20,40 @@
  */
 import { z } from "zod";
 
-const gqlLocationSchema = z.object({
-  name: z.string(),
-  slug: z.string(),
-  color: z.string().nullish(),
-});
-
-const gqlProgramCategorySchema = z.object({
-  name: z.string(),
-  slug: z.string(),
-  color: z.string().nullish(),
-});
+// Only slug is read per event (colors/names are never rendered — the venue
+// display name comes once from the top-level locations block).
+const gqlSlugNodeSchema = z.object({ slug: z.string() });
 
 /**
  * List program: no excerpt/content (the heavy, language-dependent body lives
- * in the detail payload). `translation` keeps only its title — its mere
- * presence is what drives the `fiOnly` chip.
+ * in the detail payload) and no title/slug/streams (unused). `translation`
+ * carries only its id — its mere presence drives the `fiOnly` chip.
  */
 const gqlListProgramSchema = z
   .object({
-    title: z.string(),
-    slug: z.string(),
     uri: z.string(),
-    streams: z.array(z.string()).nullish(),
-    translation: z.object({ title: z.string() }).nullish(),
-    categories: z
-      .object({ nodes: z.array(gqlProgramCategorySchema) })
-      .nullish(),
+    // Presence only → the FI chip. The query selects a scalar (databaseId) to
+    // form a valid selection set, but any shape counts; we never read a field.
+    translation: z.object({}).nullish(),
+    categories: z.object({ nodes: z.array(gqlSlugNodeSchema) }).nullish(),
   })
   .nullable();
 
 const gqlListEventSchema = z.object({
   databaseId: z.number(),
   title: z.string(),
-  slug: z.string(),
   startTime: z.string(),
   endTime: z.string().nullish(),
   streamUrls: z.array(z.string()).nullish(),
-  programId: z.string().nullish(),
-  modified: z.string(),
-  locations: z.object({ nodes: z.array(gqlLocationSchema) }),
+  locations: z.object({ nodes: z.array(gqlSlugNodeSchema) }),
   program: gqlListProgramSchema,
 });
 
 export const scheduleListResponseSchema = z.object({
   calendarEvents: z.object({ nodes: z.array(gqlListEventSchema) }),
+  // Venue display name + slug, once. Colours/counts are not fetched (unused).
   locations: z.object({
-    nodes: z.array(gqlLocationSchema.extend({ count: z.number().nullish() })),
-  }),
-  categories: z.object({
-    nodes: z.array(
-      gqlProgramCategorySchema.extend({
-        language: z.object({ code: z.string() }).nullish(),
-      }),
-    ),
+    nodes: z.array(z.object({ name: z.string(), slug: z.string() })),
   }),
   generalSettings: z.object({ title: z.string(), timezone: z.string() }),
   eventSettings: z.object({
@@ -81,8 +61,6 @@ export const scheduleListResponseSchema = z.object({
     eventEndDate: z.string(),
     eventLocation: z.string().nullish(),
     eventTitleShort: z.string().nullish(),
-    eventCompoArchiveLink: z.string().nullish(),
-    eventPhotoGalleryLink: z.string().nullish(),
   }),
 });
 

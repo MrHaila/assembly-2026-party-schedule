@@ -36,12 +36,8 @@ export interface EventItem {
   /** De-suffixed category slugs. Never empty: programless events get "general". */
   categories: string[];
   streamUrls: string[];
-  /** WPGraphQL global ID (opaque base64 string — NOT numeric). */
-  programId?: string;
   /** Absolute link back to the official program page. */
   sourceUrl?: string;
-  /** Helsinki-local timestamp without offset, as the API ships it. */
-  modified: string;
 }
 
 /**

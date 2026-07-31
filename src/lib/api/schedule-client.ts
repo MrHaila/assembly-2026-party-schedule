@@ -31,24 +31,28 @@ export const CLIENT_ID = "assyguide/1.0";
 /** Endpoint with the CORS-safe identifying query param. */
 const REQUEST_URL = `${GRAPHQL_ENDPOINT}?client=${encodeURIComponent(CLIENT_ID)}`;
 
-/** The lean timeline query — everything the grid needs, no event bodies. */
+/**
+ * The lean timeline query — only fields the list view actually consumes.
+ * Deliberately omitted (measured ~25% faster resolve, smaller payload):
+ * per-event colours/names/ids (slug/modified/programId), program title/slug/
+ * streams, the whole top-level categories block, and all colour fields —
+ * nothing renders them. `translation` is probed by id only, for the FI chip.
+ */
 export const SCHEDULE_LIST_QUERY = `query AssyguideSchedule {
   calendarEvents(first: 1000) {
     nodes {
-      databaseId title slug startTime endTime streamUrls programId modified
-      locations { nodes { name slug color } }
+      databaseId title startTime endTime streamUrls
+      locations { nodes { slug } }
       program {
-        title slug uri streams
-        translation(language: EN) { title }
-        categories { nodes { name slug color } }
+        uri
+        translation(language: EN) { databaseId }
+        categories { nodes { slug } }
       }
     }
   }
-  locations(first: 100) { nodes { name slug color count } }
-  categories(first: 100) { nodes { name slug color language { code } } }
+  locations(first: 100) { nodes { name slug } }
   generalSettings { title timezone }
-  eventSettings { eventStartDate eventEndDate eventLocation eventTitleShort
-                  eventCompoArchiveLink eventPhotoGalleryLink }
+  eventSettings { eventStartDate eventEndDate eventLocation eventTitleShort }
 }`;
 
 /**

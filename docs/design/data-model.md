@@ -30,13 +30,15 @@ names, tiering and icons are editorial and live in
 | 8 | Filtering | — | No server-side filtering exists. All filtering is client-side; the whole dataset is one small payload. |
 | 9 | Language | 193 w/ program | All programs are FI; 173 have an EN translation, 20 don't (`fiOnly: true` → `FI` chip). Event titles are mixed FI/EN. |
 | 10 | Category duplication | 34 terms | Each category exists in FI and EN (`byoc` / `byoc-en`). De-suffix `-en`, drop `uncategorized` into rule 6's bucket. |
-| 11 | Venue colours | 11/14 | Ignored. Validated but unused — venues are distinguished by position and rule weight, not 14 pastels. |
+| 11 | Venue colours | 11/14 | Not fetched. Nothing renders colour — venues are distinguished by position and rule weight, not 14 pastels. The list query also drops all category/location names and the top-level categories block for the same reason (unused), for a ~25% faster resolve. |
 | 12 | Concurrency | max 4–5 | Only in `content-corner-seats` / `casual-tournaments`, both `other` tier. Grid-tier concurrency ≤ 2 → two-lane sub-columns (`assignSubColumns`). |
 
 ## Types that surprised the PRD (caught by the fixture)
 
-- `programId` is a WPGraphQL global ID (`"cG9zdDo2NDE="`), **not** a number.
-- `modified` is Helsinki-local with **no** timezone offset.
+- `programId` is a WPGraphQL global ID (`"cG9zdDo2NDE="`), **not** a number
+  (no longer fetched — was unused).
+- `modified` is Helsinki-local with **no** timezone offset (no longer fetched
+  — was unused).
 - `excerpt`/`content` are HTML — stripped to text for display (`stripHtml`).
 
 ## Model
@@ -56,9 +58,7 @@ EventItem = {
   kind: "session" | "ongoing" | "moment" | "deadline" | "jury"
   categories: string[]          // de-suffixed, never empty
   streamUrls: string[]          // presence drives the grid "●" marker
-  programId?: string
   sourceUrl?: string
-  modified: string
 }
 
 // Fetched on demand per (id, language), NOT part of the list item — the body

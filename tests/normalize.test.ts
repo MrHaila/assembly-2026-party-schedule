@@ -47,10 +47,9 @@ const detailNodeFor = (id: number) => {
 };
 
 describe("schema boundary", () => {
-  it("parses the real payload: 210 events, 14 venues, 34 categories", () => {
+  it("parses the real payload: 210 events, 14 venues", () => {
     expect(parsed.calendarEvents.nodes).toHaveLength(210);
     expect(parsed.locations.nodes).toHaveLength(14);
-    expect(parsed.categories.nodes).toHaveLength(34);
   });
 
   it("rejects a payload missing a field we depend on", () => {
@@ -379,7 +378,6 @@ describe("assignSubColumns", () => {
     kind: "session",
     categories: [GENERAL_CATEGORY],
     streamUrls: [],
-    modified: "2026-07-29T00:00:00",
   });
 
   it("non-overlapping events get a single lane", () => {
