@@ -34,7 +34,12 @@ export interface Strings {
   noFavourites: string;
   liveNow: string;
   atLocation: string;
-
+  filters: string;
+  showing: string;
+  hiding: string;
+  noneHidden: string;
+  /** Display names per category slug; missing slugs fall back to the slug. */
+  categoryLabels: Record<string, string>;
 
 }
 
@@ -65,6 +70,30 @@ const FI: Strings = {
   noFavourites: "Merkitse tapahtumia tähdellä nähdäksesi ne täällä",
   liveNow: "Käynnissä",
   atLocation: "paikassa",
+  filters: "Suodattimet",
+  showing: "Näytetään",
+  hiding: "Piilotettu",
+  noneHidden: "Ei piilotettuja tyyppejä",
+  categoryLabels: {
+    expo: "Expo",
+    gaming: "Pelit",
+    esports: "Esports",
+    byoc: "BYOC",
+    "lan-fi": "LAN",
+    lan: "LAN",
+    osallistu: "Osallistu",
+    creators: "Creators",
+    viihde: "Viihde",
+    musiikki: "Musiikki",
+    tanssi: "Tanssi",
+    demoscene: "Demoscene",
+    "k-weekxassembly": "K-Week",
+    "k-pop": "K-Pop",
+    kids: "Lapset",
+    cosplay: "Cosplay",
+    mainstage: "Päälava",
+    general: "Muu",
+  },
 
 };
 
@@ -95,6 +124,30 @@ const EN: Strings = {
   noFavourites: "Star events to see them here",
   liveNow: "Live now",
   atLocation: "at",
+  filters: "Filters",
+  showing: "Showing",
+  hiding: "Hiding",
+  noneHidden: "No hidden types",
+  categoryLabels: {
+    expo: "Expo",
+    gaming: "Gaming",
+    esports: "Esports",
+    byoc: "BYOC",
+    "lan-fi": "LAN",
+    lan: "LAN",
+    osallistu: "Take part",
+    creators: "Creators",
+    viihde: "Entertainment",
+    musiikki: "Music",
+    tanssi: "Dance",
+    demoscene: "Demoscene",
+    "k-weekxassembly": "K-Week",
+    "k-pop": "K-Pop",
+    kids: "Kids",
+    cosplay: "Cosplay",
+    mainstage: "Main stage",
+    general: "Other",
+  },
 
 };
 

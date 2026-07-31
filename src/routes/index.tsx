@@ -13,7 +13,10 @@ import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
 import { NowRail } from "@/components/schedule/NowRail";
 import { ScheduleLog } from "@/components/schedule/ScheduleLog";
 import { NextUp } from "@/components/schedule/NextUp";
+import { FilterPanel } from "@/components/filters/FilterPanel";
+import { FiltersButton } from "@/components/filters/FiltersButton";
 import { useFavourites } from "@/hooks/use-favourites";
+import { useFilters } from "@/hooks/use-filters";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHelsinkiNow } from "@/hooks/use-helsinki-now";
 import { useNow } from "@/hooks/use-now";
@@ -21,6 +24,8 @@ import { useLanguage } from "@/hooks/use-language";
 import { fetchLiveSchedule, getSnapshotSchedule } from "@/lib/api/assembly-graphql";
 import { formatRelativeTime } from "@/lib/i18n/strings";
 import { nextUpFavourites } from "@/lib/schedule/favourites";
+import { categoryCounts, filterEvents } from "@/lib/schedule/filters";
+import { rankVenues } from "@/lib/schedule/normalize";
 import { resolveNowPlacement } from "@/lib/schedule/now-placement";
 import { computeDayWindow, scheduleDate, toScheduleTime } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
@@ -66,6 +71,20 @@ function AssyguidePage() {
   });
 
   const { t, language } = useLanguage();
+  const { hidden } = useFilters();
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Counts come from the full feed so a hidden type keeps showing its size.
+  const counts = useMemo(
+    () => categoryCounts(schedule.events),
+    [schedule.events],
+  );
+  // Everything downstream — days, columns, next up, the footer tally — reads
+  // the filtered set, so the whole page stays internally consistent.
+  const visibleEvents = useMemo(
+    () => filterEvents(schedule.events, hidden),
+    [schedule.events, hidden],
+  );
 
   // Schedule time: the day rolls over at 05:00, so 02:00 Saturday is still
   // "Friday, 1560 minutes" for every placement decision below.
@@ -80,9 +99,9 @@ function AssyguidePage() {
   const nextUp = useMemo(
     () =>
       nowFooter
-        ? nextUpFavourites(schedule.events, favourites, nowFooter)
+        ? nextUpFavourites(visibleEvents, favourites, nowFooter)
         : [],
-    [schedule.events, favourites, nowFooter],
+    [visibleEvents, favourites, nowFooter],
   );
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<EventItem | null>(null);
@@ -92,11 +111,11 @@ function AssyguidePage() {
   const eventsByDay = useMemo(() => {
     const map = new Map<string, EventItem[]>();
     for (const day of schedule.days) map.set(day.date, []);
-    for (const event of schedule.events) {
+    for (const event of visibleEvents) {
       map.get(scheduleDate(event.start))?.push(event);
     }
     return map;
-  }, [schedule.events, schedule.days]);
+  }, [visibleEvents, schedule.days]);
 
   // One marker, always: inside a day, above the next day, or after the last.
   const dayWindows = useMemo(() => {
@@ -115,9 +134,15 @@ function AssyguidePage() {
     () => new Map(schedule.venues.map((v) => [v.slug, v] as const)),
     [schedule.venues],
   );
-  // Busiest locations earn the columns; the rest are always list-only.
-  const gridVenues = schedule.venues.slice(0, MAX_GRID_COLUMNS);
-  const otherVenues = schedule.venues.slice(MAX_GRID_COLUMNS);
+  // Busiest locations earn the columns; the rest are always list-only. The
+  // ranking is recomputed from the VISIBLE events, so filtering reshuffles
+  // which locations get a column.
+  const rankedVenues = useMemo(
+    () => rankVenues(schedule.venues, visibleEvents),
+    [schedule.venues, visibleEvents],
+  );
+  const gridVenues = rankedVenues.slice(0, MAX_GRID_COLUMNS);
+  const otherVenues = rankedVenues.slice(MAX_GRID_COLUMNS);
 
   // Initial landing: put the timeline at "now minus one hour". This retries
   // across a few animation frames so it survives hydration, the live data
@@ -210,10 +235,16 @@ function AssyguidePage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <FiltersButton
+            open={filtersOpen}
+            onToggle={() => setFiltersOpen((v) => !v)}
+          />
           <LanguageToggle />
         </div>
 
       </header>
+
+      {filtersOpen && <FilterPanel counts={counts} />}
 
       <NextUp entries={nextUp} venueById={venueById} onOpen={setSelected} />
 
@@ -280,7 +311,7 @@ function AssyguidePage() {
           {nowFooter
             ? formatRelativeTime(language, schedule.fetchedAt, nowFooter)
             : "–"}{" "}
-          · {schedule.events.length} {t.events}
+          · {visibleEvents.length} {t.events}
         </div>
       </footer>
 

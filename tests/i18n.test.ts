@@ -107,8 +107,17 @@ describe("dictionaries", () => {
     const fi = stringsFor("fi");
     const en = stringsFor("en");
     expect(Object.keys(fi).sort()).toEqual(Object.keys(en).sort());
-    for (const value of [...Object.values(fi), ...Object.values(en)]) {
+    // categoryLabels is a nested slug → label map; flatten it in.
+    const flat = (s: typeof fi) =>
+      Object.values(s).flatMap((v) =>
+        typeof v === "string" ? [v] : Object.values(v),
+      );
+    for (const value of [...flat(fi), ...flat(en)]) {
       expect(value.trim().length).toBeGreaterThan(0);
     }
+    expect(Object.keys(fi.categoryLabels).sort()).toEqual(
+      Object.keys(en.categoryLabels).sort(),
+    );
+
   });
 });
