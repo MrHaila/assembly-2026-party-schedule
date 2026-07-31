@@ -45,7 +45,7 @@ export function OtherVenues({
   if (rows.length === 0) return null;
 
   return (
-    <section className="border-t border-strong bg-band px-3 py-2">
+    <section className="border-t border-strong bg-paper px-3 py-2">
       <h3 className="text-[12px] font-bold uppercase tracking-[0.06em]">
         {t.otherLocations}
       </h3>
