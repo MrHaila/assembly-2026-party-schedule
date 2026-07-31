@@ -86,3 +86,9 @@ grid's 10.5–13px sizes suffers, sizes stay put and only the face changes.
 - Existing vitest suite plus the new theme storage test.
 - `docs/design/design-log.md` gets a new entry documenting the theme engine and KUAKE's token
   contract, per the project's design-docs rule.
+
+### 7. Secrets hygiene
+The asset-generation service URLs, auth tokens and request details stay out of the repository
+entirely — no design-log entries, no comments, no scripts, no committed fetch commands. Design
+docs describe only the resulting assets and their design intent. Generation happens in the
+sandbox scratch space; only the finished asset pointers land in git.
