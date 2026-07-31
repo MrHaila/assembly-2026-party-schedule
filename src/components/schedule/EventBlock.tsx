@@ -66,7 +66,7 @@ export function EventBlock({
       data-live={live ? "" : undefined}
       data-past={past ? "" : undefined}
       style={style}
-      className={`group relative z-10 overflow-hidden border border-ink/45 bg-event transition-colors duration-100 hover:bg-event-hover active:bg-event-active${live ? " live-stripes" : ""}${favourite ? " event-favourite" : ""}${past ? " opacity-45 saturate-50 hover:opacity-100" : ""}`}
+      className={`group relative z-10 overflow-hidden border border-strong bg-event transition-colors duration-100 hover:bg-event-hover active:bg-event-active${live ? " live-stripes" : ""}${favourite ? " event-favourite" : ""}${past ? " opacity-45 saturate-50 hover:opacity-100" : ""}`}
     >
       <CategoryBar categories={event.categories} favourite={favourite} />
 

@@ -39,7 +39,7 @@ export function SegmentedToggle({
     <div
       role={tabs ? "tablist" : "group"}
       aria-label={label}
-      className="flex shrink-0 border border-ink"
+      className="flex shrink-0 border border-strong"
     >
       {options.map((option) => {
         const active = option.id === activeId;

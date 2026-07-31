@@ -67,7 +67,7 @@ export function ScheduleLog({
     rows.push(
       <li
         key={event.id}
-        className={hourChanged && i > 0 ? "mt-1 border-t border-ink/60" : ""}
+        className={hourChanged && i > 0 ? "mt-1 border-t border-strong" : ""}
       >
         <button
           type="button"

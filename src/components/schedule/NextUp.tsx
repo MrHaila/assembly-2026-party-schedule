@@ -45,7 +45,7 @@ export function NextUp({ entries, venueById, onOpen }: NextUpProps) {
 
 
   return (
-    <div className="border-b-2 border-ink bg-paper">
+    <div className="border-b-2 border-strong bg-band">
       <button
         type="button"
         onClick={() => onOpen(first.event)}

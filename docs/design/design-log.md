@@ -386,3 +386,26 @@ wrapping rows: `SHOWING` and `HIDING`. Clicking a badge moves it between them.
 - Zero-duration "moment" markers (area opens/closes, doors) render as a
   labelled tick *inside their own location column* instead of a band across
   the whole grid — an EXPO opening must never read as a Main Stage event.
+
+## 28. Dark theme: brightness is importance
+
+- The product is used in a dark hall, so the palette is permanently dark.
+  There is no light mode and no `.dark` class toggle — the tokens in
+  `:root` *are* the dark theme.
+- One rule governs every surface: **darker = less important, lighter = more
+  important.** Four steps, all defined in `src/styles.css`:
+  - `--paper` — the page itself, the darkest thing on screen.
+  - `--band` — sticky chrome one step up (header, filter panel, "Next up",
+    day headings, location header row, "Other locations", footer). Opaque so
+    scrolling content never bleeds through.
+  - `--event` — event tiles, a translucent *light* overlay so the hour rules
+    still read faintly through them (the frosted-glass contract of #7/#9
+    survives the inversion; only the direction of the tint flipped).
+  - `--surface` — the detail sheet, the brightest surface, over `--scrim`.
+- `--ink` / `--ink-mid` / `--rule` are inverted rather than re-invented, so
+  every existing component keeps its semantics.
+- `border-ink` is gone: structural lines now use `--strong`, a muted
+  near-white that separates without the glare of a pure white hairline.
+- Gold (favourites), the red spot ink (now marker) and the 12-swatch category
+  palette (#22, #25) were each re-tuned for a dark ground — same hues and
+  same meanings, higher lightness so they survive on near-black.

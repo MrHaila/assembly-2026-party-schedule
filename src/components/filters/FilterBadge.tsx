@@ -33,7 +33,7 @@ export function FilterBadge({
       className={`press inline-flex items-center gap-1.5 border py-0.5 pl-0 pr-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] transition-colors duration-100 ${
         hidden
           ? "border-rule bg-paper text-ink-mid line-through"
-          : "border-ink bg-paper text-ink"
+          : "border-strong bg-paper text-ink"
       }`}
     >
       <span
