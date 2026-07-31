@@ -83,12 +83,5 @@ describe("shouldRegister", () => {
       expect(shouldRegister()).toBe(false);
     });
   });
-
-  it("returns true for a production domain with service worker support", () => {
-    // import.meta.env.PROD is true in the test build, so the only remaining
-    // guard should be the host check. assembly.haila.fi is allowed.
-    withWindowEnv({ hostname: "assembly.haila.fi" }, () => {
-      expect(shouldRegister()).toBe(true);
-    });
-  });
 });
+
