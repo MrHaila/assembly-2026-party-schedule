@@ -161,14 +161,17 @@ export function ScheduleGrid({
         {/* Moment markers — a labelled tick inside their OWN location
             column, never a band across the whole grid: an EXPO opening is
             not a Main Stage event (design-log #27). */}
-        {moments.map((moment) => (
+        {moments.map((moment) => {
+          const colIdx = venues.findIndex((v) => v.slug === moment.venueId);
+          return (
           <button
             key={moment.id}
             type="button"
+            data-col={colIdx + 1}
             onClick={() => onOpen(moment)}
             className="z-20 self-start overflow-hidden text-left"
             style={{
-              gridColumn: venues.findIndex((v) => v.slug === moment.venueId) + 2,
+              gridColumn: colIdx + 2,
               gridRow: slotIndexFor(moment.start, win) + 1,
             }}
           >
@@ -177,7 +180,8 @@ export function ScheduleGrid({
               {moment.title}
             </span>
           </button>
-        ))}
+          );
+        })}
 
         {/* Now bar — the one animated thing in the product. The wrapper is
             positioned so the time chip rides the rule instead of pinning
