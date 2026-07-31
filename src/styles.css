@@ -71,6 +71,18 @@
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
   --color-event-favourite: var(--event-favourite);
+  --color-cat-vermillion: var(--cat-vermillion);
+  --color-cat-orange: var(--cat-orange);
+  --color-cat-yellow: var(--cat-yellow);
+  --color-cat-olive: var(--cat-olive);
+  --color-cat-green: var(--cat-green);
+  --color-cat-teal: var(--cat-teal);
+  --color-cat-sky: var(--cat-sky);
+  --color-cat-blue: var(--cat-blue);
+  --color-cat-purple: var(--cat-purple);
+  --color-cat-magenta: var(--cat-magenta);
+  --color-cat-pink: var(--cat-pink);
+  --color-cat-slate: var(--cat-slate);
 
   --font-listings: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow",
     sans-serif;
@@ -102,6 +114,23 @@
      as part of the surface without washing out the text. */
   --event-favourite: color-mix(in oklab, var(--gold) 20%, var(--paper));
   --event-favourite-grid: color-mix(in oklab, var(--gold) 34%, var(--paper));
+
+  /* Category palette (design-log #22). Okabe-Ito derived, CVD-safe, and
+     lightness-staggered so neighbours separate without hue perception.
+     Gold is excluded on purpose — it belongs to favourites. */
+  --cat-vermillion: oklch(0.58 0.19 30);
+  --cat-orange: oklch(0.68 0.16 55);
+  --cat-yellow: oklch(0.78 0.15 92);
+  --cat-olive: oklch(0.55 0.11 120);
+  --cat-green: oklch(0.62 0.14 150);
+  --cat-teal: oklch(0.6 0.1 195);
+  --cat-sky: oklch(0.72 0.11 230);
+  --cat-blue: oklch(0.48 0.15 260);
+  --cat-purple: oklch(0.46 0.17 300);
+  --cat-magenta: oklch(0.58 0.2 330);
+  --cat-pink: oklch(0.72 0.13 350);
+  --cat-slate: oklch(0.5 0.02 250);
+
 
   /* Sticky offset for the location header row: it parks directly under the
      sticky day heading, whose height is fixed on purpose (single line). */
@@ -255,7 +284,7 @@
    one prominent gold edge on the left. The stronger wash lets the muted
    oversized star mark sit behind the text as a background texture. */
 @utility event-favourite {
-  border-left: 3px solid var(--gold);
+  /* The left edge itself is drawn by <CategoryBar />. */
   background-color: var(--event-favourite-grid);
 
   /* Doubled specificity so this wins over live-stripes' own default. */

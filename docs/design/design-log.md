@@ -338,3 +338,20 @@ The red current-time marker must never disappear. `resolveNowPlacement()`
 Only one element ever carries `data-now-marker`, so the initial
 scroll-to-now landing keeps working unchanged. Copy lives in the i18n
 dictionary (`nowBeforeDay`, `nowAfterEvent`).
+
+
+## Entry #25 — Category colour bar
+
+Every event surface carries a thick (3px) left bar drawn by one component,
+`<CategoryBar />`. No component may draw its own edge.
+
+- Palette: 12 fixed swatches (`--cat-*` in `styles.css`), Okabe-Ito derived
+  and lightness-staggered so they separate for protan/deutan/tritan viewers.
+  Deliberately larger than the number of colours currently in use so new
+  categories can be added without a reshuffle.
+- Assignment lives in `src/lib/schedule/categories.ts`. Near-synonym slugs
+  share a swatch (musiikki/tanssi, byoc/lan, k-week/k-pop, kids/cosplay);
+  unknown slugs hash deterministically into the palette.
+- Multiple categories stack evenly, top to bottom, capped at four segments.
+- Gold is reserved for favourites: a favourited event collapses the bar to a
+  single gold segment, overriding category colour everywhere.
