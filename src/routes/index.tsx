@@ -77,7 +77,7 @@ export const Route = createFileRoute("/")({
 function Chrome({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-dvh flex-col">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
+      <header className="safe-area-top grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
         <div className="flex min-w-0 items-center gap-2">
           <AssemblyMark size={24} />
           <h1 className="truncate text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
@@ -90,6 +90,7 @@ function Chrome({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
 
 /**
  * The route fetches the timeline on the server (from the server-held cache),
@@ -333,7 +334,7 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
+      <header className="safe-area-top grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
         <div className="flex min-w-0 items-center gap-2">
           <AssemblyMark size={24} />
           <h1 className="truncate text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
@@ -356,6 +357,7 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
         </div>
 
       </header>
+
 
       {filtersOpen && <FilterPanel counts={counts} />}
 
@@ -422,7 +424,7 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
         <SiteFooter />
       </div>
 
-      <footer className="border-t border-rule bg-band text-ink-mid">
+      <footer className="safe-area-bottom border-t border-rule bg-band text-ink-mid">
         <div className="px-3 py-1 text-[10px] uppercase tracking-[0.05em]">
           {t.lastUpdated}{" "}
           {nowFooter
@@ -431,6 +433,7 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
           · {visibleEvents.length} {t.events}
         </div>
       </footer>
+
 
       <DetailSheet
         event={selected}
