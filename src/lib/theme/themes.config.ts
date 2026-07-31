@@ -28,7 +28,7 @@ export const THEMES: readonly ThemeOption[] = [
     id: "kuake",
     name: "Kuake",
     blurbKey: "themeKuakeBlurb",
-    preview: null,
+    preview: kuakeShot.url,
     available: true,
   },
 ] as const;
