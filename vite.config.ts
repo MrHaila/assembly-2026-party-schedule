@@ -29,12 +29,14 @@ export default defineConfig({
         devOptions: { enabled: false },
         workbox: {
           // TanStack Start renders the app shell server-side, so there is no
-          // static index.html to use as a precached navigation fallback. We
-          // instead cache actual HTML responses at runtime after the first
-          // visit; repeat visits then work offline.
+          // static index.html to use as a precached navigation fallback. Disable
+          // the default navigation route and instead cache actual HTML responses
+          // at runtime after the first visit; repeat visits then work offline.
+          navigateFallback: undefined,
           globPatterns: [
             "**/*.{js,css,html,woff2,woff,png,svg,ico,webmanifest}",
           ],
+
           // Runtime caches for HTML navigations, external fonts, and data APIs.
           runtimeCaching: [
             {
