@@ -341,10 +341,12 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <ThemesButton
-            open={themesOpen}
-            onOpen={() => setThemesOpen(true)}
-          />
+          {FEATURE_FLAGS.themeSwitcher && (
+            <ThemesButton
+              open={themesOpen}
+              onOpen={() => setThemesOpen(true)}
+            />
+          )}
           <FiltersButton
             open={filtersOpen}
             onToggle={() => setFiltersOpen((v) => !v)}
@@ -356,7 +358,9 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
 
       {filtersOpen && <FilterPanel counts={counts} />}
 
-      <ThemesDialog open={themesOpen} onClose={() => setThemesOpen(false)} />
+      {FEATURE_FLAGS.themeSwitcher && (
+        <ThemesDialog open={themesOpen} onClose={() => setThemesOpen(false)} />
+      )}
 
       <NextUp entries={nextUp} venueById={venueById} onOpen={setSelected} />
 
