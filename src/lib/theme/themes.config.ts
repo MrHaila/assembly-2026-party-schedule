@@ -1,11 +1,13 @@
 import modernShot from "@/assets/theme-modern.jpg.asset.json";
+import kuakeShot from "@/assets/theme-kuake.jpg.asset.json";
+import type { Theme } from "@/lib/theme/theme";
 
 /**
  * The catalogue of visual themes. `available: false` entries are announced in
- * the picker but cannot be selected — the theme engine itself lands later.
+ * the picker but cannot be selected.
  */
 export interface ThemeOption {
-  readonly id: string;
+  readonly id: Theme;
   readonly name: string;
   /** Key into the i18n strings object so blurbs stay translated. */
   readonly blurbKey: "themeModernBlurb" | "themeKuakeBlurb";
@@ -26,8 +28,8 @@ export const THEMES: readonly ThemeOption[] = [
     id: "kuake",
     name: "Kuake",
     blurbKey: "themeKuakeBlurb",
-    preview: null,
-    available: false,
+    preview: kuakeShot.url,
+    available: true,
   },
 ] as const;
 
