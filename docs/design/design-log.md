@@ -26,7 +26,7 @@ style passthrough — so styling can only drift in one file at a time.
 
 ## #2 — 2026-07-30 — Fetch strategy: snapshot + live refresh
 
-> **Superseded by #24.** The bundled snapshot shipped 2 MB and, combined with
+> **Superseded by #28.** The bundled snapshot shipped 2 MB and, combined with
 > `initialData` + a 5-min `staleTime`, the "live refresh" never fired on load —
 > short sessions only ever saw build-time data.
 
@@ -325,15 +325,83 @@ viewport.
   silhouette reads inside the block.
 - `GITHUB_REPO_URL` set to the real repository.
 
-## Entry #24 — Data loading: live list + on-demand details (supersedes #2)
+## Entry #24 — The now indicator is unconditional
+
+The red current-time marker must never disappear. `resolveNowPlacement()`
+(`src/lib/schedule/now-placement.ts`) picks exactly one home for it per render:
+
+- `inside` — the clock is within a day's computed window: the familiar red
+  rule in the grid (or between rows in the mobile log).
+- `before` — the day has not started yet (including before the whole weekend
+  and the dead gap between two days): a full-width `NowRail` band directly
+  above that day's inline heading.
+- `after` — the last day is over: the same band at the very bottom of the
+  last day's section, under "Other locations".
+
+Only one element ever carries `data-now-marker`, so the initial
+scroll-to-now landing keeps working unchanged. Copy lives in the i18n
+dictionary (`nowBeforeDay`, `nowAfterEvent`).
+
+
+## Entry #25 — Category colour bar
+
+Every event surface carries a thick (3px) left bar drawn by one component,
+`<CategoryBar />`. No component may draw its own edge.
+
+- Palette: 12 fixed swatches (`--cat-*` in `styles.css`), Okabe-Ito derived
+  and lightness-staggered so they separate for protan/deutan/tritan viewers.
+  Deliberately larger than the number of colours currently in use so new
+  categories can be added without a reshuffle.
+- Assignment lives in `src/lib/schedule/categories.ts`. Near-synonym slugs
+  share a swatch (musiikki/tanssi, byoc/lan, k-week/k-pop, kids/cosplay);
+  unknown slugs hash deterministically into the palette.
+- Multiple categories stack evenly, top to bottom, capped at four segments.
+- Gold is reserved for favourites: a favourited event collapses the bar to a
+  single gold segment, overriding category colour everywhere.
+
+
+## Entry #26 — Event type filters
+
+A `FILTERS` header button (left of the language switch) expands a drawer with
+every event type in the feed as a coloured badge, split into two labelled,
+wrapping rows: `SHOWING` and `HIDING`. Clicking a badge moves it between them.
+
+- Subtractive model: the visitor hides types, never selects them. An empty
+  stored set means "show everything", so new categories from the feed are
+  visible by default. Persisted in `localStorage`
+  (`assyguide.hiddenCategories`), applied in an effect to avoid a hydration
+  mismatch.
+- An event only disappears when *every* one of its categories is hidden — a
+  multi-category event stays as long as one of its types is still shown.
+- `<CategoryBar />` draws only the *visible* swatches, so filtering also cuts
+  colour noise. Gold still overrides everything for favourites.
+- Locations are re-ranked from the visible events (`rankVenues()`, the same
+  pure helper `normalize.ts` uses), so filtering genuinely reshapes which
+  locations earn grid columns and which fall into "Other locations".
+- Day sections, the all-day band, "Next up" and the footer tally all read the
+  same filtered set — no view may filter on its own.
+
+## 27. Timeline breathing room and column-scoped moments
+
+- Each day's grid window is padded by 30 minutes before the first and after
+  the last event, so nothing renders flush against the day's edge.
+  Hour rules and labels stay on whole hours.
+- Zero-duration "moment" markers (area opens/closes, doors) render as a
+  labelled tick *inside their own location column* instead of a band across
+  the whole grid — an EXPO opening must never read as a Main Stage event.
+
+## Entry #28 — Data loading: live list + on-demand details + server cache (supersedes #2)
 
 **Decision.** Nothing is bundled. Two payloads, split on the measured fact
 that the timeline is language-agnostic but bodies are not:
 
-- **List** (`SCHEDULE_LIST_QUERY`) — lean, language-independent timeline. No
-  `program.excerpt/content`. Fetched on load (loading skeleton, no snapshot),
-  polled 60 s while focused (`use-schedule.ts`). No snapshot ⇒ real error +
-  retry state.
+- **List** (`SCHEDULE_LIST_QUERY`) — lean, language-independent timeline. Only
+  the fields the grid renders: no `excerpt/content`, no colours, names, or the
+  top-level categories block (~25% faster resolve). Fetched server-side in the
+  route loader from a two-tier server-held cache (in-isolate memo + Cloudflare
+  per-colo Cache API, stale-while-revalidate), so SSR ships data in the HTML —
+  no skeleton. `use-schedule.ts` seeds React Query from the loader and polls
+  60 s while focused.
 - **Detail** (`EventDetail`) — per-`(id, language)` excerpt, fetched when a
   sheet opens and prefetched for the on-screen range 1 s after scroll settles
   (`use-event-detail.ts`), cached 1 h. Concurrent fetches collapse into one
@@ -342,9 +410,8 @@ that the timeline is language-agnostic but bodies are not:
   own pure module).
 
 **Why.** The old snapshot was 2 MB in the bundle and its refresh was dead on
-arrival (see #2). Splitting cuts first paint to the timeline only, keeps it
-fresh by polling, and loads the heavy per-language bodies lazily. Language
-swap refetches details only (titles aren't localized). We identify via a
-`?client=` query param + named operations — a custom request header fails the
-CORS preflight (endpoint allows only Authorization/Content-Type/X-JWT-*), and
-`User-Agent` is a forbidden header anyway.
+arrival (see #2). Category colour is editorial (#25, `categories.ts`), keyed by
+category slug — never from the API — so the lean query keeps every field the
+colour bar and filters need. We identify via a `?client=` query param + named
+operations; a custom request header fails the CORS preflight (endpoint allows
+only Authorization/Content-Type/X-JWT-*), and `User-Agent` is forbidden anyway.

@@ -19,6 +19,8 @@ interface ScheduleGridProps {
   events: readonly EventItem[];
   /** Schedule-time now: date is the schedule day, minutes are day minutes. */
   now: { date: string; minutes: number } | null;
+  /** The page decides which day owns the single now-marker. */
+  showNowMarker: boolean;
   onOpen: (event: EventItem) => void;
 }
 
@@ -34,6 +36,7 @@ export function ScheduleGrid({
   venues,
   events,
   now,
+  showNowMarker,
   onOpen,
 }: ScheduleGridProps) {
   const { isFavourite, toggle } = useFavourites();
@@ -47,6 +50,7 @@ export function ScheduleGrid({
   const length = win.endMin - win.startMin;
 
   const showNow =
+    showNowMarker &&
     !!now &&
     now.date === day.date &&
     now.minutes >= win.startMin &&
@@ -135,36 +139,49 @@ export function ScheduleGrid({
                 window={win}
                 favourite={isFavourite(event.id)}
                 onToggleFavourite={(e) => toggle(e.id)}
+                past={
+                  !!now &&
+                  (day.date < now.date ||
+                    (day.date === now.date &&
+                      dayMinutes(event.end) <= now.minutes))
+                }
                 live={
                   showNow &&
                   !!now &&
                   dayMinutes(event.start) <= now.minutes &&
                   dayMinutes(event.end) > now.minutes
                 }
+
                 onOpen={onOpen}
               />
             );
           });
         })}
 
-        {/* Moment markers — labelled rules across all columns */}
-        {moments.map((moment) => (
+        {/* Moment markers — a labelled tick inside their OWN location
+            column, never a band across the whole grid: an EXPO opening is
+            not a Main Stage event (design-log #27). */}
+        {moments.map((moment) => {
+          const colIdx = venues.findIndex((v) => v.slug === moment.venueId);
+          return (
           <button
             key={moment.id}
             type="button"
+            data-col={colIdx + 1}
             onClick={() => onOpen(moment)}
-            className="z-20 self-start text-left"
+            className="z-20 self-start overflow-hidden text-left"
             style={{
-              gridColumn: "1 / -1",
+              gridColumn: colIdx + 2,
               gridRow: slotIndexFor(moment.start, win) + 1,
             }}
           >
-            <span className="press relative -top-[7px] ml-12 inline-block border border-ink/50 bg-paper px-1.5 text-[11px] font-semibold uppercase tracking-[0.04em]">
+            <span className="press relative -top-[7px] ml-1 inline-block max-w-full truncate border border-ink/50 bg-paper px-1 text-[10.5px] font-semibold uppercase tracking-[0.04em]">
               ◆ <span className="tnum">{formatTime(moment.start)}</span>{" "}
               {moment.title}
             </span>
           </button>
-        ))}
+          );
+        })}
 
         {/* Now bar — the one animated thing in the product. The wrapper is
             positioned so the time chip rides the rule instead of pinning

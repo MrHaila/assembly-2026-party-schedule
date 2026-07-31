@@ -9,10 +9,12 @@ import type { Day } from "@/lib/schedule/types";
 
 export interface Strings {
   appTagline: string;
-  scheduleDay: string;
+  pastEvent: string;
   allDay: string;
   otherLocations: string;
   now: string;
+  nowBeforeDay: string;
+  nowAfterEvent: string;
   estimated: string;
   lastUpdated: string;
   events: string;
@@ -35,14 +37,22 @@ export interface Strings {
   loading: string;
   loadFailed: string;
   retry: string;
+  filters: string;
+  showing: string;
+  hiding: string;
+  noneHidden: string;
+  /** Display names per category slug; missing slugs fall back to the slug. */
+  categoryLabels: Record<string, string>;
 }
 
 const FI: Strings = {
   appTagline: "Assembly",
-  scheduleDay: "Ohjelmapäivä",
+  pastEvent: "Mennyt",
   allDay: "Koko päivän",
   otherLocations: "Muut sijainnit",
   now: "Nyt",
+  nowBeforeDay: "Päivä ei ole vielä alkanut",
+  nowAfterEvent: "Tapahtuma on päättynyt",
   estimated: "arvio",
   lastUpdated: "Päivitetty viimeksi",
   events: "tapahtumaa",
@@ -65,14 +75,40 @@ const FI: Strings = {
   loading: "Ladataan ohjelmaa…",
   loadFailed: "Ohjelman lataus epäonnistui.",
   retry: "Yritä uudelleen",
+  filters: "Suodattimet",
+  showing: "Näytetään",
+  hiding: "Piilotettu",
+  noneHidden: "Valitse piilotettavat tapahtumatyypit",
+  categoryLabels: {
+    expo: "Expo",
+    gaming: "Pelit",
+    esports: "Esports",
+    byoc: "BYOC",
+    "lan-fi": "LAN",
+    lan: "LAN",
+    osallistu: "Osallistu",
+    creators: "Creators",
+    viihde: "Viihde",
+    musiikki: "Musiikki",
+    tanssi: "Tanssi",
+    demoscene: "Demoscene",
+    "k-weekxassembly": "K-Week",
+    "k-pop": "K-Pop",
+    kids: "Lapset",
+    cosplay: "Cosplay",
+    mainstage: "Päälava",
+    general: "Muu",
+  },
 };
 
 const EN: Strings = {
   appTagline: "Assembly",
-  scheduleDay: "Schedule day",
+  pastEvent: "Past event",
   allDay: "All day",
   otherLocations: "Other locations",
   now: "Now",
+  nowBeforeDay: "Day has not started yet",
+  nowAfterEvent: "Event has ended",
   estimated: "estimated",
   lastUpdated: "Last updated",
   events: "events",
@@ -95,6 +131,30 @@ const EN: Strings = {
   loading: "Loading the schedule…",
   loadFailed: "The schedule failed to load.",
   retry: "Try again",
+  filters: "Filters",
+  showing: "Showing",
+  hiding: "Hiding",
+  noneHidden: "Select event types to hide them",
+  categoryLabels: {
+    expo: "Expo",
+    gaming: "Gaming",
+    esports: "Esports",
+    byoc: "BYOC",
+    "lan-fi": "LAN",
+    lan: "LAN",
+    osallistu: "Take part",
+    creators: "Creators",
+    viihde: "Entertainment",
+    musiikki: "Music",
+    tanssi: "Dance",
+    demoscene: "Demoscene",
+    "k-weekxassembly": "K-Week",
+    "k-pop": "K-Pop",
+    kids: "Kids",
+    cosplay: "Cosplay",
+    mainstage: "Main stage",
+    general: "Other",
+  },
 };
 
 const DICTIONARIES: Record<Language, Strings> = { fi: FI, en: EN };
@@ -173,10 +233,6 @@ const WEEKDAYS: Record<Language, readonly string[]> = {
   ],
 };
 
-const WEEKDAYS_SHORT: Record<Language, readonly string[]> = {
-  en: ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"],
-  fi: ["SU", "MA", "TI", "KE", "TO", "PE", "LA"],
-};
 
 function ordinal(n: number): string {
   const rem100 = n % 100;
@@ -200,11 +256,21 @@ export function dayLabel(day: Day, language: Language): string {
     : `${name} ${ordinal(dayOfMonth)}`;
 }
 
-/** Compact tab label: "THU 30" / "TO 30". */
-export function dayShortLabel(day: Day, language: Language): string {
-  const dayOfMonth = Number(day.date.slice(8, 10));
-  return `${WEEKDAYS_SHORT[language][weekdayIndex(day)]} ${dayOfMonth}`;
+/**
+ * Weekday + date label for a raw ISO timestamp: "SATURDAY 1st" / "LAUANTAI 1.8.".
+ * Used where a bare "12:00–13:00" would be ambiguous (the detail sheet).
+ */
+export function isoDayLabel(iso: string, language: Language): string {
+  const date = iso.slice(0, 10);
+  const index = new Date(`${date}T12:00:00Z`).getUTCDay();
+  const dayOfMonth = Number(date.slice(8, 10));
+  const month = Number(date.slice(5, 7));
+  const name = WEEKDAYS[language][index].toUpperCase();
+  return language === "fi"
+    ? `${name} ${dayOfMonth}.${month}.`
+    : `${name} ${ordinal(dayOfMonth)}`;
 }
+
 
 /**
  * Departure-board countdown: "in 24 min" / "24 min kuluttua",

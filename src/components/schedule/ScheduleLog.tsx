@@ -8,6 +8,7 @@ import {
   formatTime,
 } from "@/lib/schedule/time";
 import type { Day, EventItem, Venue } from "@/lib/schedule/types";
+import { CategoryBar } from "./CategoryBar";
 
 interface ScheduleLogProps {
   day: Day;
@@ -16,6 +17,8 @@ interface ScheduleLogProps {
   venueById: ReadonlyMap<string, Venue>;
   /** Schedule-time now: date is the schedule day, minutes are day minutes. */
   now: { date: string; minutes: number } | null;
+  /** The page decides which day owns the single now-marker. */
+  showNowMarker: boolean;
   onOpen: (event: EventItem) => void;
 }
 
@@ -28,6 +31,7 @@ export function ScheduleLog({
   events,
   venueById,
   now,
+  showNowMarker,
   onOpen,
 }: ScheduleLogProps) {
   const { t } = useLanguage();
@@ -35,6 +39,7 @@ export function ScheduleLog({
   const entries = events.filter((e) => e.kind !== "ongoing");
   const win = useMemo(() => computeDayWindow(events), [events]);
   const showNow =
+    showNowMarker &&
     !!now &&
     now.date === day.date &&
     now.minutes >= win.startMin &&
@@ -55,6 +60,10 @@ export function ScheduleLog({
     const hourChanged =
       !prev || prev.start.slice(11, 13) !== event.start.slice(11, 13);
     const favourite = isFavourite(event.id);
+    const past =
+      !!now &&
+      (day.date < now.date ||
+        (day.date === now.date && dayMinutes(event.end) <= now.minutes));
     rows.push(
       <li
         key={event.id}
@@ -63,8 +72,10 @@ export function ScheduleLog({
         <button
           type="button"
           onClick={() => onOpen(event)}
-          className={`press flex min-h-[44px] w-full items-baseline gap-2.5 px-1 py-1.5 text-left${favourite ? " border-l-2 border-gold bg-event-favourite pl-1.5" : ""}`}
+          className={`press relative flex min-h-[44px] w-full items-baseline gap-2.5 py-1.5 pl-2.5 pr-1 text-left${favourite ? " bg-event-favourite" : ""}${past ? " opacity-45 saturate-50" : ""}`}
         >
+          <CategoryBar categories={event.categories} favourite={favourite} />
+
           <span className="tnum w-11 shrink-0 text-[13px] font-bold">
             {formatTime(event.start)}
           </span>

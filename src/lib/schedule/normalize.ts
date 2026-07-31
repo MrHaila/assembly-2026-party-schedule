@@ -169,17 +169,39 @@ function normalizeDays(data: RawScheduleData): Day[] {
 }
 
 /**
- * Locations, ordered by editorial priority first, then by how many events
- * they host across the whole weekend. Priority exists because the headline
- * stages (Main, Genelec) must never slide right just because a booth logged
- * more entries. Everything below priority is ranked by event COUNT, not total
- * duration, so an all-day booth cannot outrank a stage running ten sessions.
+ * Rank locations for the grid: editorial priority first, then how many of the
+ * GIVEN events they host. Pure and re-runnable, so the filter UI can re-rank
+ * with a filtered event list and columns reshuffle accordingly. Ranked by
+ * event COUNT, not total duration, so an all-day booth cannot outrank a stage
+ * running ten sessions.
  */
-function normalizeVenues(data: RawScheduleData, events: EventItem[]): Venue[] {
+export function rankVenues(
+  venues: readonly Venue[],
+  events: readonly EventItem[],
+): Venue[] {
   const counts = new Map<string, number>();
   for (const e of events) {
     counts.set(e.venueId, (counts.get(e.venueId) ?? 0) + 1);
   }
+  const ranked = venues.map((v) => ({
+    ...v,
+    eventCount: counts.get(v.slug) ?? 0,
+  }));
+  ranked.sort(
+    (a, b) =>
+      (a.priority ?? Number.MAX_SAFE_INTEGER) -
+        (b.priority ?? Number.MAX_SAFE_INTEGER) ||
+      b.eventCount - a.eventCount ||
+      (venueConfigFor(a.slug)?.order ?? 100) -
+        (venueConfigFor(b.slug)?.order ?? 100),
+  );
+  ranked.forEach((v, i) => {
+    v.order = i + 1;
+  });
+  return ranked;
+}
+
+function normalizeVenues(data: RawScheduleData, events: EventItem[]): Venue[] {
   const venues: Venue[] = data.locations.nodes.map((loc) => {
     const config = venueConfigFor(loc.slug);
     return {
@@ -189,20 +211,10 @@ function normalizeVenues(data: RawScheduleData, events: EventItem[]): Venue[] {
       order: config?.order ?? 100,
       priority: config?.priority,
       tier: config?.tier ?? "other",
-      eventCount: counts.get(loc.slug) ?? 0,
+      eventCount: 0,
     };
   });
-  venues.sort(
-    (a, b) =>
-      (a.priority ?? Number.MAX_SAFE_INTEGER) -
-        (b.priority ?? Number.MAX_SAFE_INTEGER) ||
-      b.eventCount - a.eventCount ||
-      a.order - b.order,
-  );
-  venues.forEach((v, i) => {
-    v.order = i + 1;
-  });
-  return venues;
+  return rankVenues(venues, events);
 }
 
 export function normalizeSchedule(

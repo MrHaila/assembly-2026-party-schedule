@@ -313,11 +313,14 @@ describe("grid slot math", () => {
     const win = computeDayWindow([
       { start: "2026-07-30T10:00:00+03:00", end: "2026-07-30T23:00:00+03:00", kind: "session" },
     ]);
-    expect(win.slotCount).toBe(SLOT_COUNT);
+    // 30 min of padding is added at both ends of the day.
+    expect(win.slotCount).toBe(SLOT_COUNT + 12);
     expect(slotIndexFor("2026-07-30T08:00:00+03:00", win)).toBe(0);
-    expect(slotIndexFor("2026-07-30T23:30:00+03:00", win)).toBe(SLOT_COUNT - 1);
+    expect(slotIndexFor("2026-07-30T23:30:00+03:00", win)).toBe(
+      win.slotCount - 1,
+    );
     expect(slotIndexFor("2026-07-30T14:00:00+03:00", win)).toBe(
-      (14 * 60 - DAY_START_MIN) / 5,
+      (14 * 60 - (DAY_START_MIN - 30)) / 5,
     );
   });
 
@@ -338,16 +341,16 @@ describe("grid slot math", () => {
       { start: "2026-07-31T22:00:00+03:00", end: "2026-08-01T02:30:00+03:00", kind: "session" },
       { start: "2026-07-31T09:00:00+03:00", end: "2026-08-01T09:00:00+03:00", kind: "ongoing" },
     ]);
-    expect(win.startMin).toBe(11 * 60);
-    expect(win.endMin).toBe(26 * 60 + 60);
+    expect(win.startMin).toBe(11 * 60 - 30);
+    expect(win.endMin).toBe(26 * 60 + 60 + 30);
     expect(win.slotCount).toBe((win.endMin - win.startMin) / 5);
-    expect(formatDayMinutes(win.endMin)).toBe("03:00");
+    expect(formatDayMinutes(win.endMin)).toBe("03:30");
   });
 
   it("computeDayWindow falls back to 10:00-23:00 for an empty day", () => {
     const win = computeDayWindow([]);
-    expect(win.startMin).toBe(DAY_START_MIN);
-    expect(win.slotCount).toBe(SLOT_COUNT);
+    expect(win.startMin).toBe(DAY_START_MIN - 30);
+    expect(win.slotCount).toBe(SLOT_COUNT + 12);
   });
 
   it("formatTime reads the Helsinki local part", () => {

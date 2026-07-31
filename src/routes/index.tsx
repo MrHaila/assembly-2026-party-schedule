@@ -13,13 +13,17 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 import { DayHeading } from "@/components/schedule/DayHeading";
 import { DetailSheet } from "@/components/schedule/DetailSheet";
-import { DayTabs } from "@/components/schedule/DayTabs";
+
 import { OtherVenues } from "@/components/schedule/OtherVenues";
 import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
+import { NowRail } from "@/components/schedule/NowRail";
 import { ScheduleLog } from "@/components/schedule/ScheduleLog";
 import { NextUp } from "@/components/schedule/NextUp";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FilterPanel } from "@/components/filters/FilterPanel";
+import { FiltersButton } from "@/components/filters/FiltersButton";
 import { useFavourites } from "@/hooks/use-favourites";
+import { useFilters } from "@/hooks/use-filters";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHelsinkiNow } from "@/hooks/use-helsinki-now";
 import { useNow } from "@/hooks/use-now";
@@ -29,16 +33,16 @@ import { usePrefetchDetails } from "@/hooks/use-event-detail";
 import { fetchScheduleListCached } from "@/lib/api/schedule-server";
 import { formatRelativeTime } from "@/lib/i18n/strings";
 import { nextUpFavourites } from "@/lib/schedule/favourites";
-import { scheduleDate, toScheduleTime } from "@/lib/schedule/time";
+import { categoryCounts, filterEvents } from "@/lib/schedule/filters";
+import { rankVenues } from "@/lib/schedule/normalize";
+import { resolveNowPlacement } from "@/lib/schedule/now-placement";
+import { computeDayWindow, scheduleDate, toScheduleTime } from "@/lib/schedule/time";
 import type { ScheduleData, EventItem } from "@/lib/schedule/types";
 
 /** Most columns the responsive CSS can ever show (see .schedule-cols). */
 const MAX_GRID_COLUMNS = 8;
 
 export const Route = createFileRoute("/")({
-  validateSearch: (search) => ({
-    day: typeof search.day === "string" ? search.day : undefined,
-  }),
   head: () => ({
     meta: [
       { title: "Assembly Schedule" },
@@ -66,7 +70,7 @@ export const Route = createFileRoute("/")({
   component: AssyguidePage,
 });
 
-/** Header chrome shared by every state, so the shell never flashes empty. */
+/** Header chrome shared by the loading/error states, so the shell never flashes empty. */
 function Chrome({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-dvh flex-col">
@@ -85,16 +89,13 @@ function Chrome({ children }: { children: ReactNode }) {
 }
 
 /**
- * The route now fetches live on load — nothing is bundled — so it owns three
- * states: loading skeleton, error+retry (no snapshot to fall back on), and the
- * schedule itself. Schedule-dependent hooks live in ScheduleView so they only
- * run once `schedule` exists.
+ * The route fetches the timeline on the server (from the server-held cache),
+ * so `initial` is present on first paint and the skeleton only shows on the
+ * rare path where seed data is absent. Schedule-dependent hooks live in
+ * ScheduleView so they only run once `schedule` exists.
  */
 function AssyguidePage() {
   const { t } = useLanguage();
-  // Seeded from the loader's server-cached data → not pending on first paint.
-  // The skeleton below only appears on the rare path where seed data is absent
-  // (e.g. a client-side navigation whose loader is still resolving).
   const initial = Route.useLoaderData();
   const query = useSchedule(initial);
 
@@ -133,8 +134,21 @@ function AssyguidePage() {
 function ScheduleView({ schedule }: { schedule: ScheduleData }) {
   const { t, language } = useLanguage();
   const prefetchDetails = usePrefetchDetails();
-  const search = Route.useSearch();
-  const navigate = Route.useNavigate();
+  const { hidden } = useFilters();
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Counts come from the full feed so a hidden type keeps showing its size.
+  const counts = useMemo(
+    () => categoryCounts(schedule.events),
+    [schedule.events],
+  );
+  // Everything downstream — days, columns, next up, the footer tally — reads
+  // the filtered set, so the whole page stays internally consistent.
+  const visibleEvents = useMemo(
+    () => filterEvents(schedule.events, hidden),
+    [schedule.events, hidden],
+  );
+
   // Schedule time: the day rolls over at 05:00, so 02:00 Saturday is still
   // "Friday, 1560 minutes" for every placement decision below.
   const wallNow = useHelsinkiNow();
@@ -148,36 +162,54 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
   const nextUp = useMemo(
     () =>
       nowFooter
-        ? nextUpFavourites(schedule.events, favourites, nowFooter)
+        ? nextUpFavourites(visibleEvents, favourites, nowFooter)
         : [],
-    [schedule.events, favourites, nowFooter],
+    [visibleEvents, favourites, nowFooter],
   );
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<EventItem | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [focusedDay, setFocusedDay] = useState(schedule.days[0].id);
 
   const eventsByDay = useMemo(() => {
     const map = new Map<string, EventItem[]>();
     for (const day of schedule.days) map.set(day.date, []);
-    for (const event of schedule.events) {
+    for (const event of visibleEvents) {
       map.get(scheduleDate(event.start))?.push(event);
     }
     return map;
-  }, [schedule.events, schedule.days]);
+  }, [visibleEvents, schedule.days]);
+
+  // One marker, always: inside a day, above the next day, or after the last.
+  const dayWindows = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof computeDayWindow>>();
+    for (const day of schedule.days) {
+      map.set(day.date, computeDayWindow(eventsByDay.get(day.date) ?? []));
+    }
+    return map;
+  }, [schedule.days, eventsByDay]);
+  const placement = useMemo(
+    () => resolveNowPlacement(schedule.days, dayWindows, now),
+    [schedule.days, dayWindows, now],
+  );
 
   const venueById = useMemo(
     () => new Map(schedule.venues.map((v) => [v.slug, v] as const)),
     [schedule.venues],
   );
-  // Busiest locations earn the columns; the rest are always list-only.
-  const gridVenues = schedule.venues.slice(0, MAX_GRID_COLUMNS);
-  const otherVenues = schedule.venues.slice(MAX_GRID_COLUMNS);
+  // Busiest locations earn the columns; the rest are always list-only. The
+  // ranking is recomputed from the VISIBLE events, so filtering reshuffles
+  // which locations get a column.
+  const rankedVenues = useMemo(
+    () => rankVenues(schedule.venues, visibleEvents),
+    [schedule.venues, visibleEvents],
+  );
+  const gridVenues = rankedVenues.slice(0, MAX_GRID_COLUMNS);
+  const otherVenues = rankedVenues.slice(MAX_GRID_COLUMNS);
 
   // Warm the detail cache for whatever day-sections are on screen, so a click
-  // is a cache hit instead of a spinner. Called 1 s after scrolling settles
-  // (below) and on the initial/​language-swap paint. React Query skips
-  // already-cached ids; the batch loader collapses the rest into one request.
+  // is a cache hit instead of a spinner. React Query skips already-cached ids;
+  // the batch loader collapses the rest into one request. Re-runs when the
+  // filtered set or language changes (details are cached per language).
   const warmVisible = useCallback(() => {
     const root = scrollRef.current;
     if (!root) return;
@@ -194,101 +226,106 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
     if (ids.length) prefetchDetails(ids, language);
   }, [schedule.days, eventsByDay, prefetchDetails, language]);
 
-  // Scroll-spy: the day tab follows the timeline instead of switching it.
-  // A scroll listener (not IntersectionObserver) — IO only fires when a
-  // threshold is crossed, so a smooth scroll could settle after the last
-  // callback and leave the tab one day behind.
+  // Warm the on-screen range 1 s after scrolling settles — a fast fling past
+  // ten days must not fire ten prefetch batches.
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
-    const sections = Array.from(
-      root.querySelectorAll<HTMLElement>("[data-day-id]"),
-    );
-    let frame = 0;
     let idle = 0;
-    const sync = () => {
-      frame = 0;
-      const top = root.getBoundingClientRect().top;
-      const current =
-        sections.find((s) => s.getBoundingClientRect().bottom > top + 8) ??
-        sections.at(-1);
-      if (current?.dataset.dayId) setFocusedDay(current.dataset.dayId);
-    };
     const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(sync);
-      // Debounce: warm details only once scrolling has been still for 1 s, so
-      // a fast fling past ten days doesn't fire ten prefetch batches.
       if (idle) clearTimeout(idle);
       idle = window.setTimeout(warmVisible, 1000);
     };
     root.addEventListener("scroll", onScroll, { passive: true });
-    sync();
     return () => {
       root.removeEventListener("scroll", onScroll);
-      if (frame) cancelAnimationFrame(frame);
       if (idle) clearTimeout(idle);
     };
-  }, [schedule.days, isMobile, warmVisible]);
+  }, [warmVisible]);
 
-  // Warm the first screen on load and re-warm the current view after a
-  // language swap (details are cached per language).
+  // Warm the first screen on load and re-warm after a filter/language change.
   useEffect(() => {
     const timer = window.setTimeout(warmVisible, 300);
     return () => clearTimeout(timer);
   }, [warmVisible]);
 
-
-  const scrollToDay = (dayId: string) => {
-    setFocusedDay(dayId);
-    const root = scrollRef.current;
-    const target = root?.querySelector<HTMLElement>(
-      `[data-day-id="${dayId}"]`,
-    );
-    // Scroll BEFORE the router state change: navigate() re-renders the tree,
-    // which used to interrupt (and silently drop) the smooth scroll, so the
-    // first click only moved the tab and a second click was needed.
-    if (root && target) {
-      root.scrollTo({
-        top: root.scrollTop + target.getBoundingClientRect().top -
-          root.getBoundingClientRect().top,
-        behavior: "smooth",
-      });
-    }
-    navigate({ to: ".", search: { day: dayId }, replace: true });
-  };
-
-  // First paint lands on the deep link (?day=), otherwise on "now" placed
-  // ~20% down the viewport so a little past stays visible above upcoming.
+  // Initial landing: put the timeline at "now minus one hour". This retries
+  // across a few animation frames so it survives hydration, the live data
+  // swap and layout settling — whichever renders the now-marker last wins.
+  // Outside the event weekend it clamps to the top or bottom of the list.
   const landed = useRef(false);
   useEffect(() => {
     if (landed.current) return;
-    const root = scrollRef.current;
-    if (!root) return;
+    if (!now) return;
 
-    const deepLinked = schedule.days.find((d) => d.id === search.day);
-    if (!deepLinked) {
-      const marker = root.querySelector<HTMLElement>("[data-now-marker]");
-      if (marker) {
-        landed.current = true;
-        root.scrollTop =
-          root.scrollTop + marker.getBoundingClientRect().top -
-          root.getBoundingClientRect().top - root.clientHeight * 0.2;
+    let raf = 0;
+    const deadline = Date.now() + 4000;
+
+    const attempt = () => {
+      const root = scrollRef.current;
+      if (!root) {
+        raf = requestAnimationFrame(attempt);
         return;
       }
-    }
 
-    const target =
-      deepLinked ?? schedule.days.find((d) => d.date === now?.date);
-    if (!target) return;
-    landed.current = true;
-    const el = root.querySelector<HTMLElement>(`[data-day-id="${target.id}"]`);
-    if (el) {
-      root.scrollTop =
-        root.scrollTop + el.getBoundingClientRect().top -
+      const offsetOf = (el: HTMLElement) =>
+        root.scrollTop +
+        el.getBoundingClientRect().top -
         root.getBoundingClientRect().top;
-      setFocusedDay(target.id);
-    }
-  }, [schedule.days, search.day, now?.date]);
+
+      const marker = root.querySelector<HTMLElement>("[data-now-marker]");
+      if (marker) {
+        // One hour in pixels, derived from the grid's own time scale when we
+        // are in the grid projection; the list has no proportional axis, so
+        // it falls back to a fifth of the viewport.
+        const grid = marker.closest<HTMLElement>(".schedule-grid");
+        let hourPx = root.clientHeight * 0.2;
+        if (grid) {
+          const slots = Number(
+            getComputedStyle(grid).getPropertyValue("--slots"),
+          );
+          if (slots > 0) hourPx = (grid.clientHeight / (slots * 5)) * 60;
+        }
+        landed.current = true;
+        root.scrollTop = Math.max(0, offsetOf(marker) - hourPx);
+        return;
+      }
+
+      // No now-marker: either before or after the weekend, or the day is not
+      // painted yet. Only settle once the days are actually in the DOM.
+      const dayEls = root.querySelectorAll<HTMLElement>("[data-day-id]");
+      if (dayEls.length) {
+        const target = schedule.days.find((d) => d.date === now.date);
+        if (target) {
+          const el = root.querySelector<HTMLElement>(
+            `[data-day-id="${target.id}"]`,
+          );
+          if (el) {
+            landed.current = true;
+            root.scrollTop = Math.max(0, offsetOf(el));
+            return;
+          }
+        }
+        const last = schedule.days.at(-1);
+        if (last && now.date > last.date) {
+          landed.current = true;
+          root.scrollTop = root.scrollHeight;
+          return;
+        }
+        const first = schedule.days[0];
+        if (first && now.date < first.date) {
+          landed.current = true;
+          root.scrollTop = 0;
+          return;
+        }
+      }
+
+      if (Date.now() < deadline) raf = requestAnimationFrame(attempt);
+    };
+
+    raf = requestAnimationFrame(attempt);
+    return () => cancelAnimationFrame(raf);
+  }, [schedule.days, now, isMobile]);
 
   return (
     <div className="flex h-dvh flex-col">
@@ -301,14 +338,16 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <DayTabs
-            days={schedule.days}
-            activeId={focusedDay}
-            onSelect={scrollToDay}
+          <FiltersButton
+            open={filtersOpen}
+            onToggle={() => setFiltersOpen((v) => !v)}
           />
           <LanguageToggle />
         </div>
+
       </header>
+
+      {filtersOpen && <FilterPanel counts={counts} />}
 
       <NextUp entries={nextUp} venueById={venueById} onOpen={setSelected} />
 
@@ -321,6 +360,9 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
           const dayEvents = eventsByDay.get(day.date) ?? [];
           return (
             <section key={day.id} data-day-id={day.id}>
+              {placement?.kind === "before" && placement.dayId === day.id && (
+                <NowRail minutes={now!.minutes} variant="before" />
+              )}
               <DayHeading
                 day={day}
                 ongoing={dayEvents.filter((e) => e.kind === "ongoing")}
@@ -332,6 +374,9 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
                   events={dayEvents}
                   venueById={venueById}
                   now={now}
+                  showNowMarker={
+                    placement?.kind === "inside" && placement.dayId === day.id
+                  }
                   onOpen={setSelected}
                 />
               ) : (
@@ -341,6 +386,9 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
                     venues={gridVenues}
                     events={dayEvents}
                     now={now}
+                    showNowMarker={
+                      placement?.kind === "inside" && placement.dayId === day.id
+                    }
                     onOpen={setSelected}
                   />
                   <OtherVenues
@@ -350,6 +398,9 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
                     onOpen={setSelected}
                   />
                 </>
+              )}
+              {placement?.kind === "after" && placement.dayId === day.id && (
+                <NowRail minutes={now!.minutes} variant="after" />
               )}
             </section>
           );
@@ -363,7 +414,7 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
           {nowFooter
             ? formatRelativeTime(language, schedule.fetchedAt, nowFooter)
             : "–"}{" "}
-          · {schedule.events.length} {t.events}
+          · {visibleEvents.length} {t.events}
         </div>
       </footer>
 
