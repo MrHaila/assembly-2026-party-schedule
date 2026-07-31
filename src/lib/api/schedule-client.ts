@@ -23,7 +23,7 @@ import type { EventDetail, ScheduleData } from "@/lib/schedule/types";
 import type { Language } from "@/lib/i18n/language";
 import { createBatchLoader, type BatchLoader } from "./batch-loader";
 import { fetchSceneNews } from "./news-client";
-import { mergeNewsIntoSchedule } from "@/lib/schedule/news";
+import { isNewsId, mergeNewsIntoSchedule } from "@/lib/schedule/news";
 
 export const GRAPHQL_ENDPOINT = "https://wp.assembly.org/summer26/graphql";
 
@@ -250,5 +250,7 @@ export function loadEventDetail(
   id: number,
   language: Language,
 ): Promise<EventDetail> {
+  // News items carry their body inline — there is nothing to fetch.
+  if (isNewsId(id)) return Promise.resolve({ id });
   return detailLoaders[language].load(id).then((detail) => detail ?? { id });
 }
