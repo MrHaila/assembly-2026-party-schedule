@@ -45,14 +45,14 @@ export function NextUp({ entries, venueById, onOpen }: NextUpProps) {
 
 
   return (
-    <div className="border-b-2 border-strong bg-band">
+    <div className="border-b-2 border-gold/70">
       <button
         type="button"
         onClick={() => onOpen(first.event)}
-        className="press block w-full px-3 py-1.5 text-left"
+        className="event-favourite block w-full border-0 px-3 py-1.5 text-left"
       >
         <span className="flex min-w-0 items-baseline gap-2">
-          <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-ink-mid">
+          <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-gold">
             {t.nextUp}
           </span>
           <span className="min-w-0 flex-1 truncate text-[16px] font-bold leading-tight">
@@ -68,7 +68,7 @@ export function NextUp({ entries, venueById, onOpen }: NextUpProps) {
         <button
           type="button"
           onClick={() => onOpen(second.event)}
-          className="press tnum block w-full truncate border-t border-rule px-3 py-1 text-left text-[10px] uppercase tracking-[0.05em] text-ink-mid"
+          className="event-favourite tnum block w-full truncate border-x-0 border-b-0 border-t px-3 py-1 text-left text-[10px] uppercase tracking-[0.05em]"
         >
           {thenLine}
         </button>
@@ -76,3 +76,4 @@ export function NextUp({ entries, venueById, onOpen }: NextUpProps) {
     </div>
   );
 }
+
