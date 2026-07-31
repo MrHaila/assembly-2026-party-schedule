@@ -266,18 +266,29 @@
   }
 }
 
-/* Favourited grid block: a more prominent gold wash than the list rows plus
-   one prominent gold edge on the left. The stronger wash lets the muted
-   oversized star mark sit behind the text as a background texture. */
+/* Favourited surface (grid block and the "Next up" board): a prominent gold
+   wash plus a gold border, so a starred thing is unmistakable at a glance.
+   Owns its own hover/active pair — the neutral event colours must never be
+   combined with it (design-log #30). */
 @utility event-favourite {
-  /* The left edge itself is drawn by <CategoryBar />. */
   background-color: var(--event-favourite-grid);
+  border-color: color-mix(in oklab, var(--gold) 62%, transparent);
+  transition: background-color 90ms linear;
+
+  &:hover {
+    background-color: var(--event-favourite-hover);
+  }
+
+  &:active {
+    background-color: var(--event-favourite-active);
+  }
 
   /* Doubled specificity so this wins over live-stripes' own default. */
   &:is(.event-favourite) {
     --stripe-color: color-mix(in oklab, var(--gold) 34%, transparent);
   }
 }
+
 
 
 /* Same contract on a reverse-video (ink) band. */
