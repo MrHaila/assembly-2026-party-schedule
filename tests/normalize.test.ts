@@ -5,10 +5,14 @@
  */
 import { describe, expect, it } from "vitest";
 import rawFixture from "./fixtures/summer26.raw.json";
-import { scheduleResponseSchema } from "@/lib/schedule/schema";
+import {
+  eventDetailResponseSchema,
+  scheduleListResponseSchema,
+} from "@/lib/schedule/schema";
 import {
   GENERAL_CATEGORY,
   assignSubColumns,
+  normalizeEventDetail,
   normalizeSchedule,
   stripHtml,
 } from "@/lib/schedule/normalize";
@@ -28,8 +32,19 @@ import {
 } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
 
-const parsed = scheduleResponseSchema.parse(rawFixture.data);
+const parsed = scheduleListResponseSchema.parse(rawFixture.data);
 const schedule = normalizeSchedule(parsed, "2026-07-30T09:00:00+03:00");
+
+// The detail payload is the same fixture (the lean list schema just strips the
+// body fields); parse it through the detail schema to exercise on-demand bodies.
+const detailNodes = eventDetailResponseSchema.parse(
+  rawFixture.data,
+).calendarEvents.nodes;
+const detailNodeFor = (id: number) => {
+  const node = detailNodes.find((n) => n.databaseId === id);
+  if (!node) throw new Error(`no detail node for ${id}`);
+  return node;
+};
 
 describe("schema boundary", () => {
   it("parses the real payload: 210 events, 14 venues, 34 categories", () => {
@@ -43,7 +58,7 @@ describe("schema boundary", () => {
       calendarEvents: { nodes: { startTime?: string }[] };
     };
     delete broken.calendarEvents.nodes[0].startTime;
-    expect(() => scheduleResponseSchema.parse(broken)).toThrow();
+    expect(() => scheduleListResponseSchema.parse(broken)).toThrow();
   });
 });
 
@@ -168,7 +183,6 @@ describe("rule 10/11 — language fallback and category de-suffixing", () => {
   it("20 programs without EN translation are tagged fiOnly", () => {
     const fiOnly = schedule.events.filter((e) => e.fiOnly);
     expect(fiOnly).toHaveLength(20);
-    for (const e of fiOnly) expect(e.excerptEn).toBeUndefined();
   });
 
   it("no category slug keeps its -en suffix; uncategorized is gone", () => {
@@ -179,12 +193,46 @@ describe("rule 10/11 — language fallback and category de-suffixing", () => {
       }
     }
   });
+});
 
-  it("keeps FI and EN excerpts side by side when a translation exists", () => {
-    const withBoth = schedule.events.find(
-      (e) => e.excerptFi && e.excerptEn && e.excerptFi !== e.excerptEn,
+describe("normalizeEventDetail — on-demand, per-language bodies", () => {
+  it("returns the FI vs EN excerpt for a translated program", () => {
+    const translated = schedule.events.find((e) => {
+      if (e.fiOnly) return false;
+      const node = detailNodeFor(e.id);
+      return (
+        node.program?.excerpt &&
+        node.program.translation?.excerpt &&
+        node.program.excerpt !== node.program.translation.excerpt
+      );
+    });
+    expect(translated).toBeDefined();
+    const node = detailNodeFor(translated!.id);
+    const fi = normalizeEventDetail(node, "fi");
+    const en = normalizeEventDetail(node, "en");
+    expect(fi.id).toBe(translated!.id);
+    expect(fi.excerpt).toBeTruthy();
+    expect(en.excerpt).toBeTruthy();
+    expect(en.excerpt).not.toBe(fi.excerpt);
+  });
+
+  it("falls back to the FI excerpt for a fiOnly program asked in EN", () => {
+    // fiOnly ⇒ no translation node, so EN carries no excerpt of its own.
+    const fiOnlyWithBody = schedule.events.find(
+      (e) => e.fiOnly && detailNodeFor(e.id).program?.excerpt,
     );
-    expect(withBoth).toBeDefined();
+    expect(fiOnlyWithBody).toBeDefined();
+    const node = detailNodeFor(fiOnlyWithBody!.id);
+    expect(normalizeEventDetail(node, "en").excerpt).toBe(
+      normalizeEventDetail(node, "fi").excerpt,
+    );
+    expect(normalizeEventDetail(node, "en").excerpt).toBeTruthy();
+  });
+
+  it("yields no excerpt for a programless event", () => {
+    const programless = detailNodes.find((n) => n.program == null);
+    expect(programless).toBeDefined();
+    expect(normalizeEventDetail(programless!, "fi").excerpt).toBeUndefined();
   });
 });
 
@@ -199,13 +247,17 @@ describe("html entities", () => {
   });
 
   it("no raw entity survives in any normalized title or excerpt", () => {
-    const offenders = schedule.events.filter(
-      (e) =>
-        /&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/.test(
-          e.title + (e.excerptFi ?? "") + (e.excerptEn ?? ""),
-        ),
-    );
-    expect(offenders.map((e) => e.title)).toEqual([]);
+    const entity = /&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/;
+    const titleOffenders = schedule.events.filter((e) => entity.test(e.title));
+    expect(titleOffenders.map((e) => e.title)).toEqual([]);
+
+    for (const node of detailNodes) {
+      for (const lang of ["fi", "en"] as const) {
+        expect(entity.test(normalizeEventDetail(node, lang).excerpt ?? "")).toBe(
+          false,
+        );
+      }
+    }
   });
 });
 

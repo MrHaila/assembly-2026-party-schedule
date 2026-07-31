@@ -26,6 +26,10 @@ style passthrough — so styling can only drift in one file at a time.
 
 ## #2 — 2026-07-30 — Fetch strategy: snapshot + live refresh
 
+> **Superseded by #24.** The bundled snapshot shipped 2 MB and, combined with
+> `initialData` + a 5-min `staleTime`, the "live refresh" never fired on load —
+> short sessions only ever saw build-time data.
+
 **Decision.** A committed JSON snapshot (`src/data/schedule-summer26.
 snapshot.json`, captured 2026-07-30) is bundled and paints instantly; the
 client refreshes stale-while-revalidate (5 min stale time) against
@@ -189,7 +193,7 @@ is the only way components read the choice; SSR and first paint always render
 FI and the stored value is applied in an effect to avoid hydration mismatch.
 Event *titles* are not localized — the API's occurrence title is the specific
 one, while the program title is a generic umbrella; only excerpts have real
-FI/EN variants (`excerptFi` / `excerptEn`).
+FI/EN variants, and those are fetched on demand (`EventDetail`, see #2).
 
 ### 11b. Event blocks get a full border
 Event blocks now use a 1px border on all four sides (`border-ink/45`) instead of only a top rule, so adjacent/side-by-side events in the same location read as distinct cards.
@@ -320,3 +324,27 @@ viewport.
 - Favourite background star nudged left (`right-[-6%]`) so more of the
   silhouette reads inside the block.
 - `GITHUB_REPO_URL` set to the real repository.
+
+## Entry #24 — Data loading: live list + on-demand details (supersedes #2)
+
+**Decision.** Nothing is bundled. Two payloads, split on the measured fact
+that the timeline is language-agnostic but bodies are not:
+
+- **List** (`SCHEDULE_LIST_QUERY`) — lean, language-independent timeline. No
+  `program.excerpt/content`. Fetched on load (loading skeleton, no snapshot),
+  polled 60 s while focused (`use-schedule.ts`). No snapshot ⇒ real error +
+  retry state.
+- **Detail** (`EventDetail`) — per-`(id, language)` excerpt, fetched when a
+  sheet opens and prefetched for the on-screen range 1 s after scroll settles
+  (`use-event-detail.ts`), cached 1 h. Concurrent fetches collapse into one
+  `calendarEvents(where:{in:…})` batch via a coalescing loader
+  (`src/lib/api/batch-loader.ts`, unit-tested — the one tricky bit gets its
+  own pure module).
+
+**Why.** The old snapshot was 2 MB in the bundle and its refresh was dead on
+arrival (see #2). Splitting cuts first paint to the timeline only, keeps it
+fresh by polling, and loads the heavy per-language bodies lazily. Language
+swap refetches details only (titles aren't localized). We identify via a
+`?client=` query param + named operations — a custom request header fails the
+CORS preflight (endpoint allows only Authorization/Content-Type/X-JWT-*), and
+`User-Agent` is a forbidden header anyway.

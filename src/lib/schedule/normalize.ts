@@ -6,11 +6,19 @@
  * file disagree, the data wins and this file changes — the fixture tests in
  * tests/normalize.test.ts are the tripwire.
  */
-import type { RawEvent, RawScheduleData } from "./schema";
-import type { Day, EventItem, EventKind, ScheduleData, Venue } from "./types";
+import type { RawDetailEvent, RawEvent, RawScheduleData } from "./schema";
+import type {
+  Day,
+  EventDetail,
+  EventItem,
+  EventKind,
+  ScheduleData,
+  Venue,
+} from "./types";
 import { VENUE_CONFIG, venueConfigFor } from "./venues.config";
 import { addMinutesIso, isoDate, minutesBetween } from "./time";
 import { programUrl } from "./event.config";
+import { pickLocalized, type Language } from "@/lib/i18n/language";
 
 /** Durations at or above this never enter the grid — they are the ongoing band. */
 export const ONGOING_THRESHOLD_MIN = 6 * 60;
@@ -104,7 +112,8 @@ function normalizeEvent(event: RawEvent): EventItem {
 
   // The occurrence title is the specific one ("ARTtech Seminars: Pixel Art")
   // while program.title is the generic umbrella ("ARTtech Seminaarit ja
-  // Workshop"), so the title is NOT localized — only the body copy is.
+  // Workshop"), so the title is NOT localized — only the body copy is, and
+  // the body copy is fetched on demand (see normalizeEventDetail).
   return {
     id: event.databaseId,
     title: decodeEntities(event.title),
@@ -119,11 +128,25 @@ function normalizeEvent(event: RawEvent): EventItem {
     categories: normalizeCategories(event),
     streamUrls: event.streamUrls ?? [],
     programId: event.programId ?? undefined,
-    excerptFi: stripHtml(program?.excerpt || "") || undefined,
-    excerptEn: stripHtml(translation?.excerpt || "") || undefined,
     sourceUrl: program ? programUrl(program.uri) : undefined,
     modified: event.modified,
   };
+}
+
+/**
+ * On-demand event body → the localized, HTML-stripped excerpt. FI reads
+ * `program.excerpt`; EN prefers `program.translation.excerpt` and falls back
+ * to the FI excerpt for `fiOnly` programs (via `pickLocalized`). A programless
+ * or empty body yields `excerpt: undefined`.
+ */
+export function normalizeEventDetail(
+  node: RawDetailEvent,
+  language: Language,
+): EventDetail {
+  const program = node.program ?? undefined;
+  const fi = stripHtml(program?.excerpt || "") || undefined;
+  const en = stripHtml(program?.translation?.excerpt || "") || undefined;
+  return { id: node.databaseId, excerpt: pickLocalized(language, { fi, en }) };
 }
 
 function normalizeDays(data: RawScheduleData): Day[] {

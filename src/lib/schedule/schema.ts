@@ -5,6 +5,13 @@
  * the contract. tests/smoke.api.test.ts runs them against the live endpoint;
  * everything else tests against tests/fixtures/summer26.raw.json.
  *
+ * Two payloads exist because the timeline is language-agnostic but event
+ * bodies are not: the LIST (scheduleListResponseSchema) carries everything the
+ * grid needs and is fetched once and polled; the DETAIL
+ * (eventDetailResponseSchema) carries the per-language excerpt only and is
+ * fetched on demand, batched by id. zod strips unknown keys, so the lean list
+ * schema happily parses a fuller fixture.
+ *
  * Measured quirks encoded here (summer26, verified 2026-07-30):
  * - `endTime` may be null OR the empty string (GraphQL null vs site JSON "").
  * - `programId` is a WPGraphQL global ID ("cG9zdDo2NDE="), not a number.
@@ -25,27 +32,25 @@ const gqlProgramCategorySchema = z.object({
   color: z.string().nullish(),
 });
 
-const gqlProgramSchema = z
+/**
+ * List program: no excerpt/content (the heavy, language-dependent body lives
+ * in the detail payload). `translation` keeps only its title — its mere
+ * presence is what drives the `fiOnly` chip.
+ */
+const gqlListProgramSchema = z
   .object({
     title: z.string(),
     slug: z.string(),
     uri: z.string(),
-    excerpt: z.string().nullish(),
-    content: z.string().nullish(),
     streams: z.array(z.string()).nullish(),
-    translation: z
-      .object({
-        title: z.string(),
-        excerpt: z.string().nullish(),
-      })
-      .nullish(),
+    translation: z.object({ title: z.string() }).nullish(),
     categories: z
       .object({ nodes: z.array(gqlProgramCategorySchema) })
       .nullish(),
   })
   .nullable();
 
-const gqlEventSchema = z.object({
+const gqlListEventSchema = z.object({
   databaseId: z.number(),
   title: z.string(),
   slug: z.string(),
@@ -55,11 +60,11 @@ const gqlEventSchema = z.object({
   programId: z.string().nullish(),
   modified: z.string(),
   locations: z.object({ nodes: z.array(gqlLocationSchema) }),
-  program: gqlProgramSchema,
+  program: gqlListProgramSchema,
 });
 
-export const scheduleResponseSchema = z.object({
-  calendarEvents: z.object({ nodes: z.array(gqlEventSchema) }),
+export const scheduleListResponseSchema = z.object({
+  calendarEvents: z.object({ nodes: z.array(gqlListEventSchema) }),
   locations: z.object({
     nodes: z.array(gqlLocationSchema.extend({ count: z.number().nullish() })),
   }),
@@ -81,12 +86,27 @@ export const scheduleResponseSchema = z.object({
   }),
 });
 
-export const snapshotSchema = z.object({
-  fetchedAt: z.string(),
-  source: z.string().optional(),
-  data: scheduleResponseSchema,
+/**
+ * Detail payload: the per-language excerpt for a batch of event ids. The FI
+ * excerpt lives on `program.excerpt`; the EN excerpt on
+ * `program.translation.excerpt` (only requested for the EN language, and kept
+ * alongside FI so a fiOnly event can fall back). Both are nullable — a
+ * programless event has `program: null`.
+ */
+const gqlDetailEventSchema = z.object({
+  databaseId: z.number(),
+  program: z
+    .object({
+      excerpt: z.string().nullish(),
+      translation: z.object({ excerpt: z.string().nullish() }).nullish(),
+    })
+    .nullable(),
 });
 
-export type RawScheduleData = z.infer<typeof scheduleResponseSchema>;
-export type RawEvent = z.infer<typeof gqlEventSchema>;
-export type ScheduleSnapshot = z.infer<typeof snapshotSchema>;
+export const eventDetailResponseSchema = z.object({
+  calendarEvents: z.object({ nodes: z.array(gqlDetailEventSchema) }),
+});
+
+export type RawScheduleData = z.infer<typeof scheduleListResponseSchema>;
+export type RawEvent = z.infer<typeof gqlListEventSchema>;
+export type RawDetailEvent = z.infer<typeof gqlDetailEventSchema>;

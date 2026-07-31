@@ -1,6 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { AssemblyMark } from "@/components/AssemblyMark";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -12,16 +18,19 @@ import { OtherVenues } from "@/components/schedule/OtherVenues";
 import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
 import { ScheduleLog } from "@/components/schedule/ScheduleLog";
 import { NextUp } from "@/components/schedule/NextUp";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useFavourites } from "@/hooks/use-favourites";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHelsinkiNow } from "@/hooks/use-helsinki-now";
 import { useNow } from "@/hooks/use-now";
 import { useLanguage } from "@/hooks/use-language";
-import { fetchLiveSchedule, getSnapshotSchedule } from "@/lib/api/assembly-graphql";
+import { useSchedule } from "@/hooks/use-schedule";
+import { usePrefetchDetails } from "@/hooks/use-event-detail";
+import { fetchScheduleListCached } from "@/lib/api/schedule-server";
 import { formatRelativeTime } from "@/lib/i18n/strings";
 import { nextUpFavourites } from "@/lib/schedule/favourites";
 import { scheduleDate, toScheduleTime } from "@/lib/schedule/time";
-import type { EventItem } from "@/lib/schedule/types";
+import type { ScheduleData, EventItem } from "@/lib/schedule/types";
 
 /** Most columns the responsive CSS can ever show (see .schedule-cols). */
 const MAX_GRID_COLUMNS = 8;
@@ -51,21 +60,79 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  // Fetch the timeline on the server (from the server-held cache) so the HTML
+  // ships with data — the page hydrates without a loading skeleton.
+  loader: () => fetchScheduleListCached(),
   component: AssyguidePage,
 });
 
-function AssyguidePage() {
-  // Snapshot paints instantly; the live endpoint refreshes stale-while-
-  // revalidate. On failure the snapshot silently stays (retry: 1).
-  const { data: schedule } = useQuery({
-    queryKey: ["schedule", "summer26"],
-    queryFn: ({ signal }) => fetchLiveSchedule(signal),
-    initialData: getSnapshotSchedule,
-    staleTime: 5 * 60_000,
-    retry: 1,
-  });
+/** Header chrome shared by every state, so the shell never flashes empty. */
+function Chrome({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex h-dvh flex-col">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-ink px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2">
+          <AssemblyMark size={24} />
+          <h1 className="truncate text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
+            Assembly Summer '26
+          </h1>
+        </div>
+        <LanguageToggle />
+      </header>
+      {children}
+    </div>
+  );
+}
 
+/**
+ * The route now fetches live on load — nothing is bundled — so it owns three
+ * states: loading skeleton, error+retry (no snapshot to fall back on), and the
+ * schedule itself. Schedule-dependent hooks live in ScheduleView so they only
+ * run once `schedule` exists.
+ */
+function AssyguidePage() {
+  const { t } = useLanguage();
+  // Seeded from the loader's server-cached data → not pending on first paint.
+  // The skeleton below only appears on the rare path where seed data is absent
+  // (e.g. a client-side navigation whose loader is still resolving).
+  const initial = Route.useLoaderData();
+  const query = useSchedule(initial);
+
+  if (query.isPending) {
+    return (
+      <Chrome>
+        <div className="min-h-0 flex-1 space-y-2 overflow-hidden p-3">
+          <span className="sr-only">{t.loading}</span>
+          {Array.from({ length: 12 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      </Chrome>
+    );
+  }
+
+  if (query.isError || !query.data) {
+    return (
+      <Chrome>
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
+          <p className="text-sm text-ink-mid">{t.loadFailed}</p>
+          <button
+            onClick={() => query.refetch()}
+            className="border-2 border-ink px-4 py-2 text-sm font-bold uppercase tracking-[0.06em] hover:bg-ink hover:text-paper"
+          >
+            {t.retry}
+          </button>
+        </div>
+      </Chrome>
+    );
+  }
+
+  return <ScheduleView schedule={query.data} />;
+}
+
+function ScheduleView({ schedule }: { schedule: ScheduleData }) {
   const { t, language } = useLanguage();
+  const prefetchDetails = usePrefetchDetails();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   // Schedule time: the day rolls over at 05:00, so 02:00 Saturday is still
@@ -107,6 +174,26 @@ function AssyguidePage() {
   const gridVenues = schedule.venues.slice(0, MAX_GRID_COLUMNS);
   const otherVenues = schedule.venues.slice(MAX_GRID_COLUMNS);
 
+  // Warm the detail cache for whatever day-sections are on screen, so a click
+  // is a cache hit instead of a spinner. Called 1 s after scrolling settles
+  // (below) and on the initial/​language-swap paint. React Query skips
+  // already-cached ids; the batch loader collapses the rest into one request.
+  const warmVisible = useCallback(() => {
+    const root = scrollRef.current;
+    if (!root) return;
+    const rootRect = root.getBoundingClientRect();
+    const ids: number[] = [];
+    for (const section of root.querySelectorAll<HTMLElement>("[data-day-id]")) {
+      const rect = section.getBoundingClientRect();
+      const onScreen = rect.bottom > rootRect.top && rect.top < rootRect.bottom;
+      if (!onScreen) continue;
+      const day = schedule.days.find((d) => d.id === section.dataset.dayId);
+      const events = day ? (eventsByDay.get(day.date) ?? []) : [];
+      for (const event of events) ids.push(event.id);
+    }
+    if (ids.length) prefetchDetails(ids, language);
+  }, [schedule.days, eventsByDay, prefetchDetails, language]);
+
   // Scroll-spy: the day tab follows the timeline instead of switching it.
   // A scroll listener (not IntersectionObserver) — IO only fires when a
   // threshold is crossed, so a smooth scroll could settle after the last
@@ -118,6 +205,7 @@ function AssyguidePage() {
       root.querySelectorAll<HTMLElement>("[data-day-id]"),
     );
     let frame = 0;
+    let idle = 0;
     const sync = () => {
       frame = 0;
       const top = root.getBoundingClientRect().top;
@@ -127,16 +215,27 @@ function AssyguidePage() {
       if (current?.dataset.dayId) setFocusedDay(current.dataset.dayId);
     };
     const onScroll = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(sync);
+      if (!frame) frame = requestAnimationFrame(sync);
+      // Debounce: warm details only once scrolling has been still for 1 s, so
+      // a fast fling past ten days doesn't fire ten prefetch batches.
+      if (idle) clearTimeout(idle);
+      idle = window.setTimeout(warmVisible, 1000);
     };
     root.addEventListener("scroll", onScroll, { passive: true });
     sync();
     return () => {
       root.removeEventListener("scroll", onScroll);
       if (frame) cancelAnimationFrame(frame);
+      if (idle) clearTimeout(idle);
     };
-  }, [schedule.days, isMobile]);
+  }, [schedule.days, isMobile, warmVisible]);
+
+  // Warm the first screen on load and re-warm the current view after a
+  // language swap (details are cached per language).
+  useEffect(() => {
+    const timer = window.setTimeout(warmVisible, 300);
+    return () => clearTimeout(timer);
+  }, [warmVisible]);
 
 
   const scrollToDay = (dayId: string) => {

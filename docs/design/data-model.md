@@ -55,12 +55,15 @@ EventItem = {
   estimated: boolean            // render times with ≈
   kind: "session" | "ongoing" | "moment" | "deadline" | "jury"
   categories: string[]          // de-suffixed, never empty
-  streamUrls: string[]
+  streamUrls: string[]          // presence drives the grid "●" marker
   programId?: string
-  excerpt?: string              // HTML-stripped, EN preferred
   sourceUrl?: string
   modified: string
 }
+
+// Fetched on demand per (id, language), NOT part of the list item — the body
+// is the only language-dependent thing the UI shows (see Freshness).
+EventDetail = { id: number, excerpt?: string }   // HTML-stripped, EN preferred
 
 Venue = { slug, name, short, order, tier: "grid" | "other", eventCount }
 Day   = { id: "thu"|"fri"|"sat"|"sun", date, label }  // derived from eventSettings
@@ -76,8 +79,24 @@ timezone; attendees arrive from abroad. The verified day window is
 
 ## Freshness
 
-Committed snapshot (`src/data/schedule-summer26.snapshot.json`) paints
-instantly and works offline; runtime refresh is stale-while-revalidate with
-a 5-minute stale time. On any failure the snapshot silently stays. The
-footer stamp (`fetchedAt`) says which one you're looking at. Schema drift is
-caught by `bun run test:smoke` against the live endpoint.
+Nothing is bundled — the page opens on a loading skeleton and fetches live
+(`src/lib/api/schedule-client.ts`). Two payloads, because the timeline is
+language-agnostic but bodies are not:
+
+- **List** — the lean, language-independent timeline (`SCHEDULE_LIST_QUERY`).
+  Fetched once and polled every 60 s while the tab is focused (React Query
+  `staleTime`/`refetchInterval` in `use-schedule.ts`). Footer stamp is
+  `fetchedAt`. On failure there is no snapshot to fall back on, so the route
+  shows an error + retry.
+- **Detail** — the per-`(id, language)` excerpt, fetched on demand when a sheet
+  opens and prefetched for the visible range 1 s after scrolling settles
+  (`use-event-detail.ts`). Cached for 1 h. Concurrent fetches (a click plus a
+  whole-day warm) collapse into a single batched `calendarEvents(where:{in:…})`
+  request via the coalescing loader (`batch-loader.ts`, unit-tested).
+
+Occurrence titles are **not** localized, so swapping language refetches details
+only, never the list. We identify ourselves CORS-safely — a `?client=` query
+param plus named GraphQL operations; a custom request header is impossible
+because the endpoint's `Access-Control-Allow-Headers` allows only
+Authorization/Content-Type/X-JWT-*. Schema drift in either payload is caught by
+`bun run test:smoke` against the live endpoint.

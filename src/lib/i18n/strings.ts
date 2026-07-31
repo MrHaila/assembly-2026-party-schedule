@@ -32,8 +32,9 @@ export interface Strings {
   noFavourites: string;
   liveNow: string;
   atLocation: string;
-
-
+  loading: string;
+  loadFailed: string;
+  retry: string;
 }
 
 const FI: Strings = {
@@ -61,7 +62,9 @@ const FI: Strings = {
   noFavourites: "Merkitse tapahtumia tähdellä nähdäksesi ne täällä",
   liveNow: "Käynnissä",
   atLocation: "paikassa",
-
+  loading: "Ladataan ohjelmaa…",
+  loadFailed: "Ohjelman lataus epäonnistui.",
+  retry: "Yritä uudelleen",
 };
 
 const EN: Strings = {
@@ -89,7 +92,9 @@ const EN: Strings = {
   noFavourites: "Star events to see them here",
   liveNow: "Live now",
   atLocation: "at",
-
+  loading: "Loading the schedule…",
+  loadFailed: "The schedule failed to load.",
+  retry: "Try again",
 };
 
 const DICTIONARIES: Record<Language, Strings> = { fi: FI, en: EN };

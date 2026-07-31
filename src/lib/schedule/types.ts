@@ -38,14 +38,22 @@ export interface EventItem {
   streamUrls: string[];
   /** WPGraphQL global ID (opaque base64 string — NOT numeric). */
   programId?: string;
-  /** Finnish program excerpt, HTML stripped. */
-  excerptFi?: string;
-  /** English program excerpt, HTML stripped. Absent for FI-only programs. */
-  excerptEn?: string;
   /** Absolute link back to the official program page. */
   sourceUrl?: string;
   /** Helsinki-local timestamp without offset, as the API ships it. */
   modified: string;
+}
+
+/**
+ * On-demand event body, fetched per (event, language) and cached separately
+ * from the timeline. The excerpt is the only language-dependent field the UI
+ * renders, so the list stays language-agnostic and this is loaded lazily.
+ */
+export interface EventDetail {
+  /** CalendarEvent.databaseId — matches EventItem.id. */
+  id: number;
+  /** Localized program excerpt, HTML stripped. Absent when the body is empty. */
+  excerpt?: string;
 }
 
 export interface Venue {

@@ -1,35 +1,49 @@
 /**
  * Live schema-shape smoke test. The endpoint is undocumented and can change
  * without notice — this test fails loudly when it does, instead of letting
- * the app degrade silently.
+ * the app degrade silently. Covers BOTH payloads: the polled list and the
+ * on-demand detail batch.
  *
  * Opt-in (never runs in the normal suite, never in CI unless wired):
  *   RUN_API_SMOKE=1 bun run test:smoke
  */
 import { describe, expect, it } from "vitest";
-import { GRAPHQL_ENDPOINT, SCHEDULE_QUERY } from "@/lib/api/assembly-graphql";
-import { scheduleResponseSchema } from "@/lib/schedule/schema";
+import {
+  SCHEDULE_LIST_QUERY,
+  detailQuery,
+  graphqlFetch,
+} from "@/lib/api/schedule-client";
+import {
+  eventDetailResponseSchema,
+  scheduleListResponseSchema,
+} from "@/lib/schedule/schema";
 
 const RUN = process.env.RUN_API_SMOKE === "1";
 
 describe.skipIf(!RUN)("live Assembly API smoke test", () => {
-  it("keeps the shape the app depends on", async () => {
-    const res = await fetch(GRAPHQL_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: SCHEDULE_QUERY }),
-      signal: AbortSignal.timeout(20_000),
-    });
-    expect(res.ok).toBe(true);
-    const json = await res.json();
-    expect(json.errors).toBeUndefined();
-
-    // zod parse IS the 12-field assertion: startTime/endTime/streamUrls/
-    // programId/modified/locations/program(+translation,categories)/eventSettings
-    // are all required by the schema and absent fields throw here.
-    const parsed = scheduleResponseSchema.parse(json.data);
+  it("keeps the list shape the timeline depends on", async () => {
+    // graphqlFetch is the real client path (query param, no forbidden header),
+    // so this also proves the request survives the browser's CORS preflight.
+    const data = await graphqlFetch(
+      SCHEDULE_LIST_QUERY,
+      AbortSignal.timeout(20_000),
+    );
+    const parsed = scheduleListResponseSchema.parse(data);
     expect(parsed.calendarEvents.nodes.length).toBeGreaterThan(150);
     expect(parsed.locations.nodes.length).toBeGreaterThanOrEqual(10);
     expect(parsed.generalSettings.timezone).toBe("Europe/Helsinki");
   }, 30_000);
+
+  it("keeps the detail batch shape (both languages)", async () => {
+    const list = scheduleListResponseSchema.parse(
+      await graphqlFetch(SCHEDULE_LIST_QUERY, AbortSignal.timeout(20_000)),
+    );
+    const ids = list.calendarEvents.nodes.slice(0, 5).map((n) => n.databaseId);
+
+    for (const lang of ["fi", "en"] as const) {
+      const data = await graphqlFetch(detailQuery(ids, lang));
+      const parsed = eventDetailResponseSchema.parse(data);
+      expect(parsed.calendarEvents.nodes.length).toBeGreaterThan(0);
+    }
+  }, 45_000);
 });

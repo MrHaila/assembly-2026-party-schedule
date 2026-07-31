@@ -1,10 +1,11 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useFavourites } from "@/hooks/use-favourites";
 import { useLanguage } from "@/hooks/use-language";
-import { pickLocalized } from "@/lib/i18n/language";
+import { useEventDetail } from "@/hooks/use-event-detail";
 import { formatTimeRange } from "@/lib/schedule/time";
 import type { EventItem, Venue } from "@/lib/schedule/types";
 import { ActionButton, ActionLink } from "@/components/ui/ActionButton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FavouriteStar } from "./FavouriteStar";
 
 
@@ -52,10 +53,9 @@ function SheetBody({
 }) {
   const { language, t } = useLanguage();
   const { isFavourite, toggle } = useFavourites();
-  const excerpt = pickLocalized(language, {
-    fi: event.excerptFi,
-    en: event.excerptEn,
-  });
+  // The body is the only field not in the list item — load it on demand.
+  // Everything else below renders instantly from `event`.
+  const detail = useEventDetail(event.id, language);
   const venue = venueById.get(event.venueId);
   const secondary = event.venueIdSecondary
     ? venueById.get(event.venueIdSecondary)
@@ -107,10 +107,18 @@ function SheetBody({
         </div>
       </dl>
 
-      {excerpt && (
-        <p className="mt-3 border-t border-rule pt-3 text-[14px] leading-relaxed">
-          {excerpt}
-        </p>
+      {detail.isPending ? (
+        <div className="mt-3 space-y-2 border-t border-rule pt-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-11/12" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+      ) : (
+        detail.data?.excerpt && (
+          <p className="mt-3 border-t border-rule pt-3 text-[14px] leading-relaxed">
+            {detail.data.excerpt}
+          </p>
+        )
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
