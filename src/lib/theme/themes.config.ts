@@ -1,4 +1,5 @@
 import modernShot from "@/assets/theme-modern.jpg.asset.json";
+import kuakeShot from "@/assets/theme-kuake.jpg.asset.json";
 import type { Theme } from "@/lib/theme/theme";
 
 /**
