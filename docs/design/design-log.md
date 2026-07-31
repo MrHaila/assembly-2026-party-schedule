@@ -320,3 +320,21 @@ viewport.
 - Favourite background star nudged left (`right-[-6%]`) so more of the
   silhouette reads inside the block.
 - `GITHUB_REPO_URL` set to the real repository.
+
+
+## Entry #24 — The now indicator is unconditional
+
+The red current-time marker must never disappear. `resolveNowPlacement()`
+(`src/lib/schedule/now-placement.ts`) picks exactly one home for it per render:
+
+- `inside` — the clock is within a day's computed window: the familiar red
+  rule in the grid (or between rows in the mobile log).
+- `before` — the day has not started yet (including before the whole weekend
+  and the dead gap between two days): a full-width `NowRail` band directly
+  above that day's inline heading.
+- `after` — the last day is over: the same band at the very bottom of the
+  last day's section, under "Other locations".
+
+Only one element ever carries `data-now-marker`, so the initial
+scroll-to-now landing keeps working unchanged. Copy lives in the i18n
+dictionary (`nowBeforeDay`, `nowAfterEvent`).

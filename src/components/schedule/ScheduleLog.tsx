@@ -16,6 +16,8 @@ interface ScheduleLogProps {
   venueById: ReadonlyMap<string, Venue>;
   /** Schedule-time now: date is the schedule day, minutes are day minutes. */
   now: { date: string; minutes: number } | null;
+  /** The page decides which day owns the single now-marker. */
+  showNowMarker: boolean;
   onOpen: (event: EventItem) => void;
 }
 
@@ -28,6 +30,7 @@ export function ScheduleLog({
   events,
   venueById,
   now,
+  showNowMarker,
   onOpen,
 }: ScheduleLogProps) {
   const { t } = useLanguage();
@@ -35,6 +38,7 @@ export function ScheduleLog({
   const entries = events.filter((e) => e.kind !== "ongoing");
   const win = useMemo(() => computeDayWindow(events), [events]);
   const showNow =
+    showNowMarker &&
     !!now &&
     now.date === day.date &&
     now.minutes >= win.startMin &&

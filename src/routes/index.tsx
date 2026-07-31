@@ -10,6 +10,7 @@ import { DetailSheet } from "@/components/schedule/DetailSheet";
 
 import { OtherVenues } from "@/components/schedule/OtherVenues";
 import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
+import { NowRail } from "@/components/schedule/NowRail";
 import { ScheduleLog } from "@/components/schedule/ScheduleLog";
 import { NextUp } from "@/components/schedule/NextUp";
 import { useFavourites } from "@/hooks/use-favourites";
@@ -20,7 +21,8 @@ import { useLanguage } from "@/hooks/use-language";
 import { fetchLiveSchedule, getSnapshotSchedule } from "@/lib/api/assembly-graphql";
 import { formatRelativeTime } from "@/lib/i18n/strings";
 import { nextUpFavourites } from "@/lib/schedule/favourites";
-import { scheduleDate, toScheduleTime } from "@/lib/schedule/time";
+import { resolveNowPlacement } from "@/lib/schedule/now-placement";
+import { computeDayWindow, scheduleDate, toScheduleTime } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
 
 /** Most columns the responsive CSS can ever show (see .schedule-cols). */
@@ -95,6 +97,19 @@ function AssyguidePage() {
     }
     return map;
   }, [schedule.events, schedule.days]);
+
+  // One marker, always: inside a day, above the next day, or after the last.
+  const dayWindows = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof computeDayWindow>>();
+    for (const day of schedule.days) {
+      map.set(day.date, computeDayWindow(eventsByDay.get(day.date) ?? []));
+    }
+    return map;
+  }, [schedule.days, eventsByDay]);
+  const placement = useMemo(
+    () => resolveNowPlacement(schedule.days, dayWindows, now),
+    [schedule.days, dayWindows, now],
+  );
 
   const venueById = useMemo(
     () => new Map(schedule.venues.map((v) => [v.slug, v] as const)),
@@ -211,6 +226,9 @@ function AssyguidePage() {
           const dayEvents = eventsByDay.get(day.date) ?? [];
           return (
             <section key={day.id} data-day-id={day.id}>
+              {placement?.kind === "before" && placement.dayId === day.id && (
+                <NowRail minutes={now!.minutes} variant="before" />
+              )}
               <DayHeading
                 day={day}
                 ongoing={dayEvents.filter((e) => e.kind === "ongoing")}
@@ -222,6 +240,9 @@ function AssyguidePage() {
                   events={dayEvents}
                   venueById={venueById}
                   now={now}
+                  showNowMarker={
+                    placement?.kind === "inside" && placement.dayId === day.id
+                  }
                   onOpen={setSelected}
                 />
               ) : (
@@ -231,6 +252,9 @@ function AssyguidePage() {
                     venues={gridVenues}
                     events={dayEvents}
                     now={now}
+                    showNowMarker={
+                      placement?.kind === "inside" && placement.dayId === day.id
+                    }
                     onOpen={setSelected}
                   />
                   <OtherVenues
@@ -240,6 +264,9 @@ function AssyguidePage() {
                     onOpen={setSelected}
                   />
                 </>
+              )}
+              {placement?.kind === "after" && placement.dayId === day.id && (
+                <NowRail minutes={now!.minutes} variant="after" />
               )}
             </section>
           );

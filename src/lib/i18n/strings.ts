@@ -13,6 +13,8 @@ export interface Strings {
   allDay: string;
   otherLocations: string;
   now: string;
+  nowBeforeDay: string;
+  nowAfterEvent: string;
   estimated: string;
   lastUpdated: string;
   events: string;
@@ -42,6 +44,8 @@ const FI: Strings = {
   allDay: "Koko päivän",
   otherLocations: "Muut sijainnit",
   now: "Nyt",
+  nowBeforeDay: "Päivä ei ole vielä alkanut",
+  nowAfterEvent: "Tapahtuma on päättynyt",
   estimated: "arvio",
   lastUpdated: "Päivitetty viimeksi",
   events: "tapahtumaa",
@@ -70,6 +74,8 @@ const EN: Strings = {
   allDay: "All day",
   otherLocations: "Other locations",
   now: "Now",
+  nowBeforeDay: "Day has not started yet",
+  nowAfterEvent: "Event has ended",
   estimated: "estimated",
   lastUpdated: "Last updated",
   events: "events",

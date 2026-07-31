@@ -19,6 +19,8 @@ interface ScheduleGridProps {
   events: readonly EventItem[];
   /** Schedule-time now: date is the schedule day, minutes are day minutes. */
   now: { date: string; minutes: number } | null;
+  /** The page decides which day owns the single now-marker. */
+  showNowMarker: boolean;
   onOpen: (event: EventItem) => void;
 }
 
@@ -34,6 +36,7 @@ export function ScheduleGrid({
   venues,
   events,
   now,
+  showNowMarker,
   onOpen,
 }: ScheduleGridProps) {
   const { isFavourite, toggle } = useFavourites();
@@ -47,6 +50,7 @@ export function ScheduleGrid({
   const length = win.endMin - win.startMin;
 
   const showNow =
+    showNowMarker &&
     !!now &&
     now.date === day.date &&
     now.minutes >= win.startMin &&
