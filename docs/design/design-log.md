@@ -355,3 +355,25 @@ Every event surface carries a thick (3px) left bar drawn by one component,
 - Multiple categories stack evenly, top to bottom, capped at four segments.
 - Gold is reserved for favourites: a favourited event collapses the bar to a
   single gold segment, overriding category colour everywhere.
+
+
+## Entry #26 — Event type filters
+
+A `FILTERS` header button (left of the language switch) expands a drawer with
+every event type in the feed as a coloured badge, split into two labelled,
+wrapping rows: `SHOWING` and `HIDING`. Clicking a badge moves it between them.
+
+- Subtractive model: the visitor hides types, never selects them. An empty
+  stored set means "show everything", so new categories from the feed are
+  visible by default. Persisted in `localStorage`
+  (`assyguide.hiddenCategories`), applied in an effect to avoid a hydration
+  mismatch.
+- An event only disappears when *every* one of its categories is hidden — a
+  multi-category event stays as long as one of its types is still shown.
+- `<CategoryBar />` draws only the *visible* swatches, so filtering also cuts
+  colour noise. Gold still overrides everything for favourites.
+- Locations are re-ranked from the visible events (`rankVenues()`, the same
+  pure helper `normalize.ts` uses), so filtering genuinely reshapes which
+  locations earn grid columns and which fall into "Other locations".
+- Day sections, the all-day band, "Next up" and the footer tally all read the
+  same filtered set — no view may filter on its own.
