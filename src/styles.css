@@ -213,18 +213,20 @@
 
 /* Text-level press feedback for run-on list links and tabs: hover brighter
    than default, active darker. Applied by the .press utility so no component
-   can invent its own interaction colours. */
+   can invent its own interaction colours. On dark, "brighter" is a warm
+   marker wash and "darker" a thin ink veil — same direction, less glare. */
 @utility press {
   transition: background-color 90ms linear;
 
   &:hover {
-    background-color: color-mix(in oklab, var(--marker) 45%, transparent);
+    background-color: color-mix(in oklab, var(--marker) 32%, transparent);
   }
 
   &:active {
-    background-color: color-mix(in oklab, var(--rule) 90%, var(--ink) 10%);
+    background-color: color-mix(in oklab, var(--marker) 12%, transparent);
   }
 }
+
 
 /* Press contract for the favourite star: muted by default, gold once set.
    Lives here so no component can invent its own gold. */
