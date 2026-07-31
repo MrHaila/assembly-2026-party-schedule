@@ -22,6 +22,8 @@ import { nowHelsinkiIso } from "@/lib/schedule/time";
 import type { EventDetail, ScheduleData } from "@/lib/schedule/types";
 import type { Language } from "@/lib/i18n/language";
 import { createBatchLoader, type BatchLoader } from "./batch-loader";
+import { fetchSceneNews } from "./news-client";
+import { mergeNewsIntoSchedule } from "@/lib/schedule/news";
 
 export const GRAPHQL_ENDPOINT = "https://wp.assembly.org/summer26/graphql";
 
@@ -93,9 +95,15 @@ export async function graphqlFetch(
 export async function fetchScheduleList(
   signal?: AbortSignal,
 ): Promise<ScheduleData> {
-  const data = await graphqlFetch(SCHEDULE_LIST_QUERY, signal);
+  const [data, news] = await Promise.all([
+    graphqlFetch(SCHEDULE_LIST_QUERY, signal),
+    fetchSceneNews(signal),
+  ]);
   const parsed = scheduleListResponseSchema.parse(data);
-  return normalizeSchedule(parsed, nowHelsinkiIso());
+  return mergeNewsIntoSchedule(
+    normalizeSchedule(parsed, nowHelsinkiIso()),
+    news,
+  );
 }
 
 // ── Server-held cache ──────────────────────────────────────────────────────
