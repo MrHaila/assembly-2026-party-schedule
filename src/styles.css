@@ -284,7 +284,7 @@
    one prominent gold edge on the left. The stronger wash lets the muted
    oversized star mark sit behind the text as a background texture. */
 @utility event-favourite {
-  border-left: 3px solid var(--gold);
+  /* The left edge itself is drawn by <CategoryBar />. */
   background-color: var(--event-favourite-grid);
 
   /* Doubled specificity so this wins over live-stripes' own default. */
