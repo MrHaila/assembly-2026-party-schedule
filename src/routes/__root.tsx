@@ -113,6 +113,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap",
       },
+      // KUAKE theme faces. Loaded up front (they are tiny bitmap-style
+      // fonts) so switching themes never flashes a fallback.
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=VT323&family=Silkscreen:wght@400;700&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
