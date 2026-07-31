@@ -13,6 +13,8 @@ export interface Strings {
   allDay: string;
   otherLocations: string;
   now: string;
+  nowBeforeDay: string;
+  nowAfterEvent: string;
   estimated: string;
   lastUpdated: string;
   events: string;
