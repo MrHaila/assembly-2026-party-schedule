@@ -34,25 +34,23 @@ export function NextUp({ entries, venueById, onOpen }: NextUpProps) {
   const lineTwo = (entry: NextUpEntry) =>
     `${entry.live ? t.liveNow : formatCountdown(language, entry.minutesUntil)} ${t.atLocation} ${venueOf(entry.event)}`;
 
-  const thenLine = second
-    ? `${t.thenAfter}: ${second.event.title} ${
-        second.live
-          ? t.liveNow
-          : formatCountdown(language, second.minutesUntil)
-      }`
+  const thenTiming = second
+    ? second.live
+      ? t.liveNow
+      : formatCountdown(language, second.minutesUntil)
     : null;
 
 
 
   return (
-    <div className="border-b-2 border-ink bg-paper">
+    <div className="border-b-2 border-gold/70">
       <button
         type="button"
         onClick={() => onOpen(first.event)}
-        className="press block w-full px-3 py-1.5 text-left"
+        className="event-favourite block w-full border-0 px-3 py-1.5 text-left"
       >
         <span className="flex min-w-0 items-baseline gap-2">
-          <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-ink-mid">
+          <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-gold">
             {t.nextUp}
           </span>
           <span className="min-w-0 flex-1 truncate text-[16px] font-bold leading-tight">
@@ -68,11 +66,22 @@ export function NextUp({ entries, venueById, onOpen }: NextUpProps) {
         <button
           type="button"
           onClick={() => onOpen(second.event)}
-          className="press tnum block w-full truncate border-t border-rule px-3 py-1 text-left text-[10px] uppercase tracking-[0.05em] text-ink-mid"
+          className="event-favourite block w-full border-x-0 border-b-0 border-t px-3 py-1 text-left"
         >
-          {thenLine}
+          <span className="flex min-w-0 items-baseline gap-2">
+            <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-gold">
+              {t.thenAfter}
+            </span>
+            <span className="min-w-0 truncate text-[12px] font-semibold leading-tight">
+              {second.event.title}
+            </span>
+            <span className="tnum shrink-0 text-[10px] uppercase tracking-[0.05em] text-ink-mid">
+              {thenTiming}
+            </span>
+          </span>
         </button>
       )}
     </div>
   );
 }
+

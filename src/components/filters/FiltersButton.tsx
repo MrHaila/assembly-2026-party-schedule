@@ -20,7 +20,7 @@ export function FiltersButton({ open, onToggle }: FiltersButtonProps) {
       type="button"
       aria-expanded={open}
       onClick={onToggle}
-      className={`flex shrink-0 items-center gap-1.5 border border-ink px-2.5 py-1 text-[12px] font-semibold uppercase tracking-[0.06em] transition-colors duration-100 ${
+      className={`flex shrink-0 items-center gap-1.5 border border-strong px-2.5 py-1 text-[12px] font-semibold uppercase tracking-[0.06em] transition-colors duration-100 ${
         open ? "bg-ink text-paper" : "press bg-paper text-ink"
       }`}
     >

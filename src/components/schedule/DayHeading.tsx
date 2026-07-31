@@ -23,13 +23,13 @@ export function DayHeading({ day, ongoing, onOpen }: DayHeadingProps) {
   const { language, t } = useLanguage();
   return (
     <>
-      <div className="sticky top-0 z-40 flex h-[var(--day-head-h)] items-center border-y-2 border-ink bg-ink px-3 text-paper">
+      <div className="sticky top-0 z-40 flex h-[var(--day-head-h)] items-center border-t-2 border-b border-strong bg-band px-3 text-ink">
         <h2 className="text-[13px] font-bold uppercase tracking-[0.1em]">
           {dayLabel(day, language)}
         </h2>
       </div>
       {ongoing.length > 0 && (
-        <p className="border-b-2 border-ink bg-ink px-3 pb-1 text-[12px] leading-[1.5] text-paper">
+        <p className="border-b-2 border-strong bg-band px-3 pt-1.5 pb-1 text-[12px] leading-[1.5] text-ink">
           <span className="font-bold uppercase tracking-[0.06em]">
             {t.allDay} ▸{" "}
           </span>
@@ -39,7 +39,8 @@ export function DayHeading({ day, ongoing, onOpen }: DayHeadingProps) {
               <button
                 type="button"
                 onClick={() => onOpen(event)}
-                className="press-invert rounded-none px-0.5 py-0.5 font-medium underline decoration-paper/50 underline-offset-2 hover:decoration-paper"
+                className="press rounded-none px-0.5 py-0.5 font-medium underline decoration-ink-mid underline-offset-2 hover:decoration-ink"
+
               >
                 {event.title}{" "}
                 <span className="tnum opacity-70">

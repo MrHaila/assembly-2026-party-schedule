@@ -61,7 +61,7 @@ export function ScheduleGrid({
       {/* Sticky location headers — shares .schedule-cols with the body so the
           two grids stay column-aligned. They park under the sticky day
           heading (--day-head-h), never on top of it. */}
-      <div className="schedule-cols sticky top-[var(--day-head-h)] z-30 grid border-b-2 border-ink bg-paper">
+      <div className="schedule-cols sticky top-[var(--day-head-h)] z-30 grid border-b-2 border-strong bg-band">
         <div className="border-r border-rule" />
         {venues.map((venue, colIdx) => (
           <div
@@ -82,7 +82,7 @@ export function ScheduleGrid({
             ticks, so the hairline still reads across to the page edge even
             though the rules over the columns sit BEHIND the event blocks. */}
         <div
-          className="sticky left-0 z-20 border-r border-rule bg-paper"
+          className="sticky left-0 z-20 bg-paper relative"
           style={{ gridColumn: 1, gridRow: "1 / -1" }}
         >
           {win.hours.map((h) => (
@@ -175,7 +175,7 @@ export function ScheduleGrid({
               gridRow: slotIndexFor(moment.start, win) + 1,
             }}
           >
-            <span className="press relative -top-[7px] ml-1 inline-block max-w-full truncate border border-ink/50 bg-paper px-1 text-[10.5px] font-semibold uppercase tracking-[0.04em]">
+            <span className="press relative -top-[7px] ml-1 inline-block max-w-full truncate border border-strong bg-paper px-1 text-[10.5px] font-semibold uppercase tracking-[0.04em]">
               ◆ <span className="tnum">{formatTime(moment.start)}</span>{" "}
               {moment.title}
             </span>

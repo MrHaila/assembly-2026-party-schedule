@@ -26,7 +26,7 @@ style passthrough — so styling can only drift in one file at a time.
 
 ## #2 — 2026-07-30 — Fetch strategy: snapshot + live refresh
 
-> **Superseded by #28.** The bundled snapshot shipped 2 MB and, combined with
+> **Superseded by #31.** The bundled snapshot shipped 2 MB and, combined with
 > `initialData` + a 5-min `staleTime`, the "live refresh" never fired on load —
 > short sessions only ever saw build-time data.
 
@@ -390,7 +390,52 @@ wrapping rows: `SHOWING` and `HIDING`. Clicking a badge moves it between them.
   labelled tick *inside their own location column* instead of a band across
   the whole grid — an EXPO opening must never read as a Main Stage event.
 
-## Entry #28 — Data loading: live list + on-demand details + server cache (supersedes #2)
+## 28. Dark theme: brightness is importance
+
+- The product is used in a dark hall, so the palette is permanently dark.
+  There is no light mode and no `.dark` class toggle — the tokens in
+  `:root` *are* the dark theme.
+- One rule governs every surface: **darker = less important, lighter = more
+  important.** Four steps, all defined in `src/styles.css`:
+  - `--paper` — the page itself, the darkest thing on screen.
+  - `--band` — sticky chrome one step up (header, filter panel, "Next up",
+    day headings, location header row, "Other locations", footer). Opaque so
+    scrolling content never bleeds through.
+  - `--event` — event tiles, a translucent *light* overlay so the hour rules
+    still read faintly through them (the frosted-glass contract of #7/#9
+    survives the inversion; only the direction of the tint flipped).
+  - `--surface` — the detail sheet, the brightest surface, over `--scrim`.
+- `--ink` / `--ink-mid` / `--rule` are inverted rather than re-invented, so
+  every existing component keeps its semantics.
+- `border-ink` is gone: structural lines now use `--strong`, a muted
+  near-white that separates without the glare of a pure white hairline.
+- Gold (favourites), the red spot ink (now marker) and the 12-swatch category
+  palette (#22, #25) were each re-tuned for a dark ground — same hues and
+  same meanings, higher lightness so they survive on near-black.
+
+## 29. Event tiles are opaque (supersedes the frosted-glass rule)
+
+- Hour rules no longer show through event blocks. `--event` / `--event-hover`
+  / `--event-active` are opaque `color-mix()` results over `--paper` instead
+  of translucent overlays, so a tile fully covers the hairline behind it.
+- The gutter's hour ticks are now scoped to the gutter (it is `relative`), so
+  they still read from the page edge to the first column but never paint over
+  the columns from the sticky layer above the blocks.
+- The rules keep structuring the *empty* grid; the moment a block occupies a
+  slot, the block owns those pixels.
+
+## 30. Gold is a surface, not a hint
+
+- A favourited grid block no longer shares the neutral event surface: the
+  `event-favourite` utility owns the whole surface contract — gold wash, gold
+  border, and its own hover/active pair. The neutral `bg-event` classes are
+  not applied at all when a block is starred, so there is no ordering race
+  between the two.
+- The "Next up" board is styled as a favourite, because that is exactly what
+  it lists: the same gold wash, gold border and gold "NEXT UP" label. It
+  reads as the most prominent band on the page.
+
+## Entry #31 — Data loading: live list + on-demand details + server cache (supersedes #2)
 
 **Decision.** Nothing is bundled. Two payloads, split on the measured fact
 that the timeline is language-agnostic but bodies are not:

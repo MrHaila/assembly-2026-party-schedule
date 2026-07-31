@@ -74,7 +74,7 @@ export const Route = createFileRoute("/")({
 function Chrome({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-dvh flex-col">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-ink px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
         <div className="flex min-w-0 items-center gap-2">
           <AssemblyMark size={24} />
           <h1 className="truncate text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
@@ -119,7 +119,7 @@ function AssyguidePage() {
           <p className="text-sm text-ink-mid">{t.loadFailed}</p>
           <button
             onClick={() => query.refetch()}
-            className="border-2 border-ink px-4 py-2 text-sm font-bold uppercase tracking-[0.06em] hover:bg-ink hover:text-paper"
+            className="border-2 border-strong px-4 py-2 text-sm font-bold uppercase tracking-[0.06em] hover:bg-ink hover:text-paper"
           >
             {t.retry}
           </button>
@@ -329,7 +329,7 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-ink px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
         <div className="flex min-w-0 items-center gap-2">
           <AssemblyMark size={24} />
           <h1 className="truncate text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
@@ -408,7 +408,7 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
         <SiteFooter />
       </div>
 
-      <footer className="border-t border-rule bg-paper text-ink-mid">
+      <footer className="border-t border-rule bg-band text-ink-mid">
         <div className="px-3 py-1 text-[10px] uppercase tracking-[0.05em]">
           {t.lastUpdated}{" "}
           {nowFooter

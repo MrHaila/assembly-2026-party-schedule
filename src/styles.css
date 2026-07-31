@@ -60,9 +60,13 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-paper: var(--paper);
+  --color-band: var(--band);
+  --color-surface: var(--surface);
+  --color-scrim: var(--scrim);
   --color-ink: var(--ink);
   --color-ink-mid: var(--ink-mid);
   --color-rule: var(--rule);
+  --color-strong: var(--strong);
   --color-spot: var(--spot);
   --color-marker: var(--marker);
   --color-event: var(--event);
@@ -70,6 +74,7 @@
   --color-event-active: var(--event-active);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
+
   --color-event-favourite: var(--event-favourite);
   --color-cat-vermillion: var(--cat-vermillion);
   --color-cat-orange: var(--cat-orange);
@@ -90,46 +95,59 @@
 
 :root {
   --radius: 0.625rem;
-  /* ASSYGUIDE newsprint tokens (docs/design/design-log.md #1).
-     Newsprint grey-tan, not luxury cream; one spot ink like 2-colour print. */
-  --paper: oklch(0.922 0.013 98);
-  --ink: oklch(0.206 0.008 90);
-  --ink-mid: oklch(0.443 0.016 90);
-  --rule: oklch(0.814 0.019 98);
-  --spot: oklch(0.548 0.236 27.5);
-  --marker: oklch(0.905 0.192 100);
-  /* Event surfaces: lighter than the page so blocks read as tiles, and
-     translucent so the hour rules stay faintly visible through them like
-     frosted glass — the rules paint BEHIND the blocks (design-log #7, #9).
+  /* ASSYGUIDE dark tokens (docs/design/design-log.md #28).
+     Dark LAN-hall theme. Brightness == importance: the page is the darkest
+     thing on screen, chrome bands sit one step up, event tiles clearly lift
+     off the page, and the detail sheet is the brightest surface. */
+  --paper: oklch(0.165 0.008 265);
+  --band: oklch(0.212 0.009 265);
+  --surface: oklch(0.238 0.009 265);
+  --scrim: oklch(0.1 0.01 265 / 0.7);
+  --ink: oklch(0.955 0.004 265);
+  --ink-mid: oklch(0.702 0.012 265);
+  --rule: oklch(0.328 0.01 265);
+  /* Heavy separators: the printed 2px "ink" rule, muted for dark so it
+     structures the page without glaring. */
+  --strong: oklch(0.455 0.012 265);
+  --spot: oklch(0.655 0.21 27.5);
+  --marker: oklch(0.72 0.1 95);
+  /* Event surfaces: an OPAQUE lighter layer over the page. Tiles sit fully on
+     top of the hour rules — the rules structure the empty grid, never the
+     blocks (design-log #29 supersedes the frosted-glass idea of #7, #9).
      Hover brighter, active darker — always both. */
-  --event: oklch(0.985 0.01 98 / 0.84);
-  --event-hover: oklch(1 0.008 98 / 0.92);
-  --event-active: oklch(0.855 0.016 98 / 0.96);
-  /* Favourites: a second, warmer accent that never competes with the red
-     spot ink — gold reads as "mine" on newsprint (design-log #17). */
-  --gold: oklch(0.62 0.13 82);
-  --gold-soft: oklch(0.72 0.09 82);
-  /* One faint gold wash shared by run-on list and mobile row favourites;
-     a stronger wash is used for grid blocks so the large star mark reads
-     as part of the surface without washing out the text. */
-  --event-favourite: color-mix(in oklab, var(--gold) 20%, var(--paper));
-  --event-favourite-grid: color-mix(in oklab, var(--gold) 34%, var(--paper));
+  --event: color-mix(in oklab, oklch(0.86 0.012 265) 13%, var(--paper));
+  --event-hover: color-mix(in oklab, oklch(0.93 0.012 265) 21%, var(--paper));
+  --event-active: color-mix(in oklab, oklch(0.5 0.01 265) 14%, var(--paper));
 
-  /* Category palette (design-log #22). Okabe-Ito derived, CVD-safe, and
-     lightness-staggered so neighbours separate without hue perception.
-     Gold is excluded on purpose — it belongs to favourites. */
-  --cat-vermillion: oklch(0.58 0.19 30);
-  --cat-orange: oklch(0.68 0.16 55);
-  --cat-yellow: oklch(0.78 0.15 92);
-  --cat-olive: oklch(0.55 0.11 120);
-  --cat-green: oklch(0.62 0.14 150);
-  --cat-teal: oklch(0.6 0.1 195);
-  --cat-sky: oklch(0.72 0.11 230);
-  --cat-blue: oklch(0.48 0.15 260);
-  --cat-purple: oklch(0.46 0.17 300);
-  --cat-magenta: oklch(0.58 0.2 330);
-  --cat-pink: oklch(0.72 0.13 350);
-  --cat-slate: oklch(0.5 0.02 250);
+  /* Favourites: a warmer accent that never competes with the red spot ink —
+     gold reads as "mine" (design-log #17). */
+  --gold: oklch(0.8 0.13 85);
+  --gold-soft: oklch(0.88 0.09 85);
+  /* One faint gold wash shared by run-on list and mobile row favourites;
+     a stronger wash is used for grid blocks and the "Next up" board so the
+     surface itself says "mine". Hover brighter, active darker — always both. */
+  --event-favourite: color-mix(in oklab, var(--gold) 16%, var(--paper));
+  --event-favourite-grid: color-mix(in oklab, var(--gold) 26%, var(--paper));
+  --event-favourite-hover: color-mix(in oklab, var(--gold) 38%, var(--paper));
+  --event-favourite-active: color-mix(in oklab, var(--gold) 16%, var(--paper));
+
+
+  /* Category palette (design-log #22, retuned for dark in #28). Okabe-Ito
+     derived, CVD-safe, and lightness-staggered so neighbours separate
+     without hue perception. Gold is excluded — it belongs to favourites. */
+  --cat-vermillion: oklch(0.66 0.19 30);
+  --cat-orange: oklch(0.75 0.15 55);
+  --cat-yellow: oklch(0.85 0.14 92);
+  --cat-olive: oklch(0.68 0.11 120);
+  --cat-green: oklch(0.72 0.14 150);
+  --cat-teal: oklch(0.72 0.1 195);
+  --cat-sky: oklch(0.8 0.1 230);
+  --cat-blue: oklch(0.62 0.16 265);
+  --cat-purple: oklch(0.6 0.17 300);
+  --cat-magenta: oklch(0.68 0.2 330);
+  --cat-pink: oklch(0.8 0.12 350);
+  --cat-slate: oklch(0.66 0.02 250);
+
 
 
   /* Sticky offset for the location header row: it parks directly under the
@@ -138,72 +156,38 @@
 
   --background: var(--paper);
   --foreground: var(--ink);
-  --card: var(--paper);
+  --card: var(--surface);
   --card-foreground: var(--ink);
-  --popover: var(--paper);
+  --popover: var(--surface);
   --popover-foreground: var(--ink);
   --primary: var(--ink);
   --primary-foreground: var(--paper);
-  --secondary: var(--rule);
+  --secondary: var(--band);
   --secondary-foreground: var(--ink);
-  --muted: var(--rule);
+  --muted: var(--band);
   --muted-foreground: var(--ink-mid);
-  --accent: var(--rule);
+  --accent: var(--band);
   --accent-foreground: var(--ink);
   --destructive: var(--spot);
   --destructive-foreground: var(--paper);
   --border: var(--rule);
   --input: var(--rule);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --ring: var(--strong);
+  --chart-1: var(--cat-vermillion);
+  --chart-2: var(--cat-teal);
+  --chart-3: var(--cat-sky);
+  --chart-4: var(--cat-yellow);
+  --chart-5: var(--cat-purple);
+  --sidebar: var(--band);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: var(--surface);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--rule);
+  --sidebar-ring: var(--strong);
 }
 
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
-}
 
 @layer base {
   * {
@@ -234,18 +218,20 @@
 
 /* Text-level press feedback for run-on list links and tabs: hover brighter
    than default, active darker. Applied by the .press utility so no component
-   can invent its own interaction colours. */
+   can invent its own interaction colours. On dark, "brighter" is a warm
+   marker wash and "darker" a thin ink veil — same direction, less glare. */
 @utility press {
   transition: background-color 90ms linear;
 
   &:hover {
-    background-color: color-mix(in oklab, var(--marker) 45%, transparent);
+    background-color: color-mix(in oklab, var(--marker) 32%, transparent);
   }
 
   &:active {
-    background-color: color-mix(in oklab, var(--rule) 90%, var(--ink) 10%);
+    background-color: color-mix(in oklab, var(--marker) 12%, transparent);
   }
 }
+
 
 /* Press contract for the favourite star: muted by default, gold once set.
    Lives here so no component can invent its own gold. */
@@ -280,18 +266,29 @@
   }
 }
 
-/* Favourited grid block: a more prominent gold wash than the list rows plus
-   one prominent gold edge on the left. The stronger wash lets the muted
-   oversized star mark sit behind the text as a background texture. */
+/* Favourited surface (grid block and the "Next up" board): a prominent gold
+   wash plus a gold border, so a starred thing is unmistakable at a glance.
+   Owns its own hover/active pair — the neutral event colours must never be
+   combined with it (design-log #30). */
 @utility event-favourite {
-  /* The left edge itself is drawn by <CategoryBar />. */
   background-color: var(--event-favourite-grid);
+  border-color: color-mix(in oklab, var(--gold) 62%, transparent);
+  transition: background-color 90ms linear;
+
+  &:hover {
+    background-color: var(--event-favourite-hover);
+  }
+
+  &:active {
+    background-color: var(--event-favourite-active);
+  }
 
   /* Doubled specificity so this wins over live-stripes' own default. */
   &:is(.event-favourite) {
     --stripe-color: color-mix(in oklab, var(--gold) 34%, transparent);
   }
 }
+
 
 
 /* Same contract on a reverse-video (ink) band. */

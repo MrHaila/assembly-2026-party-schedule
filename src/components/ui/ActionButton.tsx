@@ -8,8 +8,8 @@ const BASE =
 
 const TONES: Record<ActionTone, string> = {
   solid:
-    "border-ink bg-ink text-paper transition-colors duration-100 hover:border-spot hover:bg-spot active:border-ink-mid active:bg-ink-mid",
-  outline: "press border-ink",
+    "border-strong bg-ink text-paper transition-colors duration-100 hover:border-spot hover:bg-spot active:border-ink-mid active:bg-ink-mid",
+  outline: "press border-strong",
   gold: "press-gold border-gold",
 };
 
