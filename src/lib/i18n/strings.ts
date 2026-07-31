@@ -73,7 +73,7 @@ const FI: Strings = {
   filters: "Suodattimet",
   showing: "Näytetään",
   hiding: "Piilotettu",
-  noneHidden: "Ei piilotettuja tyyppejä",
+  noneHidden: "Valitse piilotettavat tapahtumatyypit",
   categoryLabels: {
     expo: "Expo",
     gaming: "Pelit",
@@ -127,7 +127,7 @@ const EN: Strings = {
   filters: "Filters",
   showing: "Showing",
   hiding: "Hiding",
-  noneHidden: "No hidden types",
+  noneHidden: "Select event types to hide them",
   categoryLabels: {
     expo: "Expo",
     gaming: "Gaming",

@@ -38,7 +38,7 @@ export function FilterPanel({ counts }: FilterPanelProps) {
       </Row>
       <Row title={t.hiding}>
         {hiding.length === 0 ? (
-          <span className="text-[11px] uppercase tracking-[0.05em] text-ink-mid">
+          <span className="py-0.5 text-[11px] uppercase leading-[16px] tracking-[0.05em] text-ink-mid">
             {t.noneHidden}
           </span>
         ) : (
