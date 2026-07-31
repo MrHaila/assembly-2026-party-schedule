@@ -6,6 +6,7 @@ import {
   type DayWindow,
 } from "@/lib/schedule/time";
 import type { EventItem } from "@/lib/schedule/types";
+import { CategoryBar } from "./CategoryBar";
 import { FavouriteStar } from "./FavouriteStar";
 
 interface EventBlockProps {
