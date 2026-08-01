@@ -62,12 +62,15 @@ export function ScheduleGrid({
           two grids stay column-aligned. They park under the sticky day
           heading (--day-head-h), never on top of it. */}
       <div className="schedule-cols sticky top-[var(--day-head-h)] z-30 grid border-b-2 border-strong bg-band">
-        <div className="border-r border-rule" />
+        <div />
         {venues.map((venue, colIdx) => (
           <div
             key={venue.slug}
             data-col={colIdx + 1}
-            className="truncate border-r border-rule px-1.5 py-1 text-[12px] font-bold uppercase tracking-[0.06em]"
+            /* Left edge, not right: the body draws its column hairlines at
+               each column START (background gradient), so a right border here
+               sat one pixel off. */
+            className="truncate border-l border-rule px-1.5 py-1 text-[12px] font-bold uppercase tracking-[0.06em]"
           >
             {venue.short}
           </div>
