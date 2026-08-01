@@ -74,7 +74,7 @@ export const Route = createFileRoute("/")({
 function Chrome({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-dvh flex-col">
-      <header className="safe-area-top grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
+      <header className="safe-area-top [--safe-pad-top:0.5rem] grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
         <div className="flex min-w-0 items-center gap-2">
           <AssemblyMark size={24} />
           <h1 className="truncate text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
@@ -330,7 +330,7 @@ function ScheduleView({ schedule }: { schedule: ScheduleData }) {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="safe-area-top grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
+      <header className="safe-area-top [--safe-pad-top:0.5rem] grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b-2 border-strong bg-band px-3 py-2 sm:flex sm:flex-wrap sm:justify-between">
         <div className="flex min-w-0 items-center gap-2">
           <AssemblyMark size={24} />
           <h1 className="truncate text-[18px] font-bold uppercase leading-none tracking-[0.08em]">
