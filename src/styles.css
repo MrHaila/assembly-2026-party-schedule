@@ -235,8 +235,11 @@
 
 /* iOS safe-area insets: keeps the fixed chrome clear of the notch and the
    home indicator when the app is added to the home screen in standalone mode. */
+/* Adds the iOS notch inset ON TOP of the element's own top padding — set
+   --safe-pad-top to whatever the design padding is, otherwise this utility
+   would win the cascade and flatten the top padding to 0 on desktop. */
 @utility safe-area-top {
-  padding-top: env(safe-area-inset-top);
+  padding-top: calc(env(safe-area-inset-top) + var(--safe-pad-top, 0px));
 }
 
 @utility safe-area-bottom {

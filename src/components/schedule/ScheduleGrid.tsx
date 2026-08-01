@@ -164,28 +164,48 @@ export function ScheduleGrid({
         {/* Moment markers — a labelled tick inside their OWN location
             column, never a band across the whole grid: an EXPO opening is
             not a Main Stage event (design-log #27). */}
-        {moments.map((moment) => {
-          const colIdx = venues.findIndex((v) => v.slug === moment.venueId);
-          return (
-          <button
-            key={moment.id}
-            type="button"
-            data-col={colIdx + 1}
-            onClick={() => onOpen(moment)}
-            className="relative z-20 flex min-w-0 self-start text-left"
-            style={{
-              gridColumn: colIdx + 2,
-              gridRow: slotIndexFor(moment.start, win) + 1,
-            }}
-          >
-            <span className="press ml-1 -mt-[9px] block max-w-full truncate border border-strong bg-paper px-1 text-[10.5px] font-semibold uppercase leading-[16px] tracking-[0.04em]">
-              ◆ <span className="tnum">{formatTime(moment.start)}</span>{" "}
-              {moment.title}
-            </span>
-
-          </button>
-          );
-        })}
+        {(() => {
+          // Chips that start close together would sit on top of each other,
+          // so each column keeps a small stack: every marker whose start is
+          // within one chip-height of the previous one drops one row down.
+          const CHIP_PX = 18;
+          const OVERLAP_MIN = 15;
+          const lastPerCol = new Map<number, { min: number; depth: number }>();
+          return [...moments]
+            .sort((a, b) => dayMinutes(a.start) - dayMinutes(b.start))
+            .map((moment) => {
+              const colIdx = venues.findIndex((v) => v.slug === moment.venueId);
+              const min = dayMinutes(moment.start);
+              const prev = lastPerCol.get(colIdx);
+              const depth =
+                prev && min - prev.min < OVERLAP_MIN ? prev.depth + 1 : 0;
+              lastPerCol.set(colIdx, { min, depth });
+              const past =
+                !!now &&
+                (day.date < now.date ||
+                  (day.date === now.date && min <= now.minutes));
+              return (
+                <button
+                  key={moment.id}
+                  type="button"
+                  data-col={colIdx + 1}
+                  data-past={past ? "" : undefined}
+                  onClick={() => onOpen(moment)}
+                  className={`relative z-20 flex min-w-0 self-start text-left${past ? " opacity-45 saturate-50 hover:opacity-100" : ""}`}
+                  style={{
+                    gridColumn: colIdx + 2,
+                    gridRow: slotIndexFor(moment.start, win) + 1,
+                    transform: depth ? `translateY(${depth * CHIP_PX}px)` : undefined,
+                  }}
+                >
+                  <span className="press ml-1 -mt-[9px] block max-w-full truncate border border-strong bg-paper px-1 text-[10.5px] font-semibold uppercase leading-[16px] tracking-[0.04em]">
+                    ◆ <span className="tnum">{formatTime(moment.start)}</span>{" "}
+                    {moment.title}
+                  </span>
+                </button>
+              );
+            });
+        })()}
 
         {/* Now bar — the one animated thing in the product. The wrapper is
             positioned so the time chip rides the rule instead of pinning
